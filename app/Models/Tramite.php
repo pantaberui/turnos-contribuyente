@@ -7,4 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Tramite extends Model
 {
     //
+    protected $fillable = [
+        'idTipoTramite',
+        'idClasificacionTramite',
+        'idTramite',
+        'tramite',
+        'categoria',
+        'requiereDeclaracion',
+        'estatusTramite',
+    ];
 }

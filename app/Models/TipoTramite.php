@@ -7,4 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class TipoTramite extends Model
 {
     //
+    protected $fillable = [
+        'idTipoTramite',
+        'tipoTramite',
+    ];
 }

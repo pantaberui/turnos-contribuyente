@@ -7,4 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class EstatusTurno extends Model
 {
     //
+    protected $fillable = [
+        'idEstatusTurno',
+        'estatusTurno',
+    ];
 }
