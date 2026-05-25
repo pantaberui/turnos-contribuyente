@@ -17,11 +17,14 @@ return new class extends Migration
             $table->foreignId('tipo_tramite_id')
                 ->constrained('tipo_tramites');
 
+            $table->unsignedInteger('numero');
+            
             $table->string('nombre', 255);
 
             $table->boolean('activo')->default(true);
 
             $table->timestamps();
+                        
         });
     }
 
