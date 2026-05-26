@@ -8,12 +8,11 @@ class Tramite extends Model
 {
     //
     protected $fillable = [
-        'idTipoTramite',
-        'idClasificacionTramite',
-        'idTramite',
-        'tramite',
+        'tipo_tramite_id',
+        'clasificacion_tramite_id',
+        'nombre',
         'categoria',
-        'requiereDeclaracion',
-        'estatusTramite',
+        'requiere_declaracion',
+        'activo',
     ];
 }

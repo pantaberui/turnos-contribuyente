@@ -8,7 +8,7 @@ class EstatusModulo extends Model
 {
     //
     protected $fillable = [
-        'idEstatusModulo',
-        'estatus',
+        'nombre',
+        'activo',
     ];
 }

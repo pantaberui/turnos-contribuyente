@@ -8,8 +8,9 @@ class ClasificacionTramite extends Model
 {
     //
     protected $fillable = [
-        'idTipoTramite',
-        'idClasificacionTramite',
-        'clasificacioneTramite',
+        'tipo_tramite_id',
+        'numero',
+        'nombre',
+        'activo',
     ];
 }

@@ -8,7 +8,7 @@ class TipoTramite extends Model
 {
     //
     protected $fillable = [
-        'idTipoTramite',
-        'tipoTramite',
+        'nombre',
+        'activo',
     ];
 }

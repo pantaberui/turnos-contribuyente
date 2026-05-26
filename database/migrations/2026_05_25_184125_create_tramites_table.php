@@ -20,9 +20,12 @@ return new class extends Migration
             $table->foreignId('clasificacion_tramite_id')
                 ->constrained('clasificacion_tramites');
 
-            $table->string('nombre', 255);
+            $table->string('nombre',255);
 
-            $table->string('categoria', 50);
+            $table->enum('categoria', [
+                'TRAMITE',
+                'ASESORIA'
+            ]);
 
             $table->boolean('requiere_declaracion')
                 ->default(false);

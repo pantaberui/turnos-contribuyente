@@ -8,7 +8,7 @@ class EstatusTurno extends Model
 {
     //
     protected $fillable = [
-        'idEstatusTurno',
-        'estatusTurno',
+        'nombre',
+        'activo',
     ];
 }
