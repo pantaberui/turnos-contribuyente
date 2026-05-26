@@ -7,13 +7,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/contribuyentes', function () {
+    return view('contribuyentes.index');
+})->middleware(['auth'])->name('contribuyentes.index');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware(['role:Administrador'])->get('/admin-test', function () {
-    return 'Acceso permitido al Administrador';
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
