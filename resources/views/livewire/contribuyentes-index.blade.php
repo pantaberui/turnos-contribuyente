@@ -74,7 +74,8 @@
                                     </td>
 
                                     <td class="px-4 py-3 text-sm text-right">
-                                        <a href="#" class="text-indigo-600 hover:text-indigo-900">
+                                        <a href="{{ route('contribuyentes.edit', $contribuyente) }}"
+                                            class="text-indigo-600 hover:text-indigo-900">
                                             Editar
                                         </a>
                                     </td>

@@ -95,6 +95,9 @@ class ContribuyentesCreate extends Component
 
     public function guardar(): void
     {
+        if ($this->tipo_persona === 'FISICA') {
+            $this->actualizarRazonSocial();
+        }
         $this->validate([
             'tipo_persona' => ['required', 'in:FISICA,MORAL'],
             'rfc' => ['required', 'string', 'max:20', 'unique:contribuyentes,rfc'],

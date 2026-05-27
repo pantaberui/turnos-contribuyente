@@ -20,6 +20,10 @@ Route::get('/contribuyentes/create', function () {
     return view('contribuyentes.create');
 })->middleware(['auth'])->name('contribuyentes.create');
 
+Route::get('/contribuyentes/{contribuyente}/edit', function (\App\Models\Contribuyente $contribuyente) {
+    return view('contribuyentes.edit', compact('contribuyente'));
+})->middleware(['auth'])->name('contribuyentes.edit');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
