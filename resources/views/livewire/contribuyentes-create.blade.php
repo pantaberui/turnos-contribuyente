@@ -11,6 +11,13 @@
 
             <div class="p-6 space-y-6">
 
+
+                @if ($errors->any())
+                    <div class="mb-4 rounded-md bg-red-50 border border-red-200 p-4 text-sm text-red-700">
+                        Revisa los campos marcados. Hay información incompleta o incorrecta.
+                    </div>
+                @endif
+
                 {{-- Tipo Persona --}}
                 <div>
                     <label class="block text-sm font-medium mb-2">
@@ -34,14 +41,17 @@
 
                     <input
                         type="text"
-                        wire:model.live="rfc"
+                        wire:model.blur="rfc"
                         class="w-full rounded-md border-gray-300 uppercase"
                     >
+                    @error('rfc')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 {{-- PERSONA FÍSICA --}}
                 @if($tipo_persona === 'FISICA')
-
+                    {{-- CURP, NOMBRE, APELLIDOS --}}
                     <div>
                         <label class="block text-sm font-medium mb-2">
                             CURP
@@ -52,6 +62,9 @@
                             wire:model.live="curp"
                             class="w-full rounded-md border-gray-300 uppercase"
                         >
+                        @error('curp')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -145,7 +158,7 @@
 
                                 <input
                                     type="text"
-                                    wire:model.live="nombre_representante_legal"
+                                    wire:model.blur="nombre_representante_legal"
                                     class="w-full rounded-md border-gray-300 uppercase"
                                 >
                             </div>
@@ -157,9 +170,12 @@
 
                                 <input
                                     type="text"
-                                    wire:model.live="curp_representante_legal"
+                                    wire:model.blur="curp_representante_legal"
                                     class="w-full rounded-md border-gray-300 uppercase"
                                 >
+                                @error('curp_representante_legal')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
@@ -169,9 +185,14 @@
 
                                 <input
                                     type="text"
-                                    wire:model.live="telefono_representante_legal"
+                                    wire:model.blur="telefono_representante_legal"
+                                    maxlength="10"
                                     class="w-full rounded-md border-gray-300"
                                 >
+                                
+                                @error('telefono_representante_legal')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                         </div>
@@ -179,6 +200,91 @@
                     </div>
 
                 @endif
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Correo Electrónico
+                        </label>
+
+                        <input
+                            type="email"
+                            wire:model.blur="correo_electronico"
+                            class="w-full rounded-md border-gray-300"
+                        >
+                        @error('correo_electronico')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Teléfono Móvil
+                        </label>
+                        @error('telefono_movil')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+
+                        <input
+                            type="text"
+                            wire:model.blur="telefono_movil"
+                            maxlength="10"
+                            class="w-full rounded-md border-gray-300"
+                        >
+                    </div>
+
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        Cuenta Estatal
+                    </label>
+
+                    <input
+                        type="text"
+                        wire:model.blur="cuenta_estatal"
+                        class="w-full rounded-md border-gray-300 uppercase"
+                    >
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Tipo de Identificación
+                        </label>
+
+                        <select
+                            wire:model.blur="tipo_identificacion"
+                            class="w-full rounded-md border-gray-300"
+                        >
+                            <option value="">Seleccione...</option>
+                            <option value="INE">INE</option>
+                            <option value="PASAPORTE">PASAPORTE</option>
+                        </select>
+                    </div>
+                    @error('tipo_identificacion')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Clave de Identificación
+                        </label>
+
+                        <input
+                            type="text"
+                            wire:model.blur="clave_identificacion"
+                            class="w-full rounded-md border-gray-300 uppercase"
+                        >
+                        @error('clave_identificacion')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                </div>
+
 
 
             </div>

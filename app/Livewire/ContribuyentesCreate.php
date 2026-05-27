@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Contribuyente;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ContribuyentesCreate extends Component
 {
@@ -24,12 +25,52 @@ class ContribuyentesCreate extends Component
     public string $nombre_representante_legal = '';
     public string $curp_representante_legal = '';
     public string $telefono_representante_legal = '';
+    public string $correo_electronico = '';
+    public string $telefono_movil = '';
+
+    public string $cuenta_estatal = '';
+
+    public string $tipo_identificacion = '';
+    public string $clave_identificacion = '';
+    
 
 
-    public function updated(): void
+    public function updatedNombre(): void
+    {
+        $this->actualizarRazonSocial();
+    }
+
+    public function updatedApellidoPaterno(): void
+    {
+        $this->actualizarRazonSocial();
+    }
+
+    public function updatedApellidoMaterno(): void
+    {
+        $this->actualizarRazonSocial();
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'rfc.required' => 'EL RFC ES OBLIGATORIO.',
+            'rfc.unique' => 'ESTE RFC YA ESTÁ REGISTRADO.',
+            'correo_electronico.email' => 'EL CORREO ELECTRÓNICO NO TIENE UN FORMATO VÁLIDO.',
+            'telefono_movil.digits' => 'EL TELÉFONO MÓVIL DEBE TENER 10 DÍGITOS.',
+            'telefono_representante_legal.digits' => 'EL TELÉFONO DEL REPRESENTANTE DEBE TENER 10 DÍGITOS.',
+            'razon_social.required' => 'LA RAZÓN SOCIAL ES OBLIGATORIA.',
+            'curp_representante_legal.required_if' => 'LA CURP DEL REPRESENTANTE LEGAL ES OBLIGATORIA.',
+            'telefono_representante_legal.required_if' => 'EL TELÉFONO DEL REPRESENTANTE LEGAL ES OBLIGATORIO.',
+            'telefono_representante_legal.digits' => 'EL TELÉFONO DEL REPRESENTANTE LEGAL DEBE TENER 10 DÍGITOS.',
+            'tipo_identificacion.required' => 'EL TIPO DE IDENTIFICACIÓN ES OBLIGATORIO PARA PERSONA FÍSICA.',
+            'clave_identificacion.required' => 'LA CLAVE DE IDENTIFICACIÓN ES OBLIGATORIA PARA PERSONA FÍSICA.',
+        ];
+    }
+
+
+    private function actualizarRazonSocial(): void
     {
         if ($this->tipo_persona === 'FISICA') {
-
             $this->razon_social = trim(
                 mb_strtoupper(
                     "{$this->nombre} {$this->apellido_paterno} {$this->apellido_materno}",
@@ -42,15 +83,16 @@ class ContribuyentesCreate extends Component
     public function updatedTipoPersona(): void
     {
         if ($this->tipo_persona === 'MORAL') {
-
             $this->requiere_representante_legal = true;
-
             $this->curp = '';
             $this->nombre = '';
             $this->apellido_paterno = '';
             $this->apellido_materno = '';
+            $this->razon_social = '';
         }
     }
+
+
     public function guardar(): void
     {
         $this->validate([
@@ -63,8 +105,36 @@ class ContribuyentesCreate extends Component
             'razon_social' => ['required', 'string', 'max:255'],
             'requiere_representante_legal' => ['boolean'],
             'nombre_representante_legal' => ['nullable', 'string', 'max:255'],
-            'curp_representante_legal' => ['nullable', 'string', 'max:25'],
-            'telefono_representante_legal' => ['nullable', 'digits:10'],
+
+            'curp_representante_legal' => [
+                'required_if:requiere_representante_legal,true',
+                'nullable',
+                'string',
+                'max:25',
+            ],
+
+            'telefono_representante_legal' => [
+                'required_if:requiere_representante_legal,1',
+                'digits:10',
+            ],
+                      
+            'correo_electronico' => ['nullable', 'email', 'max:255'],
+            'telefono_movil' => ['nullable', 'digits:10'],
+
+            'cuenta_estatal' => ['nullable', 'string', 'max:50'],
+
+           'tipo_identificacion' => [
+                Rule::requiredIf($this->tipo_persona === 'FISICA'),
+                'nullable',
+                'in:INE,PASAPORTE',
+            ],
+
+            'clave_identificacion' => [
+                Rule::requiredIf($this->tipo_persona === 'FISICA'),
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ]);
 
         if ($this->tipo_persona === 'MORAL') {
@@ -83,6 +153,17 @@ class ContribuyentesCreate extends Component
             'nombre_representante_legal' => mb_strtoupper($this->nombre_representante_legal, 'UTF-8'),
             'curp_representante_legal' => mb_strtoupper($this->curp_representante_legal, 'UTF-8'),
             'telefono_representante_legal' => $this->telefono_representante_legal,
+            'correo_electronico' => $this->correo_electronico,
+            'telefono_movil' => $this->telefono_movil,
+
+            'cuenta_estatal' => mb_strtoupper($this->cuenta_estatal, 'UTF-8'),
+
+            'tipo_identificacion' => $this->tipo_identificacion ?: null,
+            'clave_identificacion' => $this->clave_identificacion
+                ? mb_strtoupper($this->clave_identificacion, 'UTF-8')
+                : null,
+
+
             'activo' => true,
             'created_by' => Auth::id(),
         ]);
