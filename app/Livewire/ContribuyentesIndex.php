@@ -13,6 +13,24 @@ class ContribuyentesIndex extends Component
     public string $buscar = '';
 
     public int $perPage = 10;
+    
+    public function cambiarEstatus(int $contribuyenteId): void
+    {
+        $contribuyente = Contribuyente::findOrFail($contribuyenteId);
+
+        $nuevoEstatus = ! $contribuyente->activo;
+
+        $contribuyente->update([
+            'activo' => $nuevoEstatus,
+        ]);
+
+        session()->flash(
+            'success',
+            $nuevoEstatus
+                ? 'CONTRIBUYENTE ACTIVADO CORRECTAMENTE.'
+                : 'CONTRIBUYENTE INACTIVADO CORRECTAMENTE.'
+        );
+    }
 
     public function updatedBuscar(): void
     {

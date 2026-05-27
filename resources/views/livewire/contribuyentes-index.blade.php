@@ -73,12 +73,31 @@
                                         @endif
                                     </td>
 
-                                    <td class="px-4 py-3 text-sm text-right">
+                                    <td class="px-4 py-3 text-sm text-right space-x-3">
+
+                                        <a href="{{ route('contribuyentes.show', $contribuyente) }}"
+                                        class="text-sky-600 hover:text-sky-900">
+                                            Ver
+                                        </a>
+
                                         <a href="{{ route('contribuyentes.edit', $contribuyente) }}"
-                                            class="text-indigo-600 hover:text-indigo-900">
+                                        class="text-indigo-600 hover:text-indigo-900">
                                             Editar
                                         </a>
+
+                                        <button
+                                            type="button"
+                                            wire:click="cambiarEstatus({{ $contribuyente->id }})"
+                                            wire:confirm="¿Deseas cambiar el estatus del contribuyente?"
+                                            class="{{ $contribuyente->activo
+                                                ? 'text-red-600 hover:text-red-900'
+                                                : 'text-green-600 hover:text-green-900' }}">
+                                            {{ $contribuyente->activo ? 'Inactivar' : 'Activar' }}
+                                        </button>
+
                                     </td>
+                                    
+
                                 </tr>
                             @empty
                                 <tr>
