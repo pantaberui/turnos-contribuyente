@@ -32,6 +32,7 @@ class ContribuyentesCreate extends Component
 
     public string $tipo_identificacion = '';
     public string $clave_identificacion = '';
+    public ?string $return = null;
     
 
 
@@ -48,6 +49,11 @@ class ContribuyentesCreate extends Component
     public function updatedApellidoMaterno(): void
     {
         $this->actualizarRazonSocial();
+    }
+
+    public function mount(): void
+    {
+        $this->return = request()->query('return');
     }
 
     protected function messages(): array
@@ -173,6 +179,10 @@ class ContribuyentesCreate extends Component
 
         session()->flash('success', 'CONTRIBUYENTE REGISTRADO CORRECTAMENTE.');
 
+        if ($this->return === 'recepcion') {
+            $this->redirectRoute('recepcion.index');
+            return;
+        }
         $this->redirectRoute('contribuyentes.index');
     }
 
