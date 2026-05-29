@@ -25,16 +25,11 @@ class RecepcionIndex extends Component
     public string $buscarContribuyenteAdicional = '';
     public array $lista_contribuyentes = [];
     public ?int $turnoGeneradoId = null;
+    public int $mensajeContribuyenteAdicionalKey = 0;
 
-    public function seleccionarContribuyente(int $contribuyenteId): void
-    {
-        $contribuyente = Contribuyente::findOrFail($contribuyenteId);
+    public ?string $mensajeFinalizacion = null;
+    public bool $asistenciaFinalizadaSinTurno = false;
 
-        $this->contribuyenteSeleccionadoId = $contribuyente->id;
-        $this->contribuyenteSeleccionado = $contribuyente;
-
-        $this->buscar = $contribuyente->razon_social;
-    }
 
     public function getContribuyentesProperty()
     {
@@ -94,6 +89,7 @@ class RecepcionIndex extends Component
         foreach ($this->lista_contribuyentes as $item) {
             if (($item['id'] ?? null) === $contribuyente->id) {
                 $this->mensajeContribuyenteAdicional = 'EL CONTRIBUYENTE YA SE ENCUENTRA AGREGADO EN LA LISTA.';
+                $this->mensajeContribuyenteAdicionalKey++;
                 return;
             }
         }
@@ -105,7 +101,8 @@ class RecepcionIndex extends Component
         ];
 
         $this->buscarContribuyenteAdicional = '';
-        $this->mensajeContribuyenteAdicional = 'CONTRIBUYENTE AGREGADO CORRECTAMENTE.';
+        $this->mensajeContribuyenteAdicional = "SE AGREGÓ {$contribuyente->razon_social} A LA LISTA.";
+        $this->mensajeContribuyenteAdicionalKey++;
     }
 
     public function eliminarContribuyenteAdicional(int $index): void
@@ -119,10 +116,6 @@ class RecepcionIndex extends Component
 
     public function iniciarAsistencia(): void
     {
-        if (! $this->contribuyenteSeleccionado) {
-            return;
-        }
-
         $fecha = now()->toDateString();
 
         $ultimoNumero = Asistencia::query()
@@ -132,7 +125,7 @@ class RecepcionIndex extends Component
         $numeroAsistencia = ($ultimoNumero ?? 0) + 1;
 
         $asistencia = Asistencia::create([
-            'contribuyente_id' => $this->contribuyenteSeleccionado->id,
+            'contribuyente_id' => null,
             'orientador_id' => Auth::id(),
             'modalidad_id' => $this->modalidad_id,
             'fecha' => $fecha,
@@ -141,24 +134,50 @@ class RecepcionIndex extends Component
             'requiere_turno' => false,
         ]);
 
+        $this->asistenciaActivaId = $asistencia->id;
+
         session()->flash(
             'success',
             "ASISTENCIA #{$asistencia->numero_asistencia} INICIADA CORRECTAMENTE."
         );
+    }
 
-        $this->asistenciaActivaId = $asistencia->id;
+    public function seleccionarContribuyenteParaAsistencia(int $contribuyenteId): void
+    {
+        $asistencia = $this->asistenciaActiva;
 
-        $this->reset([
-            'buscar',
-            'contribuyenteSeleccionadoId',
-            'contribuyenteSeleccionado',
+        if (! $asistencia) {
+            return;
+        }
+
+        $contribuyente = Contribuyente::findOrFail($contribuyenteId);
+
+        $asistencia->update([
+            'contribuyente_id' => $contribuyente->id,
         ]);
+
+        $this->buscar = '';
     }
 
     public function finalizarAsistencia(): void
     {
         $asistencia = $this->asistenciaActiva;
         if (! $asistencia) {
+            return;
+        }
+
+        $this->validate([
+            'tipo_tramite_id' => ['required'],
+        ], [
+            'tipo_tramite_id.required' => 'EL TIPO DE TRÁMITE ES OBLIGATORIO.',
+        ]);
+
+        if (! $asistencia->contribuyente_id) {
+            $this->addError(
+                'contribuyente',
+                'DEBES ASIGNAR UN CONTRIBUYENTE A LA ASISTENCIA.'
+            );
+
             return;
         }
 
@@ -203,7 +222,11 @@ class RecepcionIndex extends Component
                 'hora_generado' => now()->format('H:i:s'),
             ]);
             $this->turnoGeneradoId = $turno->id;
+        }else{
+            $this->asistenciaFinalizadaSinTurno = true;
+            $this->mensajeFinalizacion = 'LA ORIENTACIÓN FINALIZÓ EXITOSAMENTE SIN REQUERIR TURNO.';
         }
+
 
         session()->flash(
             'success',
@@ -219,6 +242,15 @@ class RecepcionIndex extends Component
             'buscar',
             'buscarContribuyenteAdicional',
         ]);
+    }
+
+    public function getTurnoGeneradoProperty()
+    {
+        if (! $this->turnoGeneradoId) {
+            return null;
+        }
+
+        return Turno::find($this->turnoGeneradoId);
     }
 
     public function getAsistenciaActivaProperty()

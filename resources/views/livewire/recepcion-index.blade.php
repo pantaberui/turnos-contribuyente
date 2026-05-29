@@ -9,27 +9,46 @@
                 </h2>
             </div>
 
-            @if($this->asistenciaActiva)
+            @if(! $this->asistenciaActiva && ! $this->turnoGenerado && ! $this->asistenciaFinalizadaSinTurno)
+                <div class="p-6">
+                    <button
+                        type="button"
+                        wire:click="iniciarAsistencia"
+                        style="background:#1f2937; color:#ffffff; padding:10px 20px; border-radius:6px; font-weight:bold; text-transform:uppercase;"
+                    >
+                        Iniciar asistencia
+                    </button>
+                </div>
+            @endif
+
+
+            @if($this->asistenciaActiva )
                
                 <div class="border rounded-lg bg-green-50 border-green-200 p-6">
                     <h3 class="text-lg font-semibold text-green-800 mb-4">
                         Asistencia activa #{{ $this->asistenciaActiva->numero_asistencia }}
                     </h3>
 
+    
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <p class="text-sm text-green-700">Contribuyente</p>
-                            <p class="font-semibold">
-                                {{ $this->asistenciaActiva->contribuyente->razon_social }}
+                            <p class="font-semibold">                                
+                                {{ $this->asistenciaActiva->contribuyente?->razon_social ?? 'SIN CONTRIBUYENTE ASIGNADO' }}
                             </p>
                         </div>
 
                         <div>
                             <p class="text-sm text-green-700">RFC</p>
-                            <p class="font-semibold">
-                                {{ $this->asistenciaActiva->contribuyente->rfc }}
+                            <p class="font-semibold">                                
+                                {{ $this->asistenciaActiva->contribuyente?->rfc ?? '—' }}                              
                             </p>
                         </div>
+
+                        @if(! $this->asistenciaActiva->contribuyente_id)
+                            {{-- mostrar buscador de contribuyente --}}
+                        @endif
+
 
                         <div>
                             <p class="text-sm text-green-700">Modalidad</p>
@@ -61,6 +80,70 @@
                     </div>
                 </div>
 
+
+
+                @if($this->asistenciaActiva )            
+                    @error('contribuyente')
+                        <div class="rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                            {{ $message }}
+                        </div>
+                    @enderror
+
+                    @if($this->asistenciaActiva && ! $this->asistenciaActiva->contribuyente_id)
+                    <div>
+                        <div class="mt-6 border rounded-lg bg-white p-4 space-y-4">
+                            <h4 class="font-semibold text-gray-800">
+                                Asignar contribuyente a la asistencia
+                            </h4>
+                            </div>   
+                        <label class="block text-sm font-medium mb-2">
+                            Buscar contribuyente
+                        </label>
+
+                        <input
+                            type="text"
+                            wire:model.live.debounce.400ms="buscar"
+                            placeholder="RFC, CURP O RAZÓN SOCIAL"
+                            class="w-full rounded-md border-gray-300 uppercase"
+                        >
+                    </div>
+                    @endif
+
+                    @if(strlen(trim($buscar)) > 0)
+                        <div class="border rounded-lg divide-y">
+                            @forelse($this->contribuyentes as $contribuyente)
+                                <button
+                                    type="button"
+                                    wire:key="asistencia-contribuyente-{{ $contribuyente->id }}"
+                                    wire:click="seleccionarContribuyenteParaAsistencia({{ $contribuyente->id }})"
+                                    class="w-full text-left p-4 hover:bg-gray-50"
+                                >
+                                    <div class="font-semibold text-gray-800">
+                                        {{ $contribuyente->razon_social }}
+                                    </div>
+
+                                    <div class="text-sm text-gray-500">
+                                        RFC: {{ $contribuyente->rfc }}
+                                    </div>
+                                </button>
+                            @empty
+                                <div class="p-4 text-sm text-gray-500">
+                                    No se encontraron contribuyentes.
+
+                                    <div class="mt-3">
+                                        <a href="{{ route('contribuyentes.create', ['return' => 'recepcion']) }}"
+                                        class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-xs font-semibold uppercase">
+                                            Registrar nuevo contribuyente
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforelse
+                        </div>
+                    @endif
+                    
+                @endif
+
+
                 <div class="mt-6 border-t border-green-200 pt-6 space-y-6">
 
                     <h4 class="text-md font-semibold text-green-800">
@@ -70,7 +153,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">
-                                Tipo de trámite
+                                Tipo de trámite <span class="text-red-600">*</span>
                             </label>
 
                             <select
@@ -85,6 +168,9 @@
                                     </option>
                                 @endforeach
                             </select>
+                            @error('tipo_tramite_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -122,7 +208,14 @@
                         </h4>
 
                         @if($mensajeContribuyenteAdicional)
-                            <div class="rounded-md bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
+                            <div
+                                wire:key="mensaje-adicional-{{ $mensajeContribuyenteAdicionalKey }}"
+                                x-data="{ show: true }"
+                                x-init="setTimeout(() => show = false, 4000)"
+                                x-show="show"
+                                x-transition
+                                class="rounded-md bg-green-50 border border-green-200 p-3 text-sm text-green-800"
+                            >
                                 {{ $mensajeContribuyenteAdicional }}
                             </div>
                         @endif
@@ -234,30 +327,74 @@
             @endif
 
 
+
+            @if($asistenciaFinalizadaSinTurno)
+                <div class="m-6 rounded-lg bg-green-50 border border-green-200 p-6">
+                    <p class="text-green-700 font-semibold">
+                        {{ $mensajeFinalizacion }}
+                    </p>
+
+                    <div class="mt-4">
+                        <button
+                            type="button"
+                            wire:click="$set('asistenciaFinalizadaSinTurno', false)"
+                            style="background:#1f2937;color:white;padding:10px 20px;border-radius:6px;font-weight:bold;"
+                        >
+                            Nueva asistencia
+                        </button>
+                    </div>
+                </div>
+            @endif
+
+            @if($this->turnoGenerado)
+                <div class="m-6 rounded-lg bg-blue-50 border border-blue-200 p-6">
+                    <p class="text-blue-700 font-semibold">
+                        ASISTENCIA FINALIZADA CORRECTAMENTE.
+                    </p>
+
+                    <p class="mt-2 text-sm text-blue-700">
+                        Turno generado:
+                    </p>
+
+                    <p class="text-4xl font-bold text-blue-900">
+                        {{ $this->turnoGenerado->folio }}
+                    </p>
+
+                    <div class="mt-4 flex gap-3">
+                        <a href="#"
+                        class="px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold">
+                            Imprimir turno
+                        </a>
+
+                        <button
+                            type="button"
+                            wire:click="$set('turnoGeneradoId', null)"
+                            class="px-4 py-2 bg-gray-200 rounded-md text-sm font-semibold">
+                            Nueva asistencia
+                        </button>
+                    </div>
+                </div>
+            @endif
+
+
+
+
             @if(! $this->asistenciaActiva)
             <div class="p-6 space-y-6">
 
                 {{-- Buscar --}}
-                <div>
-                    <label class="block text-sm font-medium mb-2">
-                        Buscar contribuyente
-                    </label>
 
-                    <input
-                        type="text"
-                        wire:model.live.debounce.400ms="buscar"
-                        placeholder="RFC, CURP o RAZÓN SOCIAL"
-                        class="w-full rounded-md border-gray-300 uppercase"
-                    >
-                </div>
 
-                @if($mensajeContribuyenteAdicional)
-                    <div class="rounded-md bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
-                        {{ $mensajeContribuyenteAdicional }}
-                    </div>
-                @endif
+
 
                 {{-- Resultados --}}
+
+                @error('contribuyente')
+                    <p class="mt-1 text-sm text-red-600">
+                        {{ $message }}
+                    </p>
+                @enderror
+
 
                 @if(strlen(trim($buscar)) > 0)
                 <div class="border rounded-lg divide-y">
@@ -267,7 +404,8 @@
                             <button
                                 type="button"
                                 wire:key="contribuyente-{{ $contribuyente->id }}"
-                                wire:click="seleccionarContribuyente({{ $contribuyente->id }})"
+                                
+                                wire:click="seleccionarContribuyenteParaAsistencia({{ $contribuyente->id }})"
                                 class="w-full text-left p-4 hover:bg-gray-50"
                             >
                             <div class="font-semibold text-gray-800">
@@ -335,14 +473,7 @@
                         </select>
                     </div>
 
-                    <div class="mt-6 flex justify-end">
-                        <button
-                            type="button"
-                            wire:click="iniciarAsistencia"
-                            class="px-4 py-2 bg-gray-800 text-white rounded-md text-sm font-semibold uppercase">
-                            Iniciar asistencia
-                        </button>
-                    </div>
+
                 </div>
                 @endif
             </div>
