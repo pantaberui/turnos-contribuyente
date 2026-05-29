@@ -361,8 +361,9 @@
                     </p>
 
                     <div class="mt-4 flex gap-3">
-                        <a href="#"
-                        class="px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold">
+                        <a href="{{ route('turnos.ticket', $this->turnoGenerado->id) }}"
+                            target="_blank"
+                            class="px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold">
                             Imprimir turno
                         </a>
 
@@ -383,10 +384,6 @@
             <div class="p-6 space-y-6">
 
                 {{-- Buscar --}}
-
-
-
-
                 {{-- Resultados --}}
 
                 @error('contribuyente')

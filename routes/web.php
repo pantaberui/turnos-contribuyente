@@ -32,6 +32,10 @@ Route::get('/recepcion', function () {
     return view('recepcion.index');
 })->middleware(['auth'])->name('recepcion.index');
 
+Route::get('/turnos/{turno}/ticket', function (\App\Models\Turno $turno) {
+    return view('turnos.ticket', compact('turno'));
+})->middleware(['auth'])->name('turnos.ticket');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
