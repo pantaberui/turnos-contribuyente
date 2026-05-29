@@ -91,21 +91,21 @@
 
                     @if($this->asistenciaActiva && ! $this->asistenciaActiva->contribuyente_id)
                     <div>
-                        <div class="mt-6 border rounded-lg bg-white p-4 space-y-4">
+                        <div class="mt-6 border rounded-lg bg-white p-6 space-y-4">
                             <h4 class="font-semibold text-gray-800">
                                 Asignar contribuyente a la asistencia
                             </h4>
-                            </div>   
-                        <label class="block text-sm font-medium mb-2">
-                            Buscar contribuyente
-                        </label>
+                            <label class="block text-sm font-medium mb-2">
+                                Buscar contribuyente
+                            </label>
 
-                        <input
-                            type="text"
-                            wire:model.live.debounce.400ms="buscar"
-                            placeholder="RFC, CURP O RAZÓN SOCIAL"
-                            class="w-full rounded-md border-gray-300 uppercase"
-                        >
+                            <input
+                                type="text"
+                                wire:model.live.debounce.400ms="buscar"
+                                placeholder="RFC, CURP O RAZÓN SOCIAL"
+                                class="w-full rounded-md border-gray-300 uppercase"
+                            >
+                        </div>   
                     </div>
                     @endif
 
@@ -144,7 +144,7 @@
                 @endif
 
 
-                <div class="mt-6 border-t border-green-200 pt-6 space-y-6">
+                <div class="mt-6 border rounded-lg bg-white p-6 space-y-6">
 
                     <h4 class="text-md font-semibold text-green-800">
                         Datos de la asistencia
