@@ -9,15 +9,15 @@
                 </h2>
             </div>
 
-
             @if($this->asistenciaActiva)
+               
                 <div class="border rounded-lg bg-green-50 border-green-200 p-6">
                     <h3 class="text-lg font-semibold text-green-800 mb-4">
                         Asistencia activa #{{ $this->asistenciaActiva->numero_asistencia }}
                     </h3>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="xl:col-span-2">
+                        <div>
                             <p class="text-sm text-green-700">Contribuyente</p>
                             <p class="font-semibold">
                                 {{ $this->asistenciaActiva->contribuyente->razon_social }}
@@ -59,18 +59,15 @@
                             </p>
                         </div>
                     </div>
-
-
                 </div>
 
-                <div class="mt-6 border-t border-green-200 pt-6 space-y-4">
+                <div class="mt-6 border-t border-green-200 pt-6 space-y-6">
 
                     <h4 class="text-md font-semibold text-green-800">
                         Datos de la asistencia
                     </h4>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                         <div>
                             <label class="block text-sm font-medium mb-2">
                                 Tipo de trámite
@@ -104,7 +101,6 @@
                                 <span>Sí, requiere turno para asesoría</span>
                             </label>
                         </div>
-
                     </div>
 
                     <div>
@@ -121,134 +117,119 @@
                     </div>
 
                     <div class="border rounded-lg p-4 bg-white space-y-4">
+                        <h4 class="font-semibold text-gray-800">
+                            Contribuyentes adicionales
+                        </h4>
 
-                    <h4 class="font-semibold text-gray-800">
-                        Contribuyentes adicionales
-                    </h4>
+                        @if($mensajeContribuyenteAdicional)
+                            <div class="rounded-md bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
+                                {{ $mensajeContribuyenteAdicional }}
+                            </div>
+                        @endif
 
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-2">
-                            Buscar contribuyente adicional
-                        </label>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">
+                                Buscar contribuyente adicional
+                            </label>
 
-                        <input
-                            type="text"
-                            wire:model.live.debounce.400ms="buscarContribuyenteAdicional"
-                            placeholder="RFC, CURP O RAZÓN SOCIAL"
-                            class="w-full rounded-md border-gray-300 uppercase"
-                        >
-                    </div>
-
-                    @if(strlen(trim($buscarContribuyenteAdicional)) >= 2)
-
-                        <div class="border rounded-lg divide-y">
-
-                            @forelse($this->contribuyentesAdicionales as $contribuyente)
-
-                                <button
-                                    type="button"
-                                    wire:key="adicional-{{ $contribuyente->id }}"
-                                    wire:click="agregarContribuyenteAdicionalDesdeBD({{ $contribuyente->id }})"
-                                    class="w-full text-left p-3 hover:bg-gray-50"
-                                >
-                                    <div class="font-semibold text-gray-800">
-                                        {{ $contribuyente->razon_social }}
-                                    </div>
-
-                                    <div class="text-sm text-gray-500">
-                                        RFC: {{ $contribuyente->rfc }}
-                                    </div>
-                                </button>
-
-                            @empty
-
-                                <div class="p-4 text-sm text-gray-500">
-                                    No se encontró el contribuyente.
-
-                                    <div class="mt-3">
-                                        <a href="{{ route('contribuyentes.create', ['return' => 'recepcion']) }}"
-                                        class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-xs font-semibold uppercase">
-                                            Registrar nuevo contribuyente
-                                        </a>
-                                    </div>
-                                </div>
-
-                            @endforelse
-
+                            <input
+                                type="text"
+                                wire:model.live.debounce.400ms="buscarContribuyenteAdicional"
+                                placeholder="RFC, CURP O RAZÓN SOCIAL"
+                                class="w-full rounded-md border-gray-300 uppercase"
+                            >
                         </div>
 
-                    @endif
+                        <div class="flex justify-end">
+                            <a href="{{ route('contribuyentes.create', ['return' => 'recepcion']) }}"
+                            class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-xs font-semibold uppercase">
+                                Registrar nuevo contribuyente
+                            </a>
+                        </div>
+
+                        @if(strlen(trim($buscarContribuyenteAdicional)) >= 2)
+                            <div class="border rounded-lg divide-y">
+                                @forelse($this->contribuyentesAdicionales as $contribuyente)
+                                    <button
+                                        type="button"
+                                        wire:key="adicional-{{ $contribuyente->id }}"
+                                        wire:click="agregarContribuyenteAdicionalDesdeBD({{ $contribuyente->id }})"
+                                        class="w-full text-left p-3 hover:bg-gray-50"
+                                    >
+                                        <div class="font-semibold text-gray-800">
+                                            {{ $contribuyente->razon_social }}
+                                        </div>
+
+                                        <div class="text-sm text-gray-500">
+                                            RFC: {{ $contribuyente->rfc }}
+                                        </div>
+                                    </button>
+                                @empty
+                                    <div class="p-4 text-sm text-gray-500">
+                                        No se encontró el contribuyente.
+                                    </div>
+                                @endforelse
+                            </div>
+                        @endif
+
+                        @if(count($lista_contribuyentes) > 0)
+                            <div class="overflow-x-auto border rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                RFC
+                                            </th>
+
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                Nombre / Razón social
+                                            </th>
+
+                                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">
+                                                Acciones
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @foreach($lista_contribuyentes as $index => $item)
+                                            <tr>
+                                                <td class="px-4 py-2 text-sm text-gray-700">
+                                                    {{ $item['rfc'] ?: '—' }}
+                                                </td>
+
+                                                <td class="px-4 py-2 text-sm text-gray-700">
+                                                    {{ $item['nombre'] ?: '—' }}
+                                                </td>
+
+                                                <td class="px-4 py-2 text-sm text-right">
+                                                    <button
+                                                        type="button"
+                                                        wire:click="eliminarContribuyenteAdicional({{ $index }})"
+                                                        wire:confirm="¿Deseas quitar este contribuyente de la lista?"
+                                                        class="text-red-600 hover:text-red-900 font-semibold"
+                                                    >
+                                                        Quitar
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
 
 
-                    <div class="flex justify-end">
+                    <div class="mt-6 flex justify-end">
                         <button
                             type="button"
-                            wire:click="agregarContribuyenteAdicional"
-                            class="px-4 py-2 bg-gray-700 text-white rounded-md text-sm font-semibold uppercase"
+                            wire:click="finalizarAsistencia"
+                            style="background:#15803d;color:white;padding:10px 20px;border-radius:6px;font-weight:bold;"
                         >
-                            Agregar contribuyente
+                            FINALIZAR ASISTENCIA
                         </button>
                     </div>
-
-                    @if(count($lista_contribuyentes) > 0)
-
-                        <div class="overflow-x-auto border rounded-lg">
-                            <table class="min-w-full divide-y divide-gray-200">
-
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            RFC
-                                        </th>
-
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Nombre / Razón social
-                                        </th>
-
-                                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">
-                                            Acciones
-                                        </th>                                        
-                                    </tr>
-                                </thead>
-
-                                <tbody class="bg-white divide-y divide-gray-200">
-
-                                    @foreach($lista_contribuyentes as $index => $item)
-
-                                        <tr>
-                                            <td class="px-4 py-2 text-sm text-gray-700">
-                                                {{ $item['rfc'] ?: '—' }}
-                                            </td>
-
-                                            <td class="px-4 py-2 text-sm text-gray-700">
-                                                {{ $item['nombre'] ?: '—' }}
-                                            </td>
-
-                                            <td class="px-4 py-2 text-sm text-right">
-                                                <button
-                                                    type="button"
-                                                    wire:click="eliminarContribuyenteAdicional({{ $index }})"
-                                                    wire:confirm="¿Deseas quitar este contribuyente de la lista?"
-                                                    class="text-red-600 hover:text-red-900 font-semibold"
-                                                >
-                                                    Quitar
-                                                </button>
-                                            </td>
-
-                                        </tr>
-
-                                    @endforeach
-
-                                </tbody>
-
-                            </table>
-                        </div>
-
-                    @endif
-
-                </div>
-
                 </div>
             @endif
 

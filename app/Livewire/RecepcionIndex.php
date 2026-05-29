@@ -7,8 +7,7 @@ use Livewire\Component;
 use App\Models\Asistencia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TipoTramite;
-
-
+use App\Models\Turno;
 
 class RecepcionIndex extends Component
 {
@@ -25,6 +24,7 @@ class RecepcionIndex extends Component
 
     public string $buscarContribuyenteAdicional = '';
     public array $lista_contribuyentes = [];
+    public ?int $turnoGeneradoId = null;
 
     public function seleccionarContribuyente(int $contribuyenteId): void
     {
@@ -73,7 +73,7 @@ class RecepcionIndex extends Component
             ->get();
     }
 
-   public ?string $mensajeContribuyenteAdicional = null;
+    public ?string $mensajeContribuyenteAdicional = null;
 
     public function agregarContribuyenteAdicionalDesdeBD(int $contribuyenteId): void
     {
@@ -81,11 +81,13 @@ class RecepcionIndex extends Component
 
         $contribuyente = Contribuyente::findOrFail($contribuyenteId);
 
+        $asistenciaActiva = $this->asistenciaActiva;
+
         if (
-            $this->contribuyenteSeleccionado &&
-            $contribuyente->id === $this->contribuyenteSeleccionado->id
+            $asistenciaActiva &&
+            $contribuyente->id === $asistenciaActiva->contribuyente_id
         ) {
-            $this->mensajeContribuyenteAdicional = 'EL CONTRIBUYENTE SELECCIONADO ES EL PRINCIPAL DE LA ASISTENCIA.';
+            $this->mensajeContribuyenteAdicional = 'NO PUEDES AGREGAR AL CONTRIBUYENTE PRINCIPAL COMO ADICIONAL.';
             return;
         }
 
@@ -131,17 +133,11 @@ class RecepcionIndex extends Component
 
         $asistencia = Asistencia::create([
             'contribuyente_id' => $this->contribuyenteSeleccionado->id,
-
             'orientador_id' => Auth::id(),
-
             'modalidad_id' => $this->modalidad_id,
-
             'fecha' => $fecha,
-
             'numero_asistencia' => $numeroAsistencia,
-
             'hora_inicio' => now()->format('H:i:s'),
-
             'requiere_turno' => false,
         ]);
 
@@ -159,30 +155,69 @@ class RecepcionIndex extends Component
         ]);
     }
 
-    public function agregarContribuyenteAdicional(): void
+    public function finalizarAsistencia(): void
     {
-        if (
-            trim($this->rfc_contribuyente_adicional) === '' &&
-            trim($this->nombre_contribuyente_adicional) === ''
-        ) {
+        $asistencia = $this->asistenciaActiva;
+        if (! $asistencia) {
             return;
         }
 
-        $this->lista_contribuyentes[] = [
-            'rfc' => mb_strtoupper(
-                trim($this->rfc_contribuyente_adicional),
-                'UTF-8'
-            ),
+        $horaFin = now();
+        $inicio = \Carbon\Carbon::parse(
+            $asistencia->fecha->format('Y-m-d') . ' ' . $asistencia->hora_inicio
+        );
 
-            'nombre' => mb_strtoupper(
-                trim($this->nombre_contribuyente_adicional),
-                'UTF-8'
-            ),
-        ];
+        $tiempoOrientacion = $inicio->diffInSeconds($horaFin);
+        $asistencia->update([
+            'tipo_tramite_id' => $this->tipo_tramite_id ?: null,
+            'observaciones' => $this->observaciones,
+            'requiere_turno' => $this->requiere_turno,
+            'lista_contribuyentes' => $this->lista_contribuyentes,
+            'hora_fin' => $horaFin->format('H:i:s'),
+            'tiempo_orientacion_segundos' => $tiempoOrientacion,
+        ]);
+
+        if ($this->requiere_turno) {
+            $fecha = now()->toDateString();
+            $ultimoNumero = Turno::query()
+                ->whereDate('fecha', $fecha)
+                ->where('modalidad_id', $asistencia->modalidad_id)
+                ->max('numero');
+            $numero = ($ultimoNumero ?? 0) + 1;
+            $prefijo = match ($asistencia->modalidad_id) {
+                1 => 'P',
+                2 => 'T',
+                3 => 'C',
+                default => 'X',
+            };
+
+            $folio = $prefijo . '-' . str_pad($numero, 3, '0', STR_PAD_LEFT);
+            $turno = Turno::create([
+                'asistencia_id' => $asistencia->id,
+                'contribuyente_id' => $asistencia->contribuyente_id,
+                'modalidad_id' => $asistencia->modalidad_id,
+                'estatus_turno_id' => 1,
+                'fecha' => $fecha,
+                'numero' => $numero,
+                'folio' => $folio,
+                'hora_generado' => now()->format('H:i:s'),
+            ]);
+            $this->turnoGeneradoId = $turno->id;
+        }
+
+        session()->flash(
+            'success',
+            'ASISTENCIA FINALIZADA CORRECTAMENTE.'
+        );
 
         $this->reset([
-            'rfc_contribuyente_adicional',
-            'nombre_contribuyente_adicional',
+            'asistenciaActivaId',
+            'tipo_tramite_id',
+            'observaciones',
+            'requiere_turno',
+            'lista_contribuyentes',
+            'buscar',
+            'buscarContribuyenteAdicional',
         ]);
     }
 
