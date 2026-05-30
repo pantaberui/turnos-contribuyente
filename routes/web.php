@@ -36,6 +36,10 @@ Route::get('/turnos/{turno}/ticket', function (\App\Models\Turno $turno) {
     return view('turnos.ticket', compact('turno'));
 })->middleware(['auth'])->name('turnos.ticket');
 
+Route::get('/turnos', function () {
+    return view('turnos.index');
+})->middleware(['auth'])->name('turnos.index');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
