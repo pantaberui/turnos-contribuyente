@@ -40,6 +40,18 @@ Route::get('/turnos', function () {
     return view('turnos.index');
 })->middleware(['auth'])->name('turnos.index');
 
+Route::get('/asesoria', function () {
+    return view('asesoria.index');
+})->middleware(['auth'])->name('asesoria.index');
+
+Route::get('/catalogos/tipo-tramites', function () {
+    return view('catalogos.tipo-tramites.index');
+})->middleware(['auth'])->name('catalogos.tipo-tramites.index');
+
+Route::get('/catalogos/clasificacion-tramites', function () {
+    return view('catalogos.clasificacion_tramites.index');
+})->middleware(['auth'])->name('catalogos.clasificacion-tramites.index');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

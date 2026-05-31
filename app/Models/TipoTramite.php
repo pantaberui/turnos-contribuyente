@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ClasificacionTramite;
 
 class TipoTramite extends Model
 {
@@ -12,4 +13,9 @@ class TipoTramite extends Model
         'nombre',
         'activo',
     ];
+
+    public function clasificaciones()
+    {
+        return $this->hasMany(ClasificacionTramite::class);
+    }
 }

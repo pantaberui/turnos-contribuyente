@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Turno extends Model
 {
     protected $fillable = [
         'asistencia_id',
         'contribuyente_id',
+        'asesor_id',
         'modalidad_id',
         'estatus_turno_id',
         'fecha',
@@ -25,6 +27,11 @@ class Turno extends Model
     protected $casts = [
         'fecha' => 'date',
     ];
+
+    public function asesor()
+    {
+        return $this->belongsTo(User::class, 'asesor_id');
+    }
 
     public function asistencia()
     {
