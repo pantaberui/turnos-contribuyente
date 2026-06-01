@@ -16,6 +16,8 @@ class TipoTramite extends Model
 
     public function clasificaciones()
     {
-        return $this->hasMany(ClasificacionTramite::class);
+        return $this->hasMany(ClasificacionTramite::class)
+            ->where('activo', true)
+            ->orderBy('numero');
     }
 }

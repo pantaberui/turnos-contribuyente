@@ -37,4 +37,9 @@ class Tramite extends Model
     {
         return $this->belongsTo(ClasificacionTramite::class);
     }
+
+    public function scopeActivos($query)
+    {
+        return $query->where('activo', true);
+    }
 }

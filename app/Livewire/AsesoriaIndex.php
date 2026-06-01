@@ -5,9 +5,25 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Turno;
 use Illuminate\Support\Facades\Auth;
+use App\Models\TipoTramite;
 
 class AsesoriaIndex extends Component
 {
+    public array $tramitesSeleccionados = [];
+    
+    public function toggleTramite(int $tramiteId): void
+    {
+        if (isset($this->tramitesSeleccionados[$tramiteId])) {
+            unset($this->tramitesSeleccionados[$tramiteId]);
+            return;
+        }
+
+        $this->tramitesSeleccionados[$tramiteId] = [
+            'cantidad' => 1,
+            'importe_declaracion' => '',
+        ];
+    }
+
     public function getTurnoActualProperty()
     {
         return Turno::query()
@@ -58,6 +74,11 @@ class AsesoriaIndex extends Component
 
     public function render()
     {
-        return view('livewire.asesoria-index');
+        return view('livewire.asesoria-index', [
+            'tiposTramite' => TipoTramite::where('activo', true)
+                ->with('clasificaciones.tramites')
+                ->orderBy('id')
+                ->get(),
+        ]);
     }
 }

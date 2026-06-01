@@ -22,6 +22,8 @@ class ClasificacionTramite extends Model
 
     public function tramites()
     {
-        return $this->hasMany(Tramite::class);
+        return $this->hasMany(Tramite::class)
+            ->where('activo', true)
+            ->orderBy('numero');
     }
 }
