@@ -38,6 +38,16 @@ class Contribuyente extends Model
         'updated_by',
     ];
 
+    public function turnos()
+    {
+        return $this->hasMany(TurnoContribuyente::class);
+    }
+
+    public function detallesTramites()
+    {
+        return $this->hasMany(DetalleTramite::class);
+    }
+
     protected $casts = [
         'activo' => 'boolean',
         'requiere_representante_legal' => 'boolean',

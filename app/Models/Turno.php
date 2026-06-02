@@ -28,6 +28,17 @@ class Turno extends Model
         'fecha' => 'date',
     ];
 
+    public function contribuyentes()
+    {
+        return $this->hasMany(TurnoContribuyente::class)
+            ->orderBy('orden');
+    }
+
+    public function detallesTramites()
+    {
+        return $this->hasMany(DetalleTramite::class);
+    }
+
     public function asesor()
     {
         return $this->belongsTo(User::class, 'asesor_id');

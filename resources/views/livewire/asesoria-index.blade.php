@@ -15,11 +15,20 @@
                 </div>
             @endif
 
+            @if(session('success'))
+                <div class="mb-4 rounded-md bg-green-50 border border-green-200 p-3 text-sm text-green-800">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+
+
             @if($this->turnoActual)
+
 
                 <div class="rounded-lg bg-green-50 border border-green-200 p-6">
                     <h4 class="font-semibold text-green-800">
-                        Turno actual  verificar
+                        Turno actual
                      </h4>
 
                     <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -45,6 +54,168 @@
                         </div>
                     </div>
 
+                    @if($this->turnoActual->contribuyentes->count() > 0)
+                        <div class="mt-6 border rounded-lg bg-white p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">
+                                Contribuyentes del turno
+                            </h4>
+
+                            <div class="space-y-2">
+                                @foreach($this->turnoActual->contribuyentes as $turnoContribuyente)
+                                    <div class="border rounded-md p-3">
+                                        <span class="font-semibold">
+                                            {{ $turnoContribuyente->orden }}.
+                                            {{ $turnoContribuyente->contribuyente->razon_social }}
+                                        </span>
+
+                                        @if($turnoContribuyente->es_principal)
+                                            <span class="ml-2 text-xs text-green-700 font-semibold">
+                                                PRINCIPAL
+                                            </span>
+                                        @else
+                                            <span class="ml-2 text-xs text-blue-700 font-semibold">
+                                                ADICIONAL
+                                            </span>
+                                        @endif
+                                    </div>
+
+
+
+                                    @if($this->turnoActual && $this->turnoActual->estatus_turno_id == 3)
+
+                                        <div class="mt-6 border rounded-lg bg-white p-6 space-y-4">
+
+                                            <h4 class="text-lg font-semibold text-gray-800">
+                                                Trámites atendidos
+                                            </h4>
+
+                                            @foreach($tiposTramite as $tipo)
+                                                <div class="border rounded-lg">
+
+                                                    <div class="bg-gray-100 px-4 py-3 font-semibold">
+                                                        {{ $tipo->nombre }}
+                                                    </div>
+
+                                                    <div class="p-4 space-y-4">
+
+                                                        @foreach($tipo->clasificaciones as $clasificacion)
+
+                                                            <details wire:ignore.self class="border rounded-lg">
+                                                                <summary class="cursor-pointer px-4 py-3 bg-gray-50 font-semibold">
+                                                                    {{ $clasificacion->numero }} - {{ $clasificacion->nombre }}
+                                                                </summary>
+
+                                                                <div class="p-4 space-y-3">
+
+                                                                    @forelse($clasificacion->tramites as $tramite)
+
+                                                                        <div class="border rounded-md p-3">
+
+                                                                            <div class="flex items-center gap-3 flex-wrap">
+
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    wire:click="toggleTramite({{ $turnoContribuyente->contribuyente_id }}, {{ $tramite->id }})"
+                                                                                    @checked(isset($tramitesSeleccionados[$turnoContribuyente->contribuyente_id][$tramite->id]))
+                                                                                >
+
+                                                                                <span class="font-medium flex-1">
+                                                                                    {{ $tramite->numero }} - {{ $tramite->nombre }}
+                                                                                </span>
+
+                                                                                @if(isset($tramitesSeleccionados[$turnoContribuyente->contribuyente_id][$tramite->id]))
+
+                                                                                    <span class="text-sm text-gray-600">
+                                                                                        Cant.
+                                                                                    </span>
+
+                                                                                    <input
+                                                                                        type="number"
+                                                                                        min="1"
+                                                                                        wire:model="tramitesSeleccionados.{{ $turnoContribuyente->contribuyente_id }}.{{ $tramite->id }}.cantidad"
+                                                                                        class="w-20 rounded-md border-gray-300 text-sm"
+                                                                                    >
+
+                                                                                    @if($tramite->requiere_declaracion)
+
+                                                                                        <span class="text-sm text-gray-600">
+                                                                                            Importe
+                                                                                        </span>
+
+                                                                                        <input
+                                                                                            type="text"
+                                                                                            wire:model="tramitesSeleccionados.{{ $turnoContribuyente->contribuyente_id }}.{{ $tramite->id }}.importe_declaracion"
+                                                                                            placeholder="$0.00"
+                                                                                            class="w-32 rounded-md border-gray-300 text-right text-sm"
+                                                                                        >
+
+                                                                                    @endif
+
+                                                                                @endif
+
+                                                                            </div>
+
+                                                                            <div class="mt-2 text-xs text-gray-500">
+                                                                                {{ \App\Models\Tramite::CATEGORIAS[$tramite->categoria] ?? $tramite->categoria }}
+
+                                                                                @if($tramite->requiere_declaracion)
+                                                                                    · Requiere importe
+                                                                                @endif
+                                                                            </div>
+
+                                                                        </div>
+
+
+                                                                    @empty
+
+                                                                        <div class="text-sm text-gray-500">
+                                                                            No hay trámites registrados en esta clasificación.
+                                                                        </div>
+
+                                                                    @endforelse
+
+                                                                </div>
+                                                            </details>
+
+                                                        @endforeach
+
+                                                    </div>
+                                                </div>
+                                            @endforeach
+
+                                        </div>
+
+                                    @endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+
+        
+
+
+
+
                     @if($this->turnoActual->estatus_turno_id == 3)
                         <div wire:poll.1s class="mt-4">
                             <p class="text-sm text-green-700">
@@ -62,118 +233,6 @@
                     @endif
 
 
-                    @if($this->turnoActual && $this->turnoActual->estatus_turno_id == 3)
-
-                        <div class="mt-6 border rounded-lg bg-white p-6 space-y-4">
-
-                            <h4 class="text-lg font-semibold text-gray-800">
-                                Trámites atendidos
-                            </h4>
-
-                            @foreach($tiposTramite as $tipo)
-                                <div class="border rounded-lg">
-
-                                    <div class="bg-gray-100 px-4 py-3 font-semibold">
-                                        {{ $tipo->nombre }}
-                                    </div>
-
-                                    <div class="p-4 space-y-4">
-
-                                        @foreach($tipo->clasificaciones as $clasificacion)
-
-                                            <details wire:ignore.self class="border rounded-lg">
-                                                <summary class="cursor-pointer px-4 py-3 bg-gray-50 font-semibold">
-                                                    {{ $clasificacion->numero }} - {{ $clasificacion->nombre }}
-                                                </summary>
-
-                                                <div class="p-4 space-y-3">
-
-                                                    @forelse($clasificacion->tramites as $tramite)
-
-                                                        <div class="border rounded-md p-3">
-
-                                                            <div class="flex items-center gap-3 flex-wrap">
-
-                                                                <input
-                                                                    type="checkbox"
-                                                                    wire:click="toggleTramite({{ $tramite->id }})"
-                                                                    @checked(isset($tramitesSeleccionados[$tramite->id]))
-                                                                >
-
-                                                                <span class="font-medium flex-1">
-                                                                    {{ $tramite->numero }} - {{ $tramite->nombre }}
-                                                                </span>
-
-                                                                @if(isset($tramitesSeleccionados[$tramite->id]))
-
-                                                                    <span class="text-sm text-gray-600">
-                                                                        Cant.
-                                                                    </span>
-
-                                                                    <input
-                                                                        type="number"
-                                                                        min="1"
-                                                                        wire:model="tramitesSeleccionados.{{ $tramite->id }}.cantidad"
-                                                                        class="w-20 rounded-md border-gray-300 text-sm"
-                                                                    >
-
-                                                                    @if($tramite->requiere_declaracion)
-
-                                                                        <span class="text-sm text-gray-600">
-                                                                            Importe
-                                                                        </span>
-
-                                                                        <input
-                                                                            type="text"
-                                                                            wire:model="tramitesSeleccionados.{{ $tramite->id }}.importe_declaracion"
-                                                                            placeholder="$0.00"
-                                                                            class="w-32 rounded-md border-gray-300 text-right text-sm"
-                                                                        >
-
-                                                                    @endif
-
-                                                                @endif
-
-                                                            </div>
-
-                                                            <div class="mt-2 text-xs text-gray-500">
-                                                                {{ \App\Models\Tramite::CATEGORIAS[$tramite->categoria] ?? $tramite->categoria }}
-
-                                                                @if($tramite->requiere_declaracion)
-                                                                    · Requiere importe
-                                                                @endif
-                                                            </div>
-
-                                                        </div>
-
-
-                                                    @empty
-
-                                                        <div class="text-sm text-gray-500">
-                                                            No hay trámites registrados en esta clasificación.
-                                                        </div>
-
-                                                    @endforelse
-
-                                                </div>
-                                            </details>
-
-                                        @endforeach
-
-                                    </div>
-                                </div>
-                            @endforeach
-
-                        </div>
-
-                    @endif
-
-
-
-
-
-
-
 
                     @if($this->turnoActual->estatus_turno_id == 2)
                         <div class="mt-6 flex justify-end">
@@ -188,6 +247,24 @@
                     @endif
 
                 </div>
+
+
+                @if($this->turnoActual->estatus_turno_id == 3)
+
+                    <div class="mt-6 flex justify-center">
+                        <button
+                            type="button"
+                            wire:click="finalizarAtencion"
+                            wire:confirm="¿Desea finalizar la atención?"
+                            style="background:#15803d;color:white;padding:10px 20px;border-radius:6px;font-weight:bold;"
+                        >
+                            FINALIZAR ATENCIÓN
+                        </button>
+                    </div>
+
+                @endif
+
+
 
             @else
 

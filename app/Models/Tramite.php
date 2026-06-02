@@ -28,6 +28,11 @@ class Tramite extends Model
         'activo' => 'boolean',
     ];
 
+    public function detallesTramites()
+    {
+        return $this->hasMany(DetalleTramite::class);
+    }
+    
     public function tipoTramite()
     {
         return $this->belongsTo(TipoTramite::class);

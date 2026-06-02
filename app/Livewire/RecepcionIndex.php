@@ -8,6 +8,8 @@ use App\Models\Asistencia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TipoTramite;
 use App\Models\Turno;
+use App\Models\TurnoContribuyente;
+
 
 class RecepcionIndex extends Component
 {
@@ -221,7 +223,33 @@ class RecepcionIndex extends Component
                 'folio' => $folio,
                 'hora_generado' => now()->format('H:i:s'),
             ]);
+
             $this->turnoGeneradoId = $turno->id;
+
+            TurnoContribuyente::create([
+                'turno_id' => $turno->id,
+                'contribuyente_id' => $asistencia->contribuyente_id,
+                'es_principal' => true,
+                'orden' => 1,
+            ]);
+
+            $orden = 2;
+
+            foreach ($this->lista_contribuyentes as $item) {
+                if (! isset($item['id'])) {
+                    continue;
+                }
+
+                TurnoContribuyente::create([
+                    'turno_id' => $turno->id,
+                    'contribuyente_id' => $item['id'],
+                    'es_principal' => false,
+                    'orden' => $orden,
+                ]);
+
+                $orden++;
+            }
+
         }else{
             $this->asistenciaFinalizadaSinTurno = true;
             $this->mensajeFinalizacion = 'LA ORIENTACIÓN FINALIZÓ EXITOSAMENTE SIN REQUERIR TURNO.';
