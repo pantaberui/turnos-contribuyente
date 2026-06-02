@@ -9,9 +9,9 @@
         </div>
 
         <div class="p-6">
-            @if (session('info'))
+            @if($mensajeInfo)
                 <div class="mb-4 rounded-md bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
-                    {{ session('info') }}
+                    {{ $mensajeInfo }}
                 </div>
             @endif
 
@@ -40,11 +40,33 @@
                         </div>
 
                         <div>
+                            <p class="text-sm text-green-700">Hora inicio atención</p>
+                            <p class="font-semibold">
+                                {{ $this->turnoActual->hora_inicio_atencion ?? '—' }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-sm text-green-700">Tiempo atención</p>
+                            <p class="font-semibold">
+                                {{ $this->tiempoAtencion }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-sm text-green-700">RFC</p>
+                            <p class="font-semibold">
+                                {{ $this->turnoActual->contribuyente->rfc }}
+                            </p>
+                        </div>
+
+                        <div>
                             <p class="text-sm text-green-700">Contribuyente</p>
                             <p class="font-semibold">
                                 {{ $this->turnoActual->contribuyente->razon_social }}
                             </p>
                         </div>
+
 
                         <div>
                             <p class="text-sm text-green-700">Estatus</p>
@@ -62,21 +84,25 @@
 
                             <div class="space-y-2">
                                 @foreach($this->turnoActual->contribuyentes as $turnoContribuyente)
-                                    <div class="border rounded-md p-3">
-                                        <span class="font-semibold">
-                                            {{ $turnoContribuyente->orden }}.
-                                            {{ $turnoContribuyente->contribuyente->razon_social }}
-                                        </span>
+                                    <div class="{{ $turnoContribuyente->es_principal ? 'bg-green-100 text-green-900' : 'bg-blue-100 text-blue-900' }} px-4 py-3 font-semibold">
+
+                                        {{ $turnoContribuyente->orden }}.
+                                        {{ $turnoContribuyente->contribuyente->razon_social }}
+
 
                                         @if($turnoContribuyente->es_principal)
-                                            <span class="ml-2 text-xs text-green-700 font-semibold">
+                                            <span class="ml-2 text-xs font-bold">
                                                 PRINCIPAL
                                             </span>
                                         @else
-                                            <span class="ml-2 text-xs text-blue-700 font-semibold">
+                                            <span class="ml-2 text-xs font-bold">
                                                 ADICIONAL
                                             </span>
                                         @endif
+
+                                        <span class="ml-4 text-sm font-normal">
+                                            RFC: {{ $turnoContribuyente->contribuyente->rfc }}
+                                        </span>
                                     </div>
 
 
@@ -142,10 +168,12 @@
                                                                                             Importe
                                                                                         </span>
 
-                                                                                        <input
-                                                                                            type="text"
+                                                                                       <input
+                                                                                            type="number"
+                                                                                            step="0.01"
+                                                                                            min="0"
                                                                                             wire:model="tramitesSeleccionados.{{ $turnoContribuyente->contribuyente_id }}.{{ $tramite->id }}.importe_declaracion"
-                                                                                            placeholder="$0.00"
+                                                                                            placeholder="0.00"
                                                                                             class="w-32 rounded-md border-gray-300 text-right text-sm"
                                                                                         >
 
@@ -187,24 +215,7 @@
 
                                     @endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                    
+                                   
                                 @endforeach
                             </div>
                         </div>
@@ -255,7 +266,7 @@
                         <button
                             type="button"
                             wire:click="finalizarAtencion"
-                            wire:confirm="¿Desea finalizar la atención?"
+                            {{-- wire:confirm="¿Desea finalizar la atención?" --}}
                             style="background:#15803d;color:white;padding:10px 20px;border-radius:6px;font-weight:bold;"
                         >
                             FINALIZAR ATENCIÓN
@@ -288,3 +299,14 @@
     </div>
 
 </div>
+
+@script
+<script>
+    $wire.on('scroll-top', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+</script>
+@endscript

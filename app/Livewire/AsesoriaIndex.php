@@ -8,15 +8,18 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\TipoTramite;
 use App\Models\DetalleTramite;
 
+
 class AsesoriaIndex extends Component
 {
     public array $tramitesSeleccionados = [];
+    public ?string $mensajeInfo = null;
 
     public function toggleTramite(
         int $contribuyenteId,
         int $tramiteId
     ): void
     {
+        $this->mensajeInfo = null;
         if (isset($this->tramitesSeleccionados[$contribuyenteId][$tramiteId])) {
 
             unset(
@@ -85,10 +88,19 @@ class AsesoriaIndex extends Component
     }
 
     public function finalizarAtencion(): void
-    {
+    {   
+        
         $turno = $this->turnoActual;
 
         if (! $turno) {
+            return;
+        }
+
+        
+        logger()->info('TRAMITES', $this->tramitesSeleccionados);
+        if (count($this->tramitesSeleccionados) === 0) {
+            $this->mensajeInfo = 'DEBES SELECCIONAR AL MENOS UN TRÁMITE ATENDIDO.';
+            $this->dispatch('scroll-top');
             return;
         }
 
@@ -115,6 +127,19 @@ class AsesoriaIndex extends Component
             'success',
             'ATENCIÓN FINALIZADA CORRECTAMENTE.'
         );
+    }
+
+    public function getTiempoAtencionProperty(): string
+    {
+        $turno = $this->turnoActual;
+
+        if (! $turno || ! $turno->hora_inicio_atencion) {
+            return '—';
+        }
+
+        return \Carbon\Carbon::parse($turno->hora_inicio_atencion)
+            ->diff(now())
+            ->format('%H:%I:%S');
     }
 
     public function render()
