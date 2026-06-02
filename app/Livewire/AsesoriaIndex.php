@@ -13,6 +13,7 @@ class AsesoriaIndex extends Component
 {
     public array $tramitesSeleccionados = [];
     public ?string $mensajeInfo = null;
+    public bool $turnoCerrado = false;
 
     public function toggleTramite(
         int $contribuyenteId,
@@ -51,7 +52,9 @@ class AsesoriaIndex extends Component
     }
 
     public function llamarSiguienteTurno(): void
-    {
+    {   
+        $this->turnoCerrado = false;
+
         if ($this->turnoActual) {
             return;
         }
@@ -71,8 +74,44 @@ class AsesoriaIndex extends Component
             'asesor_id' => Auth::id(),
             'estatus_turno_id' => 2,
             'hora_llamado' => now()->format('H:i:s'),
+            'hora_ultimo_llamado' => now()->format('H:i:s'),
+            'numero_llamados' => 1,
         ]);
     }
+
+    public function llamarNuevamente(): void
+    {
+        $turno = $this->turnoActual;
+
+        if (! $turno) {
+            return;
+        }
+
+        if ($turno->estatus_turno_id != 2) {
+            return;
+        }
+
+        if ($turno->numero_llamados >= 3) {
+            session()->flash(
+                'info',
+                'EL TURNO YA FUE LLAMADO 3 VECES.'
+            );
+
+            return;
+        }
+
+        $turno->increment('numero_llamados');
+
+        $turno->update([
+            'hora_ultimo_llamado' => now()->format('H:i:s'),
+        ]);
+
+        session()->flash(
+            'success',
+            'TURNO LLAMADO NUEVAMENTE.'
+        );
+    }
+
     public function iniciarAtencion(): void
     {
         $turno = $this->turnoActual;
@@ -85,6 +124,63 @@ class AsesoriaIndex extends Component
             'estatus_turno_id' => 3,
             'hora_inicio_atencion' => now()->format('H:i:s'),
         ]);
+    }
+
+    public function getResumenAtencionProperty(): array
+    {
+        $resumen = [];
+
+        foreach ($this->tramitesSeleccionados as $contribuyenteId => $tramites) {
+
+            $contribuyente = $this->turnoActual
+                ->contribuyentes
+                ->firstWhere('contribuyente_id', $contribuyenteId);
+
+            $nombre = $contribuyente?->contribuyente?->razon_social ?? 'SIN NOMBRE';
+
+            $resumen[$contribuyenteId] = [
+                'nombre' => $nombre,
+                'tramites' => [],
+            ];
+
+            foreach ($tramites as $tramiteId => $datos) {
+
+                $tramite = \App\Models\Tramite::find($tramiteId);
+
+                $resumen[$contribuyenteId]['tramites'][] = [
+                    'nombre' => $tramite?->nombre,
+                    'cantidad' => $datos['cantidad'] ?? 1,
+                    'importe' => $datos['importe_declaracion'] ?? null,
+                ];
+            }
+        }
+
+        return $resumen;
+    }
+
+    public function marcarNoSePresento(): void
+    {
+        $turno = $this->turnoActual;
+        
+
+        if (! $turno) {
+            return;
+        }
+
+        $turno->update([
+            'estatus_turno_id' => 6,
+            'hora_fin_atencion' => now()->format('H:i:s'),
+        ]);
+
+        $this->tramitesSeleccionados = [];
+        $this->mensajeInfo = null;
+        $this->dispatch('$refresh');
+        $this->turnoCerrado = true;
+
+        session()->flash(
+            'success',
+            'EL TURNO FUE MARCADO COMO NO SE PRESENTÓ.'
+        );
     }
 
     public function finalizarAtencion(): void
@@ -122,6 +218,8 @@ class AsesoriaIndex extends Component
         ]);
 
         $this->tramitesSeleccionados = [];
+        $this->mensajeInfo = null;
+        $this->turnoCerrado = true;
 
         session()->flash(
             'success',

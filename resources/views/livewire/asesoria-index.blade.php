@@ -23,7 +23,7 @@
 
 
 
-            @if($this->turnoActual)
+            @if($this->turnoActual && ! $turnoCerrado)
 
 
                 <div class="rounded-lg bg-green-50 border border-green-200 p-6">
@@ -36,6 +36,13 @@
                             <p class="text-sm text-green-700">Turno</p>
                             <p class="text-3xl font-bold">
                                 {{ $this->turnoActual->folio }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-sm text-green-700">Llamados</p>
+                            <p class="font-semibold">
+                                {{ $this->turnoActual->numero_llamados }}/3
                             </p>
                         </div>
 
@@ -257,7 +264,79 @@
                         </div>
                     @endif
 
+                    @if($this->turnoActual->estatus_turno_id == 2 && $this->turnoActual->numero_llamados < 3)
+                        <button
+                            type="button"
+                            wire:click="llamarNuevamente"
+                            style="background:#2563eb;color:white;padding:10px 20px;border-radius:6px;font-weight:bold;"
+                        >
+                            LLAMAR NUEVAMENTE
+                        </button>
+                    @endif                  
+
+                    @if($this->turnoActual->estatus_turno_id == 2)
+                        <div class="mt-4 flex justify-end">
+                            <button
+                                type="button"
+                                wire:click="marcarNoSePresento"
+                                wire:confirm="¿Deseas marcar este turno como NO SE PRESENTÓ?"
+                                style="background:#b91c1c;color:white;padding:10px 20px;border-radius:6px;font-weight:bold;"
+                            >
+                                NO SE PRESENTÓ
+                            </button>
+                        </div>
+                    @endif
+
                 </div>
+
+
+
+                @if(count($this->resumenAtencion))
+
+                    <div class="mt-6 border rounded-lg bg-gray-50 p-4">
+
+                        <h4 class="font-semibold text-lg mb-4">
+                            Resumen de atención
+                        </h4>
+
+                        @foreach($this->resumenAtencion as $grupo)
+
+                            <div class="mb-4">
+
+                                <div class="font-semibold text-green-700">
+                                    {{ $grupo['nombre'] }}
+                                </div>
+
+                                <ul class="mt-2 space-y-1">
+
+                                    @foreach($grupo['tramites'] as $tramite)
+
+                                        <li class="text-sm">
+
+                                            • {{ $tramite['nombre'] }}
+
+                                            (Cantidad:
+                                            {{ $tramite['cantidad'] }}
+
+                                            @if($tramite['importe'])
+                                                | Importe:
+                                                ${{ number_format($tramite['importe'], 2) }}
+                                            @endif
+                                            )
+
+                                        </li>
+
+                                    @endforeach
+
+                                </ul>
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+
+                @endif
 
 
                 @if($this->turnoActual->estatus_turno_id == 3)
