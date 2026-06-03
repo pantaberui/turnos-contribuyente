@@ -64,6 +64,9 @@ Route::get('/catalogos/usuarios', function () {
     return view('catalogos.usuarios.index');
 })->middleware(['auth'])->name('catalogos.usuarios.index');
 
+Route::get('/display-turnos', function () {
+    return view('display.index');
+})->name('display.turnos');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
