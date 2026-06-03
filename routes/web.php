@@ -60,6 +60,10 @@ Route::get('/catalogos/modulos-asesoria', function () {
     return view('catalogos.modulos_asesoria.index');
 })->middleware(['auth'])->name('catalogos.modulos-asesoria.index');
 
+Route::get('/catalogos/usuarios', function () {
+    return view('catalogos.usuarios.index');
+})->middleware(['auth'])->name('catalogos.usuarios.index');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
