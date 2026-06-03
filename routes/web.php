@@ -56,6 +56,11 @@ Route::get('/catalogos/tramites', function () {
     return view('catalogos.tramites.index');
 })->middleware(['auth'])->name('catalogos.tramites.index');
 
+Route::get('/catalogos/modulos-asesoria', function () {
+    return view('catalogos.modulos_asesoria.index');
+})->middleware(['auth'])->name('catalogos.modulos-asesoria.index');
+
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
