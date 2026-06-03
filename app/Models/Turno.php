@@ -22,6 +22,7 @@ class Turno extends Model
         'hora_fin_atencion',
         'tiempo_espera_segundos',
         'tiempo_atencion_segundos',
+        'modulo_asesoria_id',
     ];
 
     protected $casts = [
@@ -62,5 +63,10 @@ class Turno extends Model
     public function estatusTurno()
     {
         return $this->belongsTo(EstatusTurno::class);
+    }
+ 
+    public function moduloAsesoria()
+    {
+        return $this->belongsTo(ModuloAsesoria::class);
     }
 }

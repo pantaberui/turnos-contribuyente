@@ -7,6 +7,8 @@ use App\Models\Turno;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TipoTramite;
 use App\Models\DetalleTramite;
+use App\Models\ModuloAsesoria;
+
 
 
 class AsesoriaIndex extends Component
@@ -14,6 +16,7 @@ class AsesoriaIndex extends Component
     public array $tramitesSeleccionados = [];
     public ?string $mensajeInfo = null;
     public bool $turnoCerrado = false;
+    public ?ModuloAsesoria $moduloAsignado = null;
 
     public function toggleTramite(
         int $contribuyenteId,
@@ -123,7 +126,10 @@ class AsesoriaIndex extends Component
         $turno->update([
             'estatus_turno_id' => 3,
             'hora_inicio_atencion' => now()->format('H:i:s'),
+            'asesor_id' => auth()->id(),
+            'modulo_asesoria_id' => $this->moduloAsignado?->id,
         ]);
+        
     }
 
     public function getResumenAtencionProperty(): array
@@ -248,5 +254,13 @@ class AsesoriaIndex extends Component
                 ->orderBy('id')
                 ->get(),
         ]);
+    }
+
+    public function mount(): void
+    {
+        $this->moduloAsignado = ModuloAsesoria::with('asesor')
+            ->where('activo', true)
+            ->where('asesor_id', Auth::id())
+            ->first();
     }
 }

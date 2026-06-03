@@ -22,6 +22,30 @@
             @endif
 
 
+            @if($this->moduloAsignado)
+                <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-blue-700">
+                                Módulo asignado
+                            </p>
+                            <p class="font-semibold text-lg">
+                                {{ $this->moduloAsignado->nombre }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-blue-700">
+                                Asesor
+                            </p>
+                            <p class="font-semibold">
+                                {{ $this->moduloAsignado->asesor->nombre_completo }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+
 
             @if($this->turnoActual && ! $turnoCerrado)
 
