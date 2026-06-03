@@ -32,9 +32,9 @@ class User extends Authenticatable
 
     public function getNombreCompletoAttribute(): string
     {
-        return trim(
+        return mb_strtoupper(trim(
             "{$this->nombre} {$this->apellido_paterno} {$this->apellido_materno}"
-        );
+        ), 'UTF-8');
     }
 
     protected function casts(): array

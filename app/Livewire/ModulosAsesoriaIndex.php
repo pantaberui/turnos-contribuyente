@@ -117,7 +117,12 @@ class ModulosAsesoriaIndex extends Component
                 ->orderBy('nombre')
                 ->get(),
 
-            'asesores' => User::orderBy('name')->get(),
+            'asesores' => User::role('Asesor Fiscal')
+                ->where('activo', true)
+                ->orderBy('apellido_paterno')
+                ->orderBy('apellido_materno')
+                ->orderBy('nombre')
+                ->get(),
         ]);
     }
 }

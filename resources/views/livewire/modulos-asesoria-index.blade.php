@@ -50,7 +50,7 @@
                         </td>
 
                         <td class="px-4 py-2 text-sm text-gray-700">
-                            {{ $modulo->asesor->name ?? 'SIN ASIGNAR' }}
+                            {{ $modulo->asesor?->nombre_completo ?? 'SIN ASIGNAR' }}
                         </td>
 
                         <td class="px-4 py-2 text-sm text-center">
@@ -175,7 +175,7 @@
 
                             @foreach($asesores as $asesor)
                                 <option value="{{ $asesor->id }}">
-                                    {{ $asesor->name }}
+                                    {{ $asesor->nombre_completo }}
                                 </option>
                             @endforeach
                         </select>
