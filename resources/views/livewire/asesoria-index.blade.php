@@ -138,7 +138,7 @@
 
 
 
-                                    @if($this->turnoActual && $this->turnoActual->estatus_turno_id == 3)
+                                    @if($this->turnoActual && $this->turnoActual->estatus_turno_id == 2)
 
                                         <div class="mt-6 border rounded-lg bg-white p-6 space-y-4">
 
@@ -258,7 +258,7 @@
 
 
 
-                    @if($this->turnoActual->estatus_turno_id == 3)
+                    @if($this->turnoActual->estatus_turno_id == 2)
                         <div wire:poll.1s class="mt-4">
                             <p class="text-sm text-green-700">
                                 Tiempo de atención
@@ -276,7 +276,7 @@
 
 
 
-                    @if($this->turnoActual->estatus_turno_id == 2)
+                    @if($this->turnoActual->estatus_turno_id == 7)
                         <div class="mt-6 flex justify-end">
                             <button
                                 type="button"
@@ -288,7 +288,7 @@
                         </div>
                     @endif
 
-                    @if($this->turnoActual->estatus_turno_id == 2 && $this->turnoActual->numero_llamados < 3)
+                    @if($this->turnoActual->estatus_turno_id == 7 && $this->turnoActual->numero_llamados < 3)
                         <button
                             type="button"
                             wire:click="llamarNuevamente"
@@ -298,7 +298,7 @@
                         </button>
                     @endif                  
 
-                    @if($this->turnoActual->estatus_turno_id == 2)
+                    @if($this->turnoActual->estatus_turno_id == 7)
                         <div class="mt-4 flex justify-end">
                             <button
                                 type="button"
@@ -363,7 +363,7 @@
                 @endif
 
 
-                @if($this->turnoActual->estatus_turno_id == 3)
+                @if($this->turnoActual->estatus_turno_id == 2)
 
                     <div class="mt-6 flex justify-center">
                         <button

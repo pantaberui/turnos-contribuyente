@@ -12,17 +12,17 @@ class DisplayTurnos extends Component
         return view('livewire.display-turnos', [
             'turnoActual' => Turno::with('moduloAsesoria')
                 ->whereDate('fecha', now()->toDateString())
-                ->where('estatus_turno_id', 2)
+                ->where('estatus_turno_id', 7)
                 ->latest('hora_llamado')
                 ->first(),
 
             'turnosEnAtencion' => Turno::with('moduloAsesoria')
                 ->whereDate('fecha', now()->toDateString())
-                ->where('estatus_turno_id', 3)
+                ->where('estatus_turno_id', 2)
                 ->whereNotNull('modulo_asesoria_id')
                 ->orderByDesc('hora_inicio_atencion')
                 ->get(),
-                                
+
             'proximosTurnos' => Turno::query()
                 ->whereDate('fecha', now()->toDateString())
                 ->where('estatus_turno_id', 1)

@@ -13,8 +13,69 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        Dashboard
                     </x-nav-link>
+
+                    @role('Orientador Fiscal|Administrador')
+                        <x-nav-link :href="route('recepcion.index')" :active="request()->routeIs('recepcion.index')">
+                            Recepción
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('turnos.index')" :active="request()->routeIs('turnos.index')">
+                            Turnos
+                        </x-nav-link>
+                    @endrole
+
+                    @role('Asesor Fiscal|Administrador')
+                        <x-nav-link :href="route('asesoria.index')" :active="request()->routeIs('asesoria.index')">
+                            Asesoría
+                        </x-nav-link>
+                    @endrole
+
+                    @role('Administrador')
+                        <x-nav-link :href="route('display.turnos')" :active="request()->routeIs('display.turnos')">
+                            Display
+                        </x-nav-link>
+                    @endrole
+
+                    @role('Administrador')
+                        <x-dropdown align="left" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition duration-150 ease-in-out">
+                                    Catálogos
+
+                                    <svg class="ms-1 h-4 w-4 fill-current" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('catalogos.usuarios.index')">
+                                    Usuarios
+                                </x-dropdown-link>
+
+                                <x-dropdown-link :href="route('catalogos.modulos-asesoria.index')">
+                                    Módulos de asesoría
+                                </x-dropdown-link>
+
+                                <x-dropdown-link :href="route('catalogos.tipo-tramites.index')">
+                                    Tipos de trámite
+                                </x-dropdown-link>
+
+                                <x-dropdown-link :href="route('catalogos.clasificacion-tramites.index')">
+                                    Clasificaciones
+                                </x-dropdown-link>
+
+                                <x-dropdown-link :href="route('catalogos.tramites.index')">
+                                    Trámites
+                                </x-dropdown-link>
+                            </x-slot>
+                        </x-dropdown>
+                    @endrole
+
+
+
                 </div>
             </div>
 
@@ -66,6 +127,53 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+
+
+        <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                Dashboard
+            </x-responsive-nav-link>
+
+            @role('Orientador Fiscal|Administrador')
+                <x-responsive-nav-link :href="route('recepcion.index')" :active="request()->routeIs('recepcion.index')">
+                    Recepción
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('turnos.index')" :active="request()->routeIs('turnos.index')">
+                    Turnos
+                </x-responsive-nav-link>
+            @endrole
+
+            @role('Asesor Fiscal|Administrador')
+                <x-responsive-nav-link :href="route('asesoria.index')" :active="request()->routeIs('asesoria.index')">
+                    Asesoría
+                </x-responsive-nav-link>
+            @endrole
+
+            @role('Administrador')
+                <x-responsive-nav-link :href="route('catalogos.usuarios.index')" :active="request()->routeIs('catalogos.usuarios.index')">
+                    Usuarios
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('catalogos.modulos-asesoria.index')" :active="request()->routeIs('catalogos.modulos-asesoria.index')">
+                    Módulos
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('catalogos.tipo-tramites.index')" :active="request()->routeIs('catalogos.tipo-tramites.index')">
+                    Tipos
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('catalogos.clasificacion-tramites.index')" :active="request()->routeIs('catalogos.clasificacion-tramites.index')">
+                    Clasificaciones
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('catalogos.tramites.index')" :active="request()->routeIs('catalogos.tramites.index')">
+                    Trámites
+                </x-responsive-nav-link>
+            @endrole
+        </div>
+
+
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}

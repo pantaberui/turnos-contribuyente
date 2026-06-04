@@ -49,7 +49,7 @@ class AsesoriaIndex extends Component
             ])
             ->where('asesor_id', Auth::id())
             ->whereDate('fecha', now()->toDateString())
-            ->whereIn('estatus_turno_id', [2, 3])
+            ->whereIn('estatus_turno_id', [7, 2])
             ->orderByDesc('id')
             ->first();
     }
@@ -73,9 +73,10 @@ class AsesoriaIndex extends Component
             return;
         }
 
-        $turno->update([
+       $turno->update([
             'asesor_id' => Auth::id(),
-            'estatus_turno_id' => 2,
+            'modulo_asesoria_id' => $this->moduloAsignado?->id,
+            'estatus_turno_id' => 7,
             'hora_llamado' => now()->format('H:i:s'),
             'hora_ultimo_llamado' => now()->format('H:i:s'),
             'numero_llamados' => 1,
@@ -122,9 +123,13 @@ class AsesoriaIndex extends Component
         if (! $turno) {
             return;
         }
+        
+        if ($turno->estatus_turno_id != 7) {
+            return;
+        }
 
         $turno->update([
-            'estatus_turno_id' => 3,
+            'estatus_turno_id' => 2,
             'hora_inicio_atencion' => now()->format('H:i:s'),
             'asesor_id' => auth()->id(),
             'modulo_asesoria_id' => $this->moduloAsignado?->id,
@@ -219,7 +224,7 @@ class AsesoriaIndex extends Component
         }
 
         $turno->update([
-            'estatus_turno_id' => 4,
+            'estatus_turno_id' => 3,
             'hora_fin_atencion' => now()->format('H:i:s'),
         ]);
 
