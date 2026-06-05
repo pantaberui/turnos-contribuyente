@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Contribuyente;
 use App\Models\Modalidad;
 
+
 class Asistencia extends Model
 {
     protected $fillable = [
@@ -42,6 +43,11 @@ class Asistencia extends Model
     public function modalidad()
     {
         return $this->belongsTo(Modalidad::class);
+    }
+
+    public function orientador()
+    {
+        return $this->belongsTo(User::class, 'orientador_id');
     }
 }
 

@@ -223,9 +223,16 @@ class AsesoriaIndex extends Component
             }
         }
 
+        $inicioAtencion = \Carbon\Carbon::parse(
+            $turno->fecha->format('Y-m-d') . ' ' . $turno->hora_inicio_atencion
+        );
+
+        $tiempoAtencion = $inicioAtencion->diffInSeconds(now());
+
         $turno->update([
             'estatus_turno_id' => 3,
             'hora_fin_atencion' => now()->format('H:i:s'),
+            'tiempo_atencion_segundos' => $tiempoAtencion,
         ]);
 
         $this->tramitesSeleccionados = [];

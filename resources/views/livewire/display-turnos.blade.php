@@ -6,7 +6,7 @@
             <img
                 src="{{ asset('images/institucional/logo-nayarit.png') }}"
                 alt="Gobierno del Estado de Nayarit"
-                class="h-16 object-contain mr-6"
+                class="h-16 object-contain mr-8"
             >
 
             <div class="text-center">
