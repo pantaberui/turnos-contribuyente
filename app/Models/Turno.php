@@ -67,6 +67,6 @@ class Turno extends Model
  
     public function moduloAsesoria()
     {
-        return $this->belongsTo(ModuloAsesoria::class);
+        return $this->belongsTo(ModuloAsesoria::class, 'modulo_asesoria_id');
     }
 }

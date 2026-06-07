@@ -67,9 +67,15 @@ class AsesoriaIndex extends Component
             ->where('estatus_turno_id', 1)
             ->orderBy('numero')
             ->first();
+        
 
         if (! $turno) {
             session()->flash('info', 'NO HAY TURNOS PENDIENTES.');
+            return;
+        }
+
+        if (! $this->moduloAsignado) {
+            session()->flash('info', 'NO TIENES UN MÓDULO DE ASESORÍA ASIGNADO.');
             return;
         }
 
@@ -272,7 +278,6 @@ class AsesoriaIndex extends Component
     {
         $this->moduloAsignado = ModuloAsesoria::with('asesor')
             ->where('activo', true)
-            ->where('asesor_id', Auth::id())
             ->first();
     }
 }
