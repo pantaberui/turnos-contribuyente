@@ -277,7 +277,8 @@ class AsesoriaIndex extends Component
     public function mount(): void
     {
         $this->moduloAsignado = ModuloAsesoria::with('asesor')
-            ->where('activo', true)
-            ->first();
+        ->where('activo', true)
+        ->where('asesor_id', Auth::id())
+        ->first();
     }
 }
