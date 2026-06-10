@@ -411,5 +411,17 @@
             behavior: 'smooth'
         });
     });
+
+    $wire.on('reproducir-llamado', (event) => {
+        const texto = event.texto;
+
+        const mensaje = new SpeechSynthesisUtterance(texto);
+        mensaje.lang = 'es-MX';
+        mensaje.rate = 0.9;
+        mensaje.pitch = 1;
+
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(mensaje);
+    });
 </script>
 @endscript

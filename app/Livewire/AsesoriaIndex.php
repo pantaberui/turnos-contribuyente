@@ -57,6 +57,8 @@ class AsesoriaIndex extends Component
     public function llamarSiguienteTurno(): void
     {   
         $this->turnoCerrado = false;
+        $turno = $this->turnoActual;
+        $moduloNombre = $this->moduloAsignado?->nombre ?? 'correspondiente';
 
         if ($this->turnoActual) {
             return;
@@ -87,26 +89,29 @@ class AsesoriaIndex extends Component
             'hora_ultimo_llamado' => now()->format('H:i:s'),
             'numero_llamados' => 1,
         ]);
+
+        $this->turnoActual = $turno->fresh();
+        $this->dispatch(
+            'reproducir-llamado',
+            texto: 'Turno número ' . $this->turnoActual->numero . ', favor de pasar al ' . $moduloNombre
+        );
     }
 
     public function llamarNuevamente(): void
     {
         $turno = $this->turnoActual;
+        $moduloNombre = $this->moduloAsignado?->nombre ?? 'correspondiente';
 
         if (! $turno) {
             return;
         }
 
-        if ($turno->estatus_turno_id != 2) {
+        if ((int) $turno->estatus_turno_id !== 7) {
             return;
         }
 
-        if ($turno->numero_llamados >= 3) {
-            session()->flash(
-                'info',
-                'EL TURNO YA FUE LLAMADO 3 VECES.'
-            );
-
+        if ((int) $turno->numero_llamados >= 3) {
+            session()->flash('info', 'EL TURNO YA FUE LLAMADO 3 VECES.');
             return;
         }
 
@@ -114,12 +119,18 @@ class AsesoriaIndex extends Component
 
         $turno->update([
             'hora_ultimo_llamado' => now()->format('H:i:s'),
+            'hora_llamado' => now()->format('H:i:s'),
         ]);
 
-        session()->flash(
-            'success',
-            'TURNO LLAMADO NUEVAMENTE.'
+        $this->turnoActual = $turno->fresh();
+
+        
+        $this->dispatch(
+            'reproducir-llamado',
+            texto: 'Turno número ' . $this->turnoActual->numero . ', favor de pasar al ' . $moduloNombre    
         );
+
+        session()->flash('success', 'TURNO LLAMADO NUEVAMENTE.');
     }
 
     public function iniciarAtencion(): void

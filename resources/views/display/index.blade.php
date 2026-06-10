@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Display de Turnos</title>
+
     @vite(['resources/css/app.css'])
     @livewireStyles
 </head>
-<body class="bg-gray-900">
+
+<body>
     <livewire:display-turnos />
 
     @livewireScripts
