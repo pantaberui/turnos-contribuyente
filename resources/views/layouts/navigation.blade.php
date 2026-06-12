@@ -1,51 +1,106 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
+<nav x-data="{ open: false }" class="bg-slate-900 border-b border-slate-700 shadow-lg">
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+
+        {{-- ENCABEZADO ESCRITORIO --}}
+        <div class="hidden sm:flex min-h-[125px]">
+
+            {{-- LOGO GRANDE IZQUIERDO --}}
+            <div class="flex items-center justify-center pe-6">
+                <a href="{{ route('dashboard') }}">
+                    <img
+                        src="{{ asset('images/institucional/logo-nayarit.png') }}"
+                        alt="Gobierno del Estado de Nayarit"
+                        class="h-28 w-auto object-contain"
+                    >
+                </a>
+            </div>
+
+            {{-- CONTENIDO DERECHO --}}
+            <div class="flex-1">
+
+                {{-- FILA SUPERIOR --}}
+                <div class="flex justify-between items-center h-20 border-b border-slate-700">
+                    <a href="{{ route('dashboard') }}" class="leading-tight">
+                        <div class="text-white font-bold text-base">
+                            Gobierno del Estado de Nayarit
+                        </div>
+
+                        <div class="text-slate-200 text-xs">
+                            Secretaría de Finanzas
+                        </div>
+
+                        <div class="text-slate-300 text-xs">
+                            Departamento de Asistencia al Contribuyente
+                        </div>
                     </a>
+
+                    {{-- MENÚ ADMINISTRADOR --}}
+                    <div class="hidden sm:flex sm:items-center">
+                        <x-dropdown align="right" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-4 py-2 bg-white text-slate-700 rounded-md text-sm font-medium hover:bg-slate-100">
+                                    {{ Auth::user()->name }}
+
+                                    <svg class="ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                         viewBox="0 0 20 20" stroke="currentColor">
+                                        <path fill-rule="evenodd"
+                                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                              clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('profile.edit')">
+                                    Perfil
+                                </x-dropdown-link>
+
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+
+                                    <x-dropdown-link :href="route('logout')"
+                                        onclick="event.preventDefault(); this.closest('form').submit();">
+                                        Cerrar sesión
+                                    </x-dropdown-link>
+                                </form>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
                 </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        Dashboard
+                {{-- FILA INFERIOR: MENÚ PRINCIPAL --}}
+                <div class="flex items-center sm:space-x-2 h-14">
+
+                    <x-nav-link :href="route('recepcion.index')" :active="request()->routeIs('recepcion.*')">
+                        🏠 Recepción
                     </x-nav-link>
 
-                    @role('Orientador Fiscal|Administrador')
-                        <x-nav-link :href="route('recepcion.index')" :active="request()->routeIs('recepcion.index')">
-                            Recepción
-                        </x-nav-link>
+                    <x-nav-link :href="route('turnos.index')" :active="request()->routeIs('turnos.*')">
+                        🎟️ Turnos
+                    </x-nav-link>
 
-                        <x-nav-link :href="route('turnos.index')" :active="request()->routeIs('turnos.index')">
-                            Turnos
-                        </x-nav-link>
-                    @endrole
+                    <x-nav-link :href="route('contribuyentes.index')" :active="request()->routeIs('contribuyentes.*')">
+                        👥 Contribuyentes
+                    </x-nav-link>
 
                     @role('Asesor Fiscal|Administrador')
-                        <x-nav-link :href="route('asesoria.index')" :active="request()->routeIs('asesoria.index')">
-                            Asesoría
+                        <x-nav-link :href="route('asesoria.index')" :active="request()->routeIs('asesoria.*')">
+                            🧑‍💼 Asesoría
                         </x-nav-link>
                     @endrole
 
                     @role('Administrador')
-                        <x-nav-link :href="route('display.turnos')" :active="request()->routeIs('display.turnos')">
-                            Display
-                        </x-nav-link>
-                    @endrole
-
-                    @role('Administrador')
+                        {{-- CATÁLOGOS --}}
                         <x-dropdown align="left" width="48">
                             <x-slot name="trigger">
-                                <button class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none transition duration-150 ease-in-out">
-                                    Catálogos
+                                <button class="inline-flex items-center px-4 py-2 border-b-2 border-transparent text-sm font-medium leading-5 text-slate-200 hover:text-white hover:bg-slate-800 hover:border-blue-400 rounded-t-md focus:outline-none transition duration-150 ease-in-out">
+                                    ⚙️ Catálogos
 
                                     <svg class="ms-1 h-4 w-4 fill-current" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        <path fill-rule="evenodd"
+                                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                              clip-rule="evenodd" />
                                     </svg>
                                 </button>
                             </x-slot>
@@ -72,142 +127,130 @@
                                 </x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
+
+                        <x-nav-link :href="route('display.turnos')" :active="request()->routeIs('display.turnos')">
+                            📺 Display
+                        </x-nav-link>
                     @endrole
-
-
 
                 </div>
             </div>
+        </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div class="text-left">
-                                <div class="font-semibold">
-                                    {{ Auth::user()->nombre_completo }}
-                                </div>
+        {{-- ENCABEZADO MÓVIL --}}
+        <div class="sm:hidden flex justify-between items-center min-h-[80px]">
+            <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
+                <img
+                    src="{{ asset('images/institucional/logo-nayarit.png') }}"
+                    alt="Gobierno del Estado de Nayarit"
+                    class="h-16 w-auto object-contain"
+                >
 
-                                <div class="text-xs text-gray-500">
-                                    {{ Auth::user()->roles->first()?->name }}
-                                </div>
-                            </div>
+                <div class="leading-tight">
+                    <div class="text-white font-bold text-sm">
+                        Gobierno del Estado de Nayarit
+                    </div>
 
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
+                    <div class="text-slate-300 text-xs">
+                        Secretaría de Finanzas
+                    </div>
+                </div>
+            </a>
 
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+            {{-- BOTÓN HAMBURGUESA --}}
+            <button @click="open = ! open"
+                class="inline-flex items-center justify-center p-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none transition duration-150 ease-in-out">
+                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path :class="{ 'hidden': open, 'inline-flex': !open }" class="inline-flex"
+                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 6h16M4 12h16M4 18h16" />
 
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+                    <path :class="{ 'hidden': !open, 'inline-flex': open }" class="hidden"
+                          stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-
+    {{-- RESPONSIVE NAVIGATION MENU --}}
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-slate-900 border-t border-slate-700">
 
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                Dashboard
+                🏠 Recepción
             </x-responsive-nav-link>
 
             @role('Orientador Fiscal|Administrador')
-                <x-responsive-nav-link :href="route('recepcion.index')" :active="request()->routeIs('recepcion.index')">
-                    Recepción
+                <x-responsive-nav-link :href="route('turnos.index')" :active="request()->routeIs('turnos.*')">
+                    🎟️ Turnos
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('turnos.index')" :active="request()->routeIs('turnos.index')">
-                    Turnos
+                <x-responsive-nav-link :href="route('contribuyentes.index')" :active="request()->routeIs('contribuyentes.*')">
+                    👥 Contribuyentes
                 </x-responsive-nav-link>
             @endrole
 
             @role('Asesor Fiscal|Administrador')
-                <x-responsive-nav-link :href="route('asesoria.index')" :active="request()->routeIs('asesoria.index')">
-                    Asesoría
+                <x-responsive-nav-link :href="route('asesoria.index')" :active="request()->routeIs('asesoria.*')">
+                    🧑‍💼 Asesoría
                 </x-responsive-nav-link>
             @endrole
 
             @role('Administrador')
-                <x-responsive-nav-link :href="route('catalogos.usuarios.index')" :active="request()->routeIs('catalogos.usuarios.index')">
+                <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
+                    Catálogos
+                </div>
+
+                <x-responsive-nav-link :href="route('catalogos.usuarios.index')" :active="request()->routeIs('catalogos.usuarios.*')">
                     Usuarios
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('catalogos.modulos-asesoria.index')" :active="request()->routeIs('catalogos.modulos-asesoria.index')">
-                    Módulos
+                <x-responsive-nav-link :href="route('catalogos.modulos-asesoria.index')" :active="request()->routeIs('catalogos.modulos-asesoria.*')">
+                    Módulos de asesoría
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('catalogos.tipo-tramites.index')" :active="request()->routeIs('catalogos.tipo-tramites.index')">
-                    Tipos
+                <x-responsive-nav-link :href="route('catalogos.tipo-tramites.index')" :active="request()->routeIs('catalogos.tipo-tramites.*')">
+                    Tipos de trámite
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('catalogos.clasificacion-tramites.index')" :active="request()->routeIs('catalogos.clasificacion-tramites.index')">
+                <x-responsive-nav-link :href="route('catalogos.clasificacion-tramites.index')" :active="request()->routeIs('catalogos.clasificacion-tramites.*')">
                     Clasificaciones
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('catalogos.tramites.index')" :active="request()->routeIs('catalogos.tramites.index')">
+                <x-responsive-nav-link :href="route('catalogos.tramites.index')" :active="request()->routeIs('catalogos.tramites.*')">
                     Trámites
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('display.turnos')" :active="request()->routeIs('display.turnos')">
+                    📺 Display
                 </x-responsive-nav-link>
             @endrole
         </div>
 
-
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
+        {{-- RESPONSIVE SETTINGS OPTIONS --}}
+        <div class="pt-4 pb-1 border-t border-slate-700">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                <div class="font-medium text-base text-white">
+                    {{ Auth::user()->name }}
+                </div>
+
+                <div class="font-medium text-sm text-slate-400">
+                    {{ Auth::user()->email }}
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    Perfil
                 </x-responsive-nav-link>
 
-                <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
 
                     <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                        onclick="event.preventDefault(); this.closest('form').submit();">
+                        Cerrar sesión
                     </x-responsive-nav-link>
                 </form>
             </div>

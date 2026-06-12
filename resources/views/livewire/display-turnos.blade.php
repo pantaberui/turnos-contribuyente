@@ -18,7 +18,7 @@
                 src="{{ asset('images/institucional/logo-nayarit.png') }}"
                 alt="Gobierno del Estado de Nayarit"
                 width ="150"
-                class="h-10 object-contain"
+                class="h-12 object-contain"
             >
         </div>
         <div class="text-center">
@@ -124,7 +124,7 @@
 
                 <div style="
                     color:white;
-                    font-size:32px;
+                    font-size:30px;
                     font-weight:900;
                     text-transform:uppercase;
                     margin-bottom:20px;
@@ -137,7 +137,7 @@
                     <div style="
                         background:white;
                         border-radius:20px;
-                        padding:30px;
+                        padding:10px;
                         max-width:700px;
                         margin:0 auto;
                         box-shadow:0 8px 20px rgba(0,0,0,.25);
@@ -153,6 +153,7 @@
                                 animation:pulseTurno 1s infinite;
                         ">
                             {{ $turnoActual->folio }}
+                            
                         </div>
 
                         <div style="
@@ -169,9 +170,9 @@
                             background:#16a34a;
                             color:white;
                             border-radius:16px;
-                            padding:15px;
+                            padding:10px;
                             margin-top:15px;
-                            font-size:42px;
+                            font-size:40px;
                             font-weight:900;
                             text-transform:uppercase;
                         ">
@@ -212,7 +213,7 @@
                 border-right:8px solid #2563eb;
             ">
 
-                <div style="font-size:25px; font-weight:900; text-transform:uppercase; color:#1d4ed8;">
+                <div style="font-size:20px; font-weight:900; text-transform:uppercase; color:#1d4ed8;">
                     Bienvenido al Departamento de Asistencia al Contribuyente
                 </div>
 
@@ -462,6 +463,12 @@
             setInterval(actualizarRelojDisplayTurnos, 1000);
             setInterval(reproducirSonidoSiCambioTurno, 1000);
         }
+
+        // Respaldo: refrescar display cada 10 minutos
+        setInterval(() => {
+            window.location.reload();
+        }, 10 * 60 * 1000);
+
     </script>
 
 
