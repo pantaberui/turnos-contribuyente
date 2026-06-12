@@ -76,9 +76,13 @@
 
                             <input
                                 type="text"
-                                wire:model.live.debounce.300ms="nombre"
-                                class="w-full rounded-md border-gray-300 uppercase"
-                            >
+                                wire:model="nombre"
+                                class="mt-1 block w-full"
+                            />
+
+                            @error('nombre')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>
@@ -88,9 +92,13 @@
 
                             <input
                                 type="text"
-                                wire:model.live.debounce.300ms="apellido_paterno"
-                                class="w-full rounded-md border-gray-300 uppercase"
-                            >
+                                wire:model="apellido_paterno"
+                                class="mt-1 block w-full"
+                            />
+
+                            @error('apellido_paterno')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror                        
                         </div>
 
                         <div>
@@ -100,9 +108,13 @@
 
                             <input
                                 type="text"
-                                wire:model.live.debounce.300ms="apellido_materno"
-                                class="w-full rounded-md border-gray-300 uppercase"
-                            >
+                                wire:model="apellido_materno"
+                                class="mt-1 block w-full"
+                            />
+
+                            @error('apellido_materno')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                     </div>
