@@ -8,10 +8,10 @@
             </h3>
         </div>
 
-        <div class="overflow-x-auto">
-
+        
+        <div class="w-full overflow-x-auto rounded-lg border border-slate-200">
             <table class="min-w-full divide-y divide-gray-200">
-
+         
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-4 py-3 text-left">Turno</th>

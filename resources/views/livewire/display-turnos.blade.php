@@ -17,8 +17,7 @@
             <img
                 src="{{ asset('images/institucional/logo-nayarit.png') }}"
                 alt="Gobierno del Estado de Nayarit"
-                width ="150"
-                class="h-12 object-contain"
+                class="h-24 w-auto object-contain"
             >
         </div>
         <div class="text-center">

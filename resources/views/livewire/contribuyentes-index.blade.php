@@ -29,7 +29,7 @@
                     >
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="w-full overflow-x-auto rounded-lg border border-slate-200">
                     <table class="min-w-full divide-y divide-gray-200 border">
                         <thead class="bg-gray-50">
                             <tr>
