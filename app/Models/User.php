@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -44,5 +45,10 @@ class User extends Authenticatable
             'password' => 'hashed',
             'activo' => 'boolean',
         ];
+    }
+    
+    public function asesorias(): HasMany
+    {
+        return $this->hasMany(Asesoria::class, 'asesor_id');
     }
 }

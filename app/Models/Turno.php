@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 
 class Turno extends Model
 {
@@ -68,5 +70,10 @@ class Turno extends Model
     public function moduloAsesoria()
     {
         return $this->belongsTo(ModuloAsesoria::class, 'modulo_asesoria_id');
+    }
+
+    public function asesoria(): HasOne
+    {
+        return $this->hasOne(Asesoria::class);
     }
 }
