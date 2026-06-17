@@ -37,6 +37,17 @@ class AsesoriaIndex extends Component
     public string $buscarCurpAdicional = '';
     public string $buscarNombreAdicional = '';
     public array $resultadosBusquedaAdicional = [];
+
+    public bool $mostrandoCorreo = false;
+    public bool $correoEnCurso = false;
+
+    public $fechaHoraRecepcionCorreo = '';
+    public string $correoOrigen = '';
+    public string $asuntoCorreo = '';
+    public string $observacionesCorreo = '';
+    
+    public ?int $asesoriaCorreoId = null;
+    public ?Asesoria $asesoriaCorreoActual = null;
     
     public function toggleTramite(
         int $contribuyenteId,
@@ -616,7 +627,15 @@ class AsesoriaIndex extends Component
                 ->first();
         }
 
-        return $this->asesoriaTelefonicaActual;
+        if ($this->asesoriaTelefonicaActual) {
+            return $this->asesoriaTelefonicaActual;
+        }
+
+        if ($this->asesoriaCorreoActual) {
+            return $this->asesoriaCorreoActual;
+        }
+
+        return null;
     }
 
     public function getContribuyentesAtencionProperty()
@@ -627,6 +646,14 @@ class AsesoriaIndex extends Component
 
         if ($this->asesoriaTelefonicaActual) {
             return $this->asesoriaTelefonicaActual
+                ->contribuyentes()
+                ->with('contribuyente')
+                ->orderBy('orden')
+                ->get();
+        }
+
+        if ($this->asesoriaCorreoActual) {
+            return $this->asesoriaCorreoActual
                 ->contribuyentes()
                 ->with('contribuyente')
                 ->orderBy('orden')
@@ -708,8 +735,187 @@ class AsesoriaIndex extends Component
             'contribuyentes.contribuyente',
         ])->find($this->asesoriaActual->id);
 
+        if ($this->asesoriaCorreoActual) {
+            $this->asesoriaCorreoActual = Asesoria::with([
+                'contribuyente',
+                'contribuyentes.contribuyente',
+            ])->find($this->asesoriaActual->id);
+        }
+
         session()->flash('success', 'CONTRIBUYENTE AGREGADO A LA ASESORÍA.');
     }
 
+    public function nuevoCorreo(): void
+    {
+        if ($this->turnoActual || $this->llamadaEnCurso) {
+            session()->flash(
+                'info',
+                'DEBES FINALIZAR LA ATENCIÓN ACTUAL ANTES DE INICIAR UN CORREO.'
+            );
+
+            return;
+        }
+
+        $this->mostrandoCorreo = true;
+        $this->mostrandoLlamada = false;
+
+        $this->mensajeInfo = null;
+
+        $this->buscarRfc = '';
+        $this->buscarCurp = '';
+        $this->buscarNombre = '';
+        $this->resultadosBusqueda = [];
+
+        $this->contribuyenteLlamadaId = null;
+        $this->contribuyenteLlamadaSeleccionado = null;
+    }
+
+    public function cancelarCorreo(): void
+    {
+        $this->mostrandoCorreo = false;
+
+        $this->fechaHoraRecepcionCorreo = '';
+        $this->correoOrigen = '';
+        $this->asuntoCorreo = '';
+        $this->observacionesCorreo = '';
+
+        $this->buscarRfc = '';
+        $this->buscarCurp = '';
+        $this->buscarNombre = '';
+        $this->resultadosBusqueda = [];
+
+        $this->contribuyenteLlamadaId = null;
+        $this->contribuyenteLlamadaSeleccionado = null;
+
+        $this->mensajeInfo = null;
+    }
+
+    public function iniciarCorreoElectronico(): void
+    {
+        if (! $this->contribuyenteLlamadaId) {
+            $this->mensajeInfo = 'DEBES SELECCIONAR UN CONTRIBUYENTE.';
+            return;
+        }
+
+        $this->validate([
+            'fechaHoraRecepcionCorreo' => ['required', 'date'],
+            'correoOrigen' => ['required', 'email', 'max:255'],
+            'asuntoCorreo' => ['required', 'string', 'max:255'],
+            'observacionesCorreo' => ['nullable', 'string'],
+        ], [
+            'fechaHoraRecepcionCorreo.required' => 'LA FECHA Y HORA DE RECEPCIÓN ES OBLIGATORIA.',
+            'fechaHoraRecepcionCorreo.date' => 'LA FECHA Y HORA DE RECEPCIÓN NO ES VÁLIDA.',
+            'correoOrigen.required' => 'EL CORREO DE ORIGEN ES OBLIGATORIO.',
+            'correoOrigen.email' => 'EL CORREO DE ORIGEN NO ES VÁLIDO.',
+            'asuntoCorreo.required' => 'EL ASUNTO ES OBLIGATORIO.',
+            'observacionesCorreo.required' => 'LAS OBSERVACIONES SON OBLIGATORIAS.',
+        ]);
+
+        $inicio = now();
+
+        $asesoria = Asesoria::create([
+            'turno_id' => null,
+            'contribuyente_id' => $this->contribuyenteLlamadaId,
+            'asesor_id' => Auth::id(),
+            'modalidad' => 'CORREO',
+            'estatus' => 'INICIADA',
+            'inicio_atencion' => $inicio,
+
+            'fecha_hora_recepcion_correo' => $this->fechaHoraRecepcionCorreo,
+            'correo_origen' => $this->correoOrigen,
+            'asunto_correo' => mb_strtoupper($this->asuntoCorreo, 'UTF-8'),
+            'observaciones' => $this->observacionesCorreo
+                ? mb_strtoupper($this->observacionesCorreo, 'UTF-8')
+                : null,
+
+            'created_by' => Auth::id(),
+        ]);
+
+        AsesoriaContribuyente::create([
+            'asesoria_id' => $asesoria->id,
+            'contribuyente_id' => $this->contribuyenteLlamadaId,
+            'es_principal' => true,
+            'orden' => 1,
+        ]);
+
+        $this->asesoriaCorreoId = $asesoria->id;
+        $this->asesoriaCorreoActual = Asesoria::with([
+            'contribuyente',
+            'contribuyentes.contribuyente',
+        ])->find($asesoria->id);
+
+        $this->correoEnCurso = true;
+        $this->mostrandoCorreo = false;
+
+        $this->buscarRfc = '';
+        $this->buscarCurp = '';
+        $this->buscarNombre = '';
+        $this->resultadosBusqueda = [];
+
+        $this->contribuyenteLlamadaSeleccionado = null;
+        $this->contribuyenteLlamadaId = null;
+
+        session()->flash('success', 'ASESORÍA POR CORREO INICIADA.');
+    }
+
+    public function finalizarCorreoElectronico(): void
+    {
+        if (! $this->asesoriaCorreoId) {
+            $this->mensajeInfo = 'NO HAY UNA ASESORÍA POR CORREO EN CURSO.';
+            return;
+        }
+
+        $asesoria = Asesoria::find($this->asesoriaCorreoId);
+
+        if (! $asesoria || $asesoria->estatus !== 'INICIADA') {
+            $this->mensajeInfo = 'NO SE ENCONTRÓ UNA ASESORÍA POR CORREO ACTIVA.';
+            return;
+        }
+
+        if (count($this->tramitesSeleccionados) === 0) {
+            $this->mensajeInfo = 'DEBES SELECCIONAR AL MENOS UN TRÁMITE ATENDIDO.';
+            $this->dispatch('scroll-top');
+            return;
+        }
+
+        foreach ($this->tramitesSeleccionados as $contribuyenteId => $tramites) {
+            foreach ($tramites as $tramiteId => $datos) {
+                AsesoriaTramite::create([
+                    'asesoria_id' => $asesoria->id,
+                    'contribuyente_id' => $contribuyenteId,
+                    'tramite_id' => $tramiteId,
+                    'cantidad' => $datos['cantidad'] ?? 1,
+                    'importe_declaracion' => $datos['importe_declaracion'] ?: null,
+                ]);
+            }
+        }
+
+        $fin = now();
+
+        $asesoria->update([
+            'estatus' => 'FINALIZADA',
+            'fin_atencion' => $fin,
+            'duracion_segundos' => $asesoria->inicio_atencion
+                ? $asesoria->inicio_atencion->diffInSeconds($fin)
+                : null,
+            'updated_by' => Auth::id(),
+        ]);
+
+        $this->correoEnCurso = false;
+        $this->asesoriaCorreoId = null;
+        $this->asesoriaCorreoActual = null;
+
+        $this->fechaHoraRecepcionCorreo = '';
+        $this->correoOrigen = '';
+        $this->asuntoCorreo = '';
+        $this->observacionesCorreo = '';
+
+        $this->tramitesSeleccionados = [];
+        $this->mensajeInfo = null;
+
+        session()->flash('success', 'ASESORÍA POR CORREO FINALIZADA CORRECTAMENTE.');
+
+        $this->redirectRoute('asesoria.index');
+    }
 
 }

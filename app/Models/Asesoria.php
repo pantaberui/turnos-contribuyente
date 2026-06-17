@@ -23,6 +23,7 @@ class Asesoria extends Model
 
         'correo_origen',
         'asunto_correo',
+        'fecha_hora_recepcion_correo',
 
         'observaciones',
 
@@ -33,6 +34,7 @@ class Asesoria extends Model
     protected $casts = [
         'inicio_atencion' => 'datetime',
         'fin_atencion' => 'datetime',
+        'fecha_hora_recepcion_correo' => 'datetime',
     ];
 
     public function turno(): BelongsTo
