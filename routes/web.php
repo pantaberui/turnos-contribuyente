@@ -17,6 +17,13 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 /*
+/*
+|--------------------------------------------------------------------------
+| Rutas para Administrador y Orientador Fiscal
+|--------------------------------------------------------------------------
+*/
+
+/*
 |--------------------------------------------------------------------------
 | Rutas para Administrador y Orientador Fiscal
 |--------------------------------------------------------------------------
@@ -60,6 +67,9 @@ Route::middleware(['auth', 'role:Administrador|Asesor Fiscal'])->group(function 
     Route::get('/asesoria', function () {
         return view('asesoria.index');
     })->name('asesoria.index');
+
+    Route::get('/asesorias/consulta', AsesoriaConsulta::class)
+        ->name('asesorias.consulta');
 });
 
 /*
@@ -91,12 +101,6 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
 
 
 });
-
-
-    
-Route::get('/asesorias', AsesoriaConsulta::class)
-        ->middleware(['role:Administrador|Asesor Fiscal|Orientador Fiscal'])
-        ->name('asesorias.index');
 
 
 /*
