@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\AsesoriaConsulta;
 
 Route::get('/', function () {
     return view('welcome');
@@ -86,7 +87,17 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
     Route::get('/catalogos/usuarios', function () {
         return view('catalogos.usuarios.index');
     })->name('catalogos.usuarios.index');
+
+
+
 });
+
+
+    
+Route::get('/asesorias', AsesoriaConsulta::class)
+        ->middleware(['role:Administrador|Asesor Fiscal|Orientador Fiscal'])
+        ->name('asesorias.index');
+
 
 /*
 |--------------------------------------------------------------------------
