@@ -119,8 +119,96 @@
 
                 <h4 class="font-semibold mt-5 mb-2">Trámites</h4>
 
+                <div class="mb-3">
+                    <button
+                        type="button"
+                        wire:click="mostrarFormularioAgregarTramite"
+                        style="background:#2563eb; color:white; padding:6px 12px; border-radius:6px;">
+                        Agregar trámite
+                    </button>
+                </div>
+
+                @if($agregandoTramite)
+                    <div class="border rounded p-3 mb-3 bg-white"
+                        style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+
+                        <div style="width:1250px;">
+                            <label class="block text-sm font-medium">Trámite</label>
+                            <select
+                                wire:model="nuevo_tramite_id"
+                                wire:change="cambiarNuevoTramite($event.target.value)"
+                                class="border rounded px-2 py-1"
+                                style="width:100%;">
+                                <option value="">Seleccione...</option>
+
+                               @foreach($tramitesDisponibles as $tramite)
+                                    <option value="{{ $tramite->id }}">
+                                        [{{ $tramite->clasificacionTramite?->nombre ?? 'SIN CLASIFICACIÓN' }}]
+                                        {{ $tramite->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div style="width:265px;">
+                            <label class="block text-sm font-medium">Contribuyente</label>
+                            <select
+                                wire:model="nuevo_contribuyente_id"
+                                class="border rounded px-2 py-1"
+                                style="width:100%;">
+                                <option value="">Seleccione...</option>
+
+                                @foreach($asesoriaSeleccionada->contribuyentes as $item)
+                                    <option value="{{ $item->contribuyente_id }}">
+                                        {{ $item->contribuyente?->razon_social }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div style="width:100px;">
+                            <label class="block text-sm font-medium">Cantidad</label>
+                            <input
+                                type="number"
+                                min="1"
+                                wire:model="nueva_cantidad"
+                                class="border rounded px-2 py-1"
+                                style="width:100%;">
+                        </div>
+
+                        @if($nuevoTramiteRequiereDeclaracion)
+                            <div style="width:170px;">
+                                <label class="block text-sm font-medium">Importe declaración</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    wire:model="nuevo_importe_declaracion"
+                                    class="border rounded px-2 py-1"
+                                    style="width:100%;">
+                            </div>
+                        @endif
+
+                        <div style="display:flex; gap:8px;">
+                            <button
+                                type="button"
+                                wire:click="guardarNuevoTramite"
+                                style="background:#16a34a; color:white; padding:6px 12px; border-radius:6px;">
+                                Guardar
+                            </button>
+
+                            <button
+                                type="button"
+                                wire:click="cancelarAgregarTramite"
+                                style="background:#64748b; color:white; padding:6px 12px; border-radius:6px;">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                @endif
+
                 @forelse($asesoriaSeleccionada->tramites as $detalle)
-                    <div class="border rounded p-3 mb-2 bg-white">
+                    <div wire:key="tramite-detalle-{{ $detalle->id }}" class="border rounded p-3 mb-2 bg-white">
                         <div class="font-semibold">
                             {{ $detalle->tramite?->nombre ?? 'SIN TRÁMITE' }}
                         </div>
@@ -134,6 +222,8 @@
                             Clasificación:
                             {{ $detalle->tramite?->clasificacionTramite?->nombre ?? '—' }}
 
+                            |
+                            
                             Contribuyente:
                             {{ $detalle->contribuyente?->razon_social ?? '—' }}
 
@@ -160,8 +250,16 @@
                                     style="background:#f59e0b; color:white; padding:4px 12px; border-radius:6px;">
                                     Editar
                                 </button>
+
+                                <button
+                                    type="button"
+                                    onclick="confirm('¿Está seguro de eliminar este trámite?') || event.stopImmediatePropagation()"
+                                    wire:click="eliminarTramite({{ $detalle->id }})"
+                                    style="background:#dc2626; color:white; padding:6px 12px; border-radius:6px; margin-left:6px;">
+                                    Eliminar
+                                </button>
                             @endif
-                            
+
                             @if($editandoTramite && $tramiteDetalleId === $detalle->id)
                                 <span class="text-blue-600 text-sm font-semibold">
                                     Editando trámite...
@@ -173,7 +271,7 @@
                                     class="mt-3 border-t pt-3"
                                     style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
 
-                                    <div style="width: 750px;">
+                                    <div style="width: 1250px;">
                                         <label class="block text-sm font-medium">Trámite</label>
                                         <select
                                             wire:model="tramite_id"
@@ -184,13 +282,14 @@
 
                                             @foreach($tramitesDisponibles as $tramite)
                                                 <option value="{{ $tramite->id }}">
+                                                    [{{ $tramite->clasificacionTramite?->nombre ?? 'SIN CLASIFICACIÓN' }}]
                                                     {{ $tramite->nombre }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
 
-                                    <div style="width: 120px;">
+                                    <div style="width: 100px;">
                                         <label class="block text-sm font-medium">Cantidad</label>
                                         <input
                                             type="number"
@@ -231,16 +330,6 @@
 
                                 </div>
                             @endif
-
-
-
-
-
-
-
-
-
-
 
 
                         </div>

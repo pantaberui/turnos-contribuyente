@@ -24,6 +24,13 @@ class AsesoriaConsulta extends Component
     public ?int $tramite_id = null;
     public bool $tramiteRequiereDeclaracion = false;
 
+    public bool $agregandoTramite = false;
+    public ?int $nuevo_tramite_id = null;
+    public ?int $nuevo_contribuyente_id = null;
+    public int $nueva_cantidad = 1;
+    public $nuevo_importe_declaracion = null;
+    public bool $nuevoTramiteRequiereDeclaracion = false;
+
     public function render()
     {
         $asesorias = Asesoria::query()
@@ -66,6 +73,8 @@ class AsesoriaConsulta extends Component
 
     public function cerrarDetalle(): void
     {
+        $this->cancelarAgregarTramite();
+
         $this->asesoriaSeleccionadaId = null;
         $this->asesoriaSeleccionada = null;
         $this->mostrandoDetalle = false;
@@ -82,6 +91,7 @@ class AsesoriaConsulta extends Component
         $this->importe_declaracion = $detalle->importe_declaracion;
         $this->tramite_id = $detalle->tramite_id;
         $this->tramitesDisponibles = Tramite::activos()
+            ->with(['tipoTramite', 'clasificacionTramite'])
             ->orderBy('nombre')
             ->get();
 
@@ -159,4 +169,88 @@ class AsesoriaConsulta extends Component
             $this->importe_declaracion = null;
         }
     }
+
+    public function mostrarFormularioAgregarTramite(): void
+    {
+        $this->cancelarEdicionTramite();
+
+        $this->agregandoTramite = true;
+
+        $this->tramitesDisponibles = Tramite::activos()
+            ->orderBy('nombre')
+            ->get();
+
+        $this->nuevo_tramite_id = null;
+        $this->nuevo_contribuyente_id = $this->asesoriaSeleccionada?->contribuyentes->first()?->contribuyente_id;
+        $this->nueva_cantidad = 1;
+        $this->nuevo_importe_declaracion = null;
+        $this->nuevoTramiteRequiereDeclaracion = false;
+    }
+
+    public function cambiarNuevoTramite($tramiteId): void
+    {
+        $this->nuevo_tramite_id = $tramiteId ? (int) $tramiteId : null;
+
+        $tramite = Tramite::find($this->nuevo_tramite_id);
+
+        $this->nuevoTramiteRequiereDeclaracion = (bool) ($tramite?->requiere_declaracion ?? false);
+
+        if (!$this->nuevoTramiteRequiereDeclaracion) {
+            $this->nuevo_importe_declaracion = null;
+        }
+    }
+
+    public function guardarNuevoTramite(): void
+    {
+        $this->validate([
+            'nuevo_tramite_id' => ['required', 'exists:tramites,id'],
+            'nuevo_contribuyente_id' => ['required', 'exists:contribuyentes,id'],
+            'nueva_cantidad' => ['required', 'integer', 'min:1'],
+            'nuevo_importe_declaracion' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $tramite = Tramite::findOrFail($this->nuevo_tramite_id);
+
+        AsesoriaTramite::create([
+            'asesoria_id' => $this->asesoriaSeleccionadaId,
+            'contribuyente_id' => $this->nuevo_contribuyente_id,
+            'tramite_id' => $this->nuevo_tramite_id,
+            'cantidad' => $this->nueva_cantidad,
+            'importe_declaracion' => $tramite->requiere_declaracion
+                ? $this->nuevo_importe_declaracion
+                : null,
+        ]);
+
+        $this->cancelarAgregarTramite();
+        $this->cargarDetalle();
+
+        session()->flash('success', 'Trámite agregado correctamente.');
+    }
+
+    public function cancelarAgregarTramite(): void
+    {
+        $this->agregandoTramite = false;
+        $this->nuevo_tramite_id = null;
+        $this->nuevo_contribuyente_id = null;
+        $this->nueva_cantidad = 1;
+        $this->nuevo_importe_declaracion = null;
+        $this->nuevoTramiteRequiereDeclaracion = false;
+    }
+
+    public function eliminarTramite(int $detalleId): void
+    {
+        $detalle = AsesoriaTramite::findOrFail($detalleId);
+
+        $detalle->delete();
+
+        if ($this->tramiteDetalleId === $detalleId) {
+            $this->cancelarEdicionTramite();
+        }
+
+        $this->cancelarAgregarTramite();
+        $this->cargarDetalle();
+
+        session()->flash('success', 'Trámite eliminado correctamente.');
+    }
+
 }
