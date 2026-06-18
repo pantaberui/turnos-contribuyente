@@ -35,7 +35,9 @@
                         </td>
 
                         <td class="px-4 py-2">
-                            {{ $asesoria->contribuyentes->first()?->contribuyente?->razon_social ?? 'SIN CONTRIBUYENTE' }}
+                            {{ $asesoria->contribuyentes->firstWhere('es_principal', true)?->contribuyente?->razon_social
+                                ?? $asesoria->contribuyentes->first()?->contribuyente?->razon_social
+                                ?? 'SIN CONTRIBUYENTE' }}
                         </td>
 
                         <td class="px-4 py-2 text-center">
@@ -105,6 +107,13 @@
                             <span class="ml-2 font-bold text-green-700">
                                 PRINCIPAL
                             </span>
+                         @else
+                            <button
+                                type="button"
+                                wire:click="marcarContribuyentePrincipal({{ $item->id }})"
+                                style="background:#16a34a; color:white; padding:4px 10px; border-radius:6px; margin-left:8px;">
+                                Marcar principal
+                            </button>
                         @endif
 
                         <span class="ml-3">

@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\Asesoria;
 use App\Models\AsesoriaTramite;
 use App\Models\Tramite;
+use App\Models\AsesoriaContribuyente;
 
 class AsesoriaConsulta extends Component
 {
@@ -251,6 +252,22 @@ class AsesoriaConsulta extends Component
         $this->cargarDetalle();
 
         session()->flash('success', 'Trámite eliminado correctamente.');
+    }
+
+    public function marcarContribuyentePrincipal(int $detalleId): void
+    {
+        $registro = AsesoriaContribuyente::findOrFail($detalleId);
+
+        AsesoriaContribuyente::where('asesoria_id', $registro->asesoria_id)
+            ->update(['es_principal' => false]);
+
+        $registro->update([
+            'es_principal' => true,
+        ]);
+
+        $this->cargarDetalle();
+
+        session()->flash('success', 'Contribuyente principal actualizado correctamente.');
     }
 
 }
