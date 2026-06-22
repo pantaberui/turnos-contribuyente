@@ -48,6 +48,7 @@ class AsesoriaIndex extends Component
     
     public ?int $asesoriaCorreoId = null;
     public ?Asesoria $asesoriaCorreoActual = null;
+    public bool $busquedaRealizada = false;
     
     public function toggleTramite(
         int $contribuyenteId,
@@ -291,6 +292,10 @@ class AsesoriaIndex extends Component
             return;
         }
 
+        if (! $this->validarImportesDeclaracion()) {
+            return;
+        }
+
         $asesoria = Asesoria::where('turno_id', $turno->id)
             ->where('estatus', 'INICIADA')
             ->first();
@@ -303,8 +308,8 @@ class AsesoriaIndex extends Component
                     'contribuyente_id' => $contribuyenteId,
                     'tramite_id' => $tramiteId,
                     'cantidad' => $datos['cantidad'] ?? 1,
-                    'importe_declaracion' => $datos['importe_declaracion'] ?: null,
-                ]);
+                    'importe_declaracion' => $this->normalizarImporteDeclaracion($datos['importe_declaracion'] ?? null),
+                                    ]);
 
                 if ($asesoria) {
                     AsesoriaTramite::create([
@@ -312,7 +317,7 @@ class AsesoriaIndex extends Component
                         'contribuyente_id' => $contribuyenteId,
                         'tramite_id' => $tramiteId,
                         'cantidad' => $datos['cantidad'] ?? 1,
-                        'importe_declaracion' => $datos['importe_declaracion'] ?: null,
+                        'importe_declaracion' => $this->normalizarImporteDeclaracion($datos['importe_declaracion'] ?? null),
                     ]);
                 }
             }
@@ -424,6 +429,7 @@ class AsesoriaIndex extends Component
         $this->contribuyenteLlamadaSeleccionado = null;
         $this->contribuyenteLlamadaId = null;
         $this->resultadosBusqueda = [];
+        $this->busquedaRealizada = true;
 
         $query = \App\Models\Contribuyente::query();
 
@@ -578,6 +584,10 @@ class AsesoriaIndex extends Component
             return;
         }
 
+        if (! $this->validarImportesDeclaracion()) {
+            return;
+        }
+
         foreach ($this->tramitesSeleccionados as $contribuyenteId => $tramites) {
             foreach ($tramites as $tramiteId => $datos) {
                 AsesoriaTramite::create([
@@ -585,7 +595,7 @@ class AsesoriaIndex extends Component
                     'contribuyente_id' => $contribuyenteId,
                     'tramite_id' => $tramiteId,
                     'cantidad' => $datos['cantidad'] ?? 1,
-                    'importe_declaracion' => $datos['importe_declaracion'] ?: null,
+                    'importe_declaracion' => $this->normalizarImporteDeclaracion($datos['importe_declaracion'] ?? null),                    
                 ]);
             }
         }
@@ -878,6 +888,10 @@ class AsesoriaIndex extends Component
             return;
         }
 
+        if (! $this->validarImportesDeclaracion()) {
+            return;
+        }
+
         foreach ($this->tramitesSeleccionados as $contribuyenteId => $tramites) {
             foreach ($tramites as $tramiteId => $datos) {
                 AsesoriaTramite::create([
@@ -885,7 +899,7 @@ class AsesoriaIndex extends Component
                     'contribuyente_id' => $contribuyenteId,
                     'tramite_id' => $tramiteId,
                     'cantidad' => $datos['cantidad'] ?? 1,
-                    'importe_declaracion' => $datos['importe_declaracion'] ?: null,
+                    'importe_declaracion' => $this->normalizarImporteDeclaracion($datos['importe_declaracion'] ?? null),                    
                 ]);
             }
         }
@@ -916,6 +930,38 @@ class AsesoriaIndex extends Component
         session()->flash('success', 'ASESORÍA POR CORREO FINALIZADA CORRECTAMENTE.');
 
         $this->redirectRoute('asesoria.index');
+    }
+
+    private function normalizarImporteDeclaracion($importe): ?float
+    {
+        if ($importe === null || $importe === '') {
+            return null;
+        }
+
+        return (float) $importe;
+    }
+
+    private function validarImportesDeclaracion(): bool
+    {
+        foreach ($this->tramitesSeleccionados as $contribuyenteId => $tramites) {
+            foreach ($tramites as $tramiteId => $datos) {
+                $tramite = \App\Models\Tramite::find($tramiteId);
+
+                if (! $tramite?->requiere_declaracion) {
+                    continue;
+                }
+
+                $importe = $datos['importe_declaracion'] ?? null;
+
+                if ($importe === null || $importe === '') {
+                    $this->mensajeInfo = 'LOS TRÁMITES QUE LLEVAN DECLARACIÓN DEBEN TENER IMPORTE. PUEDE SER 0.';
+                    $this->dispatch('scroll-top');
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
 }

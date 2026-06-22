@@ -158,30 +158,18 @@
                                     🔍 Buscar
                                 </button>
                             </div>
+
                         </div>
                     </div>
 
-
-
+                    @if($busquedaRealizada && empty($resultadosBusqueda))
+                        <div class="mt-3 p-3 rounded bg-yellow-100 text-yellow-800 text-sm">
+                            No existen contribuyentes con los criterios capturados.
+                        </div>
+                    @endif
 
                 </div>
-
-
-
-
-
-
-
-
-
-
-
-
             @endif
-
-
-          
-
 
 
 

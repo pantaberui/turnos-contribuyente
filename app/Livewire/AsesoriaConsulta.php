@@ -8,6 +8,7 @@ use App\Models\Asesoria;
 use App\Models\AsesoriaTramite;
 use App\Models\Tramite;
 use App\Models\AsesoriaContribuyente;
+use App\Models\Contribuyente;
 
 class AsesoriaConsulta extends Component
 {
@@ -31,6 +32,10 @@ class AsesoriaConsulta extends Component
     public int $nueva_cantidad = 1;
     public $nuevo_importe_declaracion = null;
     public bool $nuevoTramiteRequiereDeclaracion = false;
+
+    public bool $agregandoContribuyente = false;
+    public ?int $nuevo_contribuyente_asesoria_id = null;
+    public $contribuyentesDisponibles = [];
 
     public function render()
     {
@@ -268,6 +273,107 @@ class AsesoriaConsulta extends Component
         $this->cargarDetalle();
 
         session()->flash('success', 'Contribuyente principal actualizado correctamente.');
+    }
+
+    public function mostrarFormularioAgregarContribuyente(): void
+    {
+        $this->cancelarEdicionTramite();
+        $this->cancelarAgregarTramite();
+
+        $this->agregandoContribuyente = true;
+        $this->nuevo_contribuyente_asesoria_id = null;
+
+        $idsActuales = $this->asesoriaSeleccionada
+            ? $this->asesoriaSeleccionada->contribuyentes->pluck('contribuyente_id')->toArray()
+            : [];
+
+        $this->contribuyentesDisponibles = Contribuyente::query()
+            ->whereNotIn('id', $idsActuales)
+            ->orderBy('razon_social')
+            ->get();
+    }
+
+    public function guardarNuevoContribuyente(): void
+    {
+        $this->validate([
+            'nuevo_contribuyente_asesoria_id' => ['required', 'exists:contribuyentes,id'],
+        ], [
+            'nuevo_contribuyente_asesoria_id.required' => 'Seleccione un contribuyente.',
+        ]);
+
+        $yaExiste = AsesoriaContribuyente::where('asesoria_id', $this->asesoriaSeleccionadaId)
+            ->where('contribuyente_id', $this->nuevo_contribuyente_asesoria_id)
+            ->exists();
+
+        if ($yaExiste) {
+            $this->addError('nuevo_contribuyente_asesoria_id', 'El contribuyente ya se encuentra asociado a esta asesoría.');
+            return;
+        }
+
+        $ultimoOrden = AsesoriaContribuyente::where('asesoria_id', $this->asesoriaSeleccionadaId)
+            ->max('orden') ?? 0;
+
+        AsesoriaContribuyente::create([
+            'asesoria_id' => $this->asesoriaSeleccionadaId,
+            'contribuyente_id' => $this->nuevo_contribuyente_asesoria_id,
+            'orden' => $ultimoOrden + 1,
+            'es_principal' => false,
+        ]);
+
+        $this->cancelarAgregarContribuyente();
+        $this->cargarDetalle();
+
+        session()->flash('success', 'Contribuyente agregado correctamente.');
+    }
+
+    public function cancelarAgregarContribuyente(): void
+    {
+        $this->agregandoContribuyente = false;
+        $this->nuevo_contribuyente_asesoria_id = null;
+        $this->contribuyentesDisponibles = [];
+    }
+
+    public function eliminarContribuyente(int $registroId): void
+    {
+        $registro = AsesoriaContribuyente::findOrFail($registroId);
+
+        $totalContribuyentes = AsesoriaContribuyente::where('asesoria_id', $registro->asesoria_id)->count();
+
+        if ($totalContribuyentes <= 1) {
+            session()->flash('error', 'La asesoría debe tener al menos un contribuyente asociado.');
+            return;
+        }
+
+        $tieneTramites = AsesoriaTramite::where('asesoria_id', $registro->asesoria_id)
+            ->where('contribuyente_id', $registro->contribuyente_id)
+            ->exists();
+
+        if ($tieneTramites) {
+            session()->flash('error', 'No se puede eliminar el contribuyente porque tiene trámites asociados.');
+            return;
+        }
+
+        $eraPrincipal = $registro->es_principal;
+        $asesoriaId = $registro->asesoria_id;
+
+        $registro->delete();
+
+        if ($eraPrincipal) {
+            $nuevoPrincipal = AsesoriaContribuyente::where('asesoria_id', $asesoriaId)
+                ->orderBy('orden')
+                ->first();
+
+            if ($nuevoPrincipal) {
+                $nuevoPrincipal->update([
+                    'es_principal' => true,
+                ]);
+            }
+        }
+
+        $this->cancelarAgregarContribuyente();
+        $this->cargarDetalle();
+
+        session()->flash('success', 'Contribuyente eliminado correctamente.');
     }
 
 }
