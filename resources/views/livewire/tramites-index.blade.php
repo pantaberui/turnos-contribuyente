@@ -6,27 +6,81 @@
         </div>
     @endif
 
-    <div class="flex justify-between items-center mb-6">
-        <h3 class="text-lg font-semibold">
-            Trámites
-        </h3>
+    <div class="mb-6">
+        <div class="flex items-start justify-between gap-4">
 
-        <button
-            type="button"
-            wire:click="abrirModal"
-            style="background:#1f2937;color:white;padding:10px 16px;border-radius:6px;font-weight:bold;"
-        >
-            NUEVO TRÁMITE
-        </button>
+            <div style="width: calc(100% - 180px);">
+                <h3 class="text-lg font-semibold mb-3">
+                    Trámites
+                </h3>
+
+                <div class="bg-white border border-slate-200 rounded-lg p-4">
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:nowrap;">
+
+                        <label style="font-weight:600; white-space:nowrap;">Tipo:</label>
+
+                        <select wire:model.live="tipoTramiteFiltro"
+                                class="rounded-md border-gray-300 shadow-sm"
+                                style="width:25%;">
+                            <option value="">Todos</option>
+                            @foreach($tiposTramite as $tipo)
+                                <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                            @endforeach
+                        </select>
+
+                        <label style="font-weight:600; white-space:nowrap;">Clasificación:</label>
+
+                        <select wire:model="clasificacionFiltro"
+                                class="rounded-md border-gray-300 shadow-sm"
+                                style="width:30%;">
+                            <option value="">Todas</option>
+                            @foreach($clasificaciones as $clasificacion)
+                                @if($tipoTramiteFiltro === '' || (string) $clasificacion->tipo_tramite_id === (string) $tipoTramiteFiltro)
+                                    <option value="{{ $clasificacion->id }}">
+                                        {{ $clasificacion->numero }} - {{ $clasificacion->nombre }}
+                                    </option>
+                                @endif
+                            @endforeach
+                        </select>
+
+                        <button type="button"
+                                wire:click="consultar"
+                                style="background:#1f2937;color:white;padding:10px 18px;border-radius:6px;font-weight:bold;min-width:120px;">
+                            Consultar
+                        </button>
+
+                        <button type="button"
+                                wire:click="limpiarFiltros"
+                                style="background:#e5e7eb;color:#111827;padding:10px 18px;border-radius:6px;font-weight:bold;min-width:120px;">
+                            Limpiar
+                        </button>
+
+                    </div>
+                </div>                  
+
+                
+            </div>
+
+            <div style="width:160px; padding-top:34px;">
+                <button
+                    type="button"
+                    wire:click="abrirModal"
+                    style="background:#1f2937;color:white;padding:10px 16px;border-radius:6px;font-weight:bold;"
+                >
+                    NUEVO TRÁMITE
+                </button>
+            </div>
+
+        </div>
     </div>
 
     <div class="w-full overflow-x-auto rounded-lg border border-slate-200">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
+                <tr>                    
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Clasificación</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trámite</th>
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
                     <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Declaración</th>
@@ -39,16 +93,14 @@
                 @forelse($tramites as $tramite)
                     <tr>
                         <td class="px-4 py-2 text-sm text-gray-700">
-                            {{ $tramite->numero }}
-                        </td>
-
-                        <td class="px-4 py-2 text-sm text-gray-700">
                             {{ $tramite->tipoTramite->nombre }}
                         </td>
 
                         <td class="px-4 py-2 text-sm text-gray-700">
                             {{ $tramite->clasificacionTramite->nombre }}
                         </td>
+
+                        <td class="px-4 py-2 text-sm text-gray-700">{{ $tramite->numero }}</td>
 
                         <td class="px-4 py-2 text-sm text-gray-700 font-semibold">
                             {{ $tramite->nombre }}
@@ -98,6 +150,11 @@
             </tbody>
         </table>
     </div>
+
+    <div class="mt-4">
+        {{ $tramites->links() }}
+    </div>
+
 
     @if($modalAbierto)
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

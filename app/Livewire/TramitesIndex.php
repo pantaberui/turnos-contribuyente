@@ -7,9 +7,11 @@ use App\Models\TipoTramite;
 use App\Models\Tramite;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class TramitesIndex extends Component
 {
+    use WithPagination;
     public bool $modalAbierto = false;
     public ?int $tramiteId = null;
 
@@ -20,6 +22,13 @@ class TramitesIndex extends Component
     public string $categoria = '';
     public bool $requiere_declaracion = false;
     public bool $activo = true;
+    
+    public ?string $tipoTramiteFiltro = '';
+    public ?string $clasificacionFiltro = '';
+
+    public ?string $tipoTramiteBusqueda = '';
+    public ?string $clasificacionBusqueda = '';
+
 
     public function abrirModal(): void
     {
@@ -121,23 +130,58 @@ class TramitesIndex extends Component
 
     public function render()
     {
-        return view('livewire.tramites-index', [
-            'tramites' => Tramite::with(['tipoTramite', 'clasificacionTramite'])
-                ->orderBy('tipo_tramite_id')
-                ->orderBy('clasificacion_tramite_id')
-                ->orderBy('numero')
-                ->get(),
+        $tramites = Tramite::query()
+            ->with(['tipoTramite', 'clasificacionTramite'])
+            ->when($this->tipoTramiteBusqueda !== '', function ($query) {
+                $query->where('tipo_tramite_id', $this->tipoTramiteBusqueda);
+            })
+            ->when($this->clasificacionBusqueda !== '', function ($query) {
+                $query->where('clasificacion_tramite_id', $this->clasificacionBusqueda);
+            })
+            ->orderBy('tipo_tramite_id')
+            ->orderBy('clasificacion_tramite_id')            
+            ->orderBy('numero')
+            ->paginate(25);
 
+        return view('livewire.tramites-index', [
+            'tramites' => $tramites,
             'tiposTramite' => TipoTramite::where('activo', true)
                 ->orderBy('nombre')
                 ->get(),
-
             'clasificaciones' => ClasificacionTramite::where('activo', true)
-                ->orderBy('tipo_tramite_id')
                 ->orderBy('numero')
                 ->get(),
-
             'categorias' => Tramite::CATEGORIAS,
         ]);
+      
     }
+
+    public function limpiarFiltros(): void
+    {
+        $this->tipoTramiteFiltro = '';
+        $this->clasificacionFiltro = '';
+
+        $this->resetPage();
+    }
+
+    public function updatedTipoTramiteFiltro(): void
+    {
+        $this->clasificacionFiltro = '';
+        $this->resetPage();
+    }
+
+    public function updatedClasificacionFiltro(): void
+    {
+        $this->resetPage();
+    }
+
+    public function consultar(): void
+    {
+        $this->tipoTramiteBusqueda = $this->tipoTramiteFiltro;
+        $this->clasificacionBusqueda = $this->clasificacionFiltro;
+
+        $this->resetPage();
+    }
+
+
 }

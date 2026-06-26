@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\AsesoriaConsulta;
+use App\Http\Controllers\Reportes\DebugReporteController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -15,6 +16,11 @@ Route::get('/display-turnos', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Route::get('/reportes/debug', \App\Livewire\Reportes\DebugReporte::class)
+//     ->name('reportes.debug');
+
+
 
 /*
 /*
@@ -98,10 +104,15 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
         return view('catalogos.usuarios.index');
     })->name('catalogos.usuarios.index');
 
-
+    // Route::get('/reportes/prueba', \App\Livewire\Reportes\ReportePrueba::class)
+    //    ->name('reportes.prueba');
 
 });
 
+
+Route::get('/reportes/debug', [DebugReporteController::class, 'index'])
+    ->middleware(['auth', 'role:Administrador'])
+    ->name('reportes.debug');
 
 /*
 |--------------------------------------------------------------------------

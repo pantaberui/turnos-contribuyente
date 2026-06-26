@@ -25,21 +25,17 @@
 
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        Número
-                    </th>
 
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                         Tipo trámite
                     </th>
 
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        clasificación
+                        Número
                     </th>
 
-
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                        Nombre
+                        clasificación
                     </th>
 
                     <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">
@@ -57,22 +53,18 @@
                 @forelse($clasificaciones as $clasificacion)
 
                     <tr>
+                        <td class="px-4 py-2 text-sm text-gray-700">
+                            {{ $clasificacion->tipoTramite->nombre }}
+                        </td>
 
                         <td class="px-4 py-2 text-sm text-gray-700">
                             {{ $clasificacion->numero }}
                         </td>
 
                         <td class="px-4 py-2 text-sm text-gray-700">
-                            {{ $clasificacion->tipoTramite->nombre }}
-                        </td>
-
-                        <td class="px-4 py-2 text-sm text-gray-700">
                             {{ $clasificacion->nombre }}
                         </td>
 
-                        <td class="px-4 py-2 text-sm text-gray-700">
-                            {{ $clasificacion->nombre }}
-                        </td>
 
                         <td class="px-4 py-2 text-center">
                             @if($clasificacion->activo)

@@ -11003,7 +11003,9 @@ function showHtmlModal(html) {
   iframe.contentWindow.document.close();
   modal.addEventListener("click", () => hideHtmlModal(modal));
   modal.addEventListener("close", () => cleanupModal(modal));
-  modal.showModal();
+  if (!modal.open) {
+    modal.showModal();
+  }  
   modal.focus();
   modal.blur();
 }

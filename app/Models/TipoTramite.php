@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ClasificacionTramite;
 
+
 class TipoTramite extends Model
 {
     protected $table = 'tipo_tramites';
@@ -19,5 +20,10 @@ class TipoTramite extends Model
         return $this->hasMany(ClasificacionTramite::class)
             ->where('activo', true)
             ->orderBy('numero');
+    }
+
+    public function clasificacionesTramite()
+    {
+        return $this->hasMany(ClasificacionTramite::class, 'tipo_tramite_id');
     }
 }
