@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\AsesoriaConsulta;
-use App\Http\Controllers\Reportes\DebugReporteController;
+use App\Http\Controllers\Reportes\DocumentoReporteAsesorFiscalController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -110,9 +110,9 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
 });
 
 
-Route::get('/reportes/debug', [DebugReporteController::class, 'index'])
+Route::get('/reportes/asesor-fiscal/documento', [DocumentoReporteAsesorFiscalController::class, 'index'])
     ->middleware(['auth', 'role:Administrador'])
-    ->name('reportes.debug');
+    ->name('reportes.asesor-fiscal.documento');
 
 /*
 |--------------------------------------------------------------------------

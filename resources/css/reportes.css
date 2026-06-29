@@ -1,0 +1,120 @@
+.reportes-fondo {
+    min-height: 100vh;
+    background: #e2e8f0;
+    padding: 2.5rem 1rem;
+}
+
+
+.documento-hoja {
+    width: 215mm;
+    min-height: 279mm;
+    background: #ffffff;
+    margin: 0 auto;
+    padding: 12mm;
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+}
+
+.documento-seccion {
+    margin-top: 1.25rem;
+}
+
+.documento-titulo-seccion {
+    font-size: 1.125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: #1e293b;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+}
+
+.documento-titulo-clasificacion {
+    margin-top: 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: #e2e8f0;
+    border: 1px solid #cbd5e1;
+    padding: 0.5rem 0.75rem;
+}
+
+.reporte-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.reporte-tabla th,
+.reporte-tabla td {
+    border: 1px solid #cbd5e1;
+    padding: 0.45rem 0.55rem;
+}
+
+.reporte-tabla th {
+    background: #f1f5f9;
+    font-weight: 700;
+}
+
+.reporte-total-columna {
+    background: #f8fafc;
+    font-weight: 700;
+}
+
+.reporte-monto-columna {
+    background: #f0fdf4;
+}
+
+.reporte-fila-total {
+    background: #e2e8f0;
+    font-weight: 700;
+    border-top: 2px solid #94a3b8;
+}
+
+.reporte-seccion {
+    margin-top: 1.5rem;
+}
+
+.reporte-seccion h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: .8rem;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: .35rem;
+}
+
+.reporte-bloque {
+    margin-top: 2rem;
+}
+
+.reporte-subtitulo {
+    margin-top: 1.25rem;
+    font-size: .90rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: #e2e8f0;
+    border: 1px solid #cbd5e1;
+    padding: .55rem .80rem;
+}
+
+
+@media print {
+    .reportes-fondo {
+        background: #ffffff;
+        padding: 0;
+    }
+
+    .documento-hoja {
+        width: 100%;
+        min-height: auto;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}

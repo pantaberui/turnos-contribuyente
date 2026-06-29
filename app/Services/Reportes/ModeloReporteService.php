@@ -26,6 +26,10 @@ class ModeloReporteService
                 'fecha_inicio' => $fechaInicio,
                 'fecha_fin' => $fechaFin,
             ],
+            'consulta' => [
+                'asesor_id' => $asesorId,
+                'modalidad' => $modalidad ?: 'TODAS',
+            ],
 
             'arbol' => $arbol,
 
