@@ -25,11 +25,22 @@ class DocumentoReporteAsesorFiscalController extends Controller
             'modoPdf' => true,
         ])->render();
 
-        $pdf = app(ReportePdfService::class)->generarDesdeHtml($html);
+        $headerHtml = view('reportes.pdf.encabezado', $data)->render();
+
+        $footerHtml = view('reportes.pdf.pie', $data)->render();
+
+        $pdf = app(ReportePdfService::class)->generarDesdeHtml(
+            html: $html,
+            headerHtml: $headerHtml,
+            footerHtml: $footerHtml
+        );
+
+        $nombreArchivo = 'reporte_asesor_fiscal_' .
+            $data['fechaInicio'] . '_al_' . $data['fechaFin'] . '.pdf';
 
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="reporte_asesor_fiscal.pdf"');
+            ->header('Content-Disposition', 'inline; filename="'.$nombreArchivo.'"');
     }
 
     private function construirDatosReporte(): array
