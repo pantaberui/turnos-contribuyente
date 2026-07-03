@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Reportes\ModeloReporteService;
 use App\Services\Reportes\ReporteAsesorFiscalService;
 use App\Services\Reportes\ReportePdfService;
+use Carbon\Carbon;
 
 class DocumentoReporteAsesorFiscalController extends Controller
 {
@@ -45,11 +46,16 @@ class DocumentoReporteAsesorFiscalController extends Controller
 
     private function construirDatosReporte(): array
     {
-        $fechaInicio = request('inicio', '2026-06-01');
-        $fechaFin = request('fin', '2026-06-30');
-        $tipoPeriodo = request('periodo', 'Mensual');
         $asesorId = request('asesor_id');
         $modalidad = request('modalidad');
+        $tipoPeriodo = request('periodo', 'Mensual');
+
+        $fechaInicio = request('inicio');
+        $fechaFin = request('fin');
+
+        if ($tipoPeriodo !== 'Personalizado') {
+            [$fechaInicio, $fechaFin] = $this->obtenerFechasPeriodo($tipoPeriodo);
+        }
 
         $asesores = User::role([
             'Asesor Fiscal',
@@ -90,5 +96,38 @@ class DocumentoReporteAsesorFiscalController extends Controller
             'asesorId',
             'modalidad'
         );
+    }
+
+    private function obtenerFechasPeriodo(string $periodo): array
+    {
+        $hoy = Carbon::today();
+
+        return match ($periodo) {
+
+            'Semanal' => [
+                $hoy->copy()->startOfWeek()->format('Y-m-d'),
+                $hoy->copy()->endOfWeek()->format('Y-m-d'),
+            ],
+
+            'Quincenal' => $hoy->day <= 15
+                ? [
+                    $hoy->copy()->startOfMonth()->format('Y-m-d'),
+                    $hoy->copy()->day(15)->format('Y-m-d'),
+                ]
+                : [
+                    $hoy->copy()->day(16)->format('Y-m-d'),
+                    $hoy->copy()->endOfMonth()->format('Y-m-d'),
+                ],
+
+            'Mensual' => [
+                $hoy->copy()->startOfMonth()->format('Y-m-d'),
+                $hoy->copy()->endOfMonth()->format('Y-m-d'),
+            ],
+
+            default => [
+                $hoy->format('Y-m-d'),
+                $hoy->format('Y-m-d'),
+            ],
+        };
     }
 }

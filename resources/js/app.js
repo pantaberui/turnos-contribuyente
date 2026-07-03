@@ -4,3 +4,5 @@
 // window.Alpine = Alpine;
 
 // Alpine.start();
+
+import './reportes/filtros-periodo';
