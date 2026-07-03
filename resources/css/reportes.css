@@ -1,6 +1,7 @@
 .reportes-fondo {
     min-height: 100vh;
     background: #e2e8f0;
+    
     padding: 2.5rem 1rem;
 }
 
@@ -10,7 +11,7 @@
     min-height: 279mm;
     background: #ffffff;
     margin: 0 auto;
-    padding: 12mm;
+    padding: 8mm;
     border-radius: 8px;
     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
 }
@@ -41,15 +42,20 @@
 
 .reporte-tabla {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: .75rem;
+    margin-bottom: .8rem;
+    font-size: 0.72rem;
+    border-left: 1px solid #cbd5e1;
+    border-top: 1px solid #cbd5e1;
 }
 
 .reporte-tabla th,
 .reporte-tabla td {
-    border: 1px solid #cbd5e1;
-    padding: 0.45rem 0.55rem;
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    padding: 0.28rem 0.38rem;
 }
 
 .reporte-tabla th {
@@ -73,7 +79,7 @@
 }
 
 .reporte-seccion {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 
 .reporte-seccion h2 {
@@ -98,23 +104,276 @@
     padding: .55rem .80rem;
 }
 
+/* Encabezados de tablas */
+
+.reporte-tabla th {
+    background: #f1f5f9;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* Primera columna (concepto o trámite) */
+
+.reporte-tabla td:first-child,
+.reporte-tabla th:first-child {
+    text-align: left;
+}
+
+/* Columnas numéricas */
+
+.reporte-numero {
+    text-align: right;
+}
+
+/* Columna TOTAL */
+
+.reporte-total-columna {
+    background: #f8fafc;
+    font-weight: 700;
+}
+
+/* Columna MONTO */
+
+.reporte-monto-columna {
+    background: #f0fdf4;
+}
+
+/* Filas de totales */
+
+.reporte-fila-total {
+    background: #e2e8f0;
+    font-weight: 700;
+    border-top: 2px solid #94a3b8;
+}
+
+.no-print {
+    display: block;
+}
+
+.encabezado-documento {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+}
+
+.encabezado-superior {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.encabezado-logo {
+    flex: 0 0 34%;
+}
+
+.encabezado-logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.encabezado-reporte {
+    flex: 1;
+}
+
+.encabezado-reporte .dependencia {
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    white-space: nowrap;
+}
+
+.encabezado-reporte h1 {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 5px 0 2px;
+    text-transform: uppercase;
+}
+
+.encabezado-reporte p {
+    font-size: 9.5px;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.encabezado-filtros {
+    margin-top: 8px;
+    padding-top: 7px;
+    border-top: 1px solid #cbd5e1;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+.encabezado-dependencia {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+/* Control de saltos para PDF / impresión */
+
+.reporte-bloque {
+    margin-top: 1rem;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.documento-titulo-seccion {
+    font-size: .9rem;
+    padding: .45rem .65rem;
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+.documento-titulo-clasificacion {
+    margin-top: .65rem;
+    font-size: .72rem;
+    padding: .35rem .5rem;
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+.reporte-tabla {
+    break-inside: auto;
+    page-break-inside: auto;
+}
+
+.reporte-tabla tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.resumen-ejecutivo {
+    
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 10px 0 14px;
+}
+
+.resumen-ejecutivo div {
+    padding: 5px 7px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.resumen-ejecutivo span {
+    display: block;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #475569;
+}
+
+.resumen-ejecutivo strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
 
 @media print {
+    .no-print,
+    nav,
+    header.bg-white,
+    header.shadow,
+    .min-h-screen > nav {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff !important;
+    }
+
     .reportes-fondo {
-        background: #ffffff;
-        padding: 0;
+        background: #ffffff !important;
+        padding: 0 !important;
+    }
+
+    .reporte-tabla {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: .25rem;
+        margin-bottom: .55rem;
+        font-size: 0.58rem;
+        border-left: 1px solid #cbd5e1;
+        border-top: 1px solid #cbd5e1;
+    }
+
+    .reporte-tabla th,
+    .reporte-tabla td {
+        border-right: 1px solid #cbd5e1;
+        border-bottom: 1px solid #cbd5e1;
+        padding: 0.14rem 0.22rem;
+    }
+
+    .reporte-tabla tr {
+       page-break-inside: avoid;
+    }
+
+    .reporte-bloque,
+    .reporte-seccion {
+        margin-top: 0.5rem !important;
+    }
+
+    .resumen-ejecutivo {
+        gap: 3px !important;
+        margin: 4px 0 5px !important;
+    }
+
+    .resumen-ejecutivo div {
+        padding: 3px 5px !important;
+    }
+
+    .resumen-ejecutivo span {
+        font-size: 7px !important;
+    }
+
+    .resumen-ejecutivo strong {
+        font-size: 10px !important;
     }
 
     .documento-hoja {
-        width: 100%;
-        min-height: auto;
-        padding: 0;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
+        width: 100% !important;
+        min-height: auto !important;
+        padding: 3mm !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 
-    .no-print {
-        display: none !important;
+    .reporte-bloque {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .documento-titulo-clasificacion {
+        break-after: avoid;
+        page-break-after: avoid;
+        margin-top: 0.4rem !important;
+        font-size: 0.65rem !important;
+        padding: 0.22rem 0.35rem !important;
+    }
+
+    .reporte-tabla tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .documento-titulo-seccion {
+        font-size: 0.8rem !important;
+        padding: 0.32rem 0.45rem !important;
     }
 }

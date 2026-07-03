@@ -1,38 +1,33 @@
 <?php
 
 namespace App\Services\Reportes;
+use App\DataTransferObjects\Reportes\DocumentoReporte;
 
 class ReporteAsesorFiscalService
 {
-    public function construir(array $modelo): array
+    public function construir(array $modelo): DocumentoReporte
     {
         $rif = $this->construirSeccionRif($modelo['arbol']);
         $estatales = $this->construirSeccionEstatales($modelo['arbol']);
         $totales = $this->construirTotales($modelo);
 
-        return [
-            'encabezado' => $this->construirEncabezado($modelo),
-
-            'secciones' => [
-                [
-                    'titulo' => 'TRÁMITES RÉGIMEN DE INCORPORACIÓN FISCAL',
-                    'contenido' => $rif,
-                ],
-                [
-                    'titulo' => 'TRÁMITES ESTATALES',
-                    'contenido' => $estatales,
-                ],
+        $secciones = [
+            [
+                'titulo' => 'TRÁMITES RÉGIMEN DE INCORPORACIÓN FISCAL',
+                'contenido' => $rif,
             ],
-
-            'totales' => $totales,
-            'pie' => $this->construirPie(),
-
-            // Compatibilidad temporal
-            'periodo' => $modelo['periodo'],
-            'rif' => $rif,
-            'estatales' => $estatales,
-            'resumenes' => $modelo['resumenes'],
+            [
+                'titulo' => 'TRÁMITES ESTATALES',
+                'contenido' => $estatales,
+            ],
         ];
+
+        return new DocumentoReporte(
+            encabezado: $this->construirEncabezado($modelo),
+            totales: $totales,
+            secciones: $secciones,
+            pie: $this->construirPie(),
+        );
     }
 
     private function construirSeccionRif(array $arbol): array

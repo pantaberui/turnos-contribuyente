@@ -3,29 +3,51 @@
 namespace App\Http\Controllers\Reportes;
 
 use App\Http\Controllers\Controller;
-use App\Services\Reportes\ReporteAsesorFiscalService;
-use App\Services\Reportes\ModeloReporteService;
 use App\Models\User;
+use App\Services\Reportes\ModeloReporteService;
+use App\Services\Reportes\ReporteAsesorFiscalService;
+use App\Services\Reportes\ReportePdfService;
 
 class DocumentoReporteAsesorFiscalController extends Controller
 {
     public function index()
     {
+        return view('reportes.documento-asesor-fiscal', $this->construirDatosReporte() + [
+            'modoPdf' => false,
+        ]);
+    }
+
+    public function pdf()
+    {
+        $data = $this->construirDatosReporte();
+
+        $html = view('reportes.documento-asesor-fiscal', $data + [
+            'modoPdf' => true,
+        ])->render();
+
+        $pdf = app(ReportePdfService::class)->generarDesdeHtml($html);
+
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="reporte_asesor_fiscal.pdf"');
+    }
+
+    private function construirDatosReporte(): array
+    {
         $fechaInicio = request('inicio', '2026-06-01');
         $fechaFin = request('fin', '2026-06-30');
         $tipoPeriodo = request('periodo', 'Mensual');
-        $modalidad = request('modalidad');
-
         $asesorId = request('asesor_id');
-
-        $asesorSeleccionado = $asesorId
-            ? User::find($asesorId)
-            : null;
+        $modalidad = request('modalidad');
 
         $asesores = User::role([
             'Asesor Fiscal',
             'Orientador Fiscal',
         ])->orderBy('name')->get();
+
+        $asesorSeleccionado = $asesorId
+            ? User::find($asesorId)
+            : null;
 
         $modelo = app(ModeloReporteService::class)->construirModelo(
             fechaInicio: $fechaInicio,
@@ -48,7 +70,7 @@ class DocumentoReporteAsesorFiscalController extends Controller
 
         $reporte = app(ReporteAsesorFiscalService::class)->construir($modelo);
 
-        return view('reportes.documento-asesor-fiscal', compact(
+        return compact(
             'reporte',
             'fechaInicio',
             'fechaFin',
@@ -56,9 +78,6 @@ class DocumentoReporteAsesorFiscalController extends Controller
             'asesores',
             'asesorId',
             'modalidad'
-        ));
+        );
     }
-
-
-
 }

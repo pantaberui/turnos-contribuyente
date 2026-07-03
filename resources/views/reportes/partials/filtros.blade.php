@@ -47,9 +47,9 @@
         Consultar
     </button>
 
-    <button type="button"
-            disabled
-            style="background:#991b1b;color:white;padding:9px 16px;border-radius:6px;font-weight:bold;opacity:.6;">
-        Generar PDF
-    </button>
+    <a href="{{ route('reportes.asesor-fiscal.pdf', request()->query()) }}"
+        target="_blank"
+        style="background:#991b1b;color:white;padding:9px 16px;border-radius:6px;font-weight:bold;">
+            Generar PDF
+    </a>
 </form>

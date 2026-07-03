@@ -5,6 +5,16 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\AsesoriaConsulta;
 use App\Http\Controllers\Reportes\DocumentoReporteAsesorFiscalController;
 
+use Spatie\Browsershot\Browsershot;
+
+Route::get('/reportes/pdf-test', function () {
+    return response(
+        Browsershot::html('<h1>PDF de prueba</h1><p>Browsershot funcionando.</p>')
+            ->format('Letter')
+            ->pdf()
+    )->header('Content-Type', 'application/pdf');
+})->middleware(['auth', 'role:Administrador']);
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -103,6 +113,10 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
     Route::get('/catalogos/usuarios', function () {
         return view('catalogos.usuarios.index');
     })->name('catalogos.usuarios.index');
+
+    Route::get('/reportes/asesor-fiscal/pdf', [DocumentoReporteAsesorFiscalController::class, 'pdf'])
+        ->middleware(['auth', 'role:Administrador'])
+        ->name('reportes.asesor-fiscal.pdf');
 
     // Route::get('/reportes/prueba', \App\Livewire\Reportes\ReportePrueba::class)
     //    ->name('reportes.prueba');
