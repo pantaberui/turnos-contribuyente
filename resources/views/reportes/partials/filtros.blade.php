@@ -30,17 +30,19 @@
         </select>
     </div>
 
-    <div class="flex-1 min-w-[220px]">
-        <label class="block text-sm font-medium">Asesor</label>
-        <select name="asesor_id" class="w-full rounded border-gray-300">
-            <option value="">TODOS</option>
-            @foreach($asesores as $asesor)
-                <option value="{{ $asesor->id }}" @selected((string) $asesorId === (string) $asesor->id)>
-                    {{ mb_strtoupper($asesor->name, 'UTF-8') }}
-                </option>
-            @endforeach
-        </select>
-    </div>
+    @if($configuracion['mostrarFiltroAsesor'] ?? true)
+        <div class="flex-1 min-w-[220px]">
+            <label class="block text-sm font-medium">Asesor</label>
+            <select name="asesor_id" class="w-full rounded border-gray-300">
+                <option value="">TODOS</option>
+                @foreach($asesores as $asesor)
+                    <option value="{{ $asesor->id }}" @selected((string) $asesorId === (string) $asesor->id)>
+                        {{ mb_strtoupper($asesor->name, 'UTF-8') }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    @endif
 
     <button type="submit"
             style="background:#1f2937;color:white;padding:9px 16px;border-radius:6px;font-weight:bold;">

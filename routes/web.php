@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\AsesoriaConsulta;
 use App\Http\Controllers\Reportes\DocumentoReporteAsesorFiscalController;
+use App\Http\Controllers\Reportes\DocumentoReporteGeneralAsesoresController;
 
 use Spatie\Browsershot\Browsershot;
 
@@ -87,6 +88,14 @@ Route::middleware(['auth', 'role:Administrador|Asesor Fiscal'])->group(function 
     Route::get('/asesorias/consulta', AsesoriaConsulta::class)
         ->name('asesorias.consulta');
 });
+
+Route::get('/reportes/general-asesores/documento', [DocumentoReporteGeneralAsesoresController::class, 'index'])
+    ->middleware(['auth', 'role:Administrador'])
+    ->name('reportes.general-asesores.documento');
+
+Route::get('/reportes/general-asesores/pdf', [DocumentoReporteGeneralAsesoresController::class, 'pdf'])
+    ->middleware(['auth', 'role:Administrador'])
+    ->name('reportes.general-asesores.pdf');
 
 /*
 |--------------------------------------------------------------------------
