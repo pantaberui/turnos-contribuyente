@@ -2,6 +2,8 @@
 
 @include('reportes.partials.totales')
 
+@include('reportes.partials.contribuyentes')
+
 @foreach($reporte->secciones as $seccion)
     @include('reportes.partials.seccion-tramites', [
         'titulo' => $seccion['titulo'],

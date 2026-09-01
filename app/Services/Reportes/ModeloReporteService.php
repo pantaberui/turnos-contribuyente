@@ -5,10 +5,14 @@ namespace App\Services\Reportes;
 class ModeloReporteService
 {
    private ReporteComplementarioService $reporteComplementarioService;
+   private ContribuyentesReporteService $contribuyentesReporteService;
 
-    public function __construct(ReporteComplementarioService $reporteComplementarioService)
-    {
+    public function __construct(
+        ReporteComplementarioService $reporteComplementarioService,
+        ContribuyentesReporteService $contribuyentesReporteService
+    ) {
         $this->reporteComplementarioService = $reporteComplementarioService;
+        $this->contribuyentesReporteService = $contribuyentesReporteService;
     }
 
     public function construirModelo(
@@ -41,6 +45,13 @@ class ModeloReporteService
             'arbol' => $arbol,
 
             'resumenes' => $this->construirResumenes($arbol),
+
+            'contribuyentes' => $this->contribuyentesReporteService->obtenerTotales(
+                fechaInicio: $fechaInicio,
+                fechaFin: $fechaFin,
+                asesorId: $asesorId,
+                modalidad: $modalidad
+            ),
 
             'complementario' => $this->construirComplementario(
                 asesorId: $asesorId,
