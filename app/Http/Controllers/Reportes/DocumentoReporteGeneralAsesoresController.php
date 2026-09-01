@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Reportes;
+
 use App\Services\Reportes\ReporteGeneralAsesoresService;
 
 class DocumentoReporteGeneralAsesoresController extends BaseReporteController
@@ -13,5 +14,6 @@ class DocumentoReporteGeneralAsesoresController extends BaseReporteController
 
     protected array $configuracion = [
         'mostrarFiltroAsesor' => false,
+        'rutaPdf' => 'reportes.general-asesores.pdf',
     ];
 }

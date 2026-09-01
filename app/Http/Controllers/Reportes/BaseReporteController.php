@@ -39,8 +39,10 @@ abstract class BaseReporteController extends Controller
             footerHtml: $footerHtml
         );
 
-        $nombreArchivo = $this->nombreArchivo.'_';
-            $data['fechaInicio'].'_al_'.$data['fechaFin'].'.pdf';
+        $nombreArchivo = $this->nombreArchivo
+            .'_'.$data['fechaInicio']
+            .'_al_'.$data['fechaFin']
+            .'.pdf';
 
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
@@ -56,7 +58,10 @@ abstract class BaseReporteController extends Controller
         $fechaInicio = request('inicio');
         $fechaFin = request('fin');
 
-        if ($tipoPeriodo !== 'Personalizado') {
+        if (
+            $tipoPeriodo !== 'Personalizado'
+            && (!$fechaInicio || !$fechaFin)
+        ) {
             [$fechaInicio, $fechaFin] = $this->obtenerFechasPeriodo($tipoPeriodo);
         }
 
@@ -91,16 +96,33 @@ abstract class BaseReporteController extends Controller
         $reporte = app($this->servicioReporte)->construir($modelo);
         $configuracion = $this->configuracion;
 
-        return compact(
-            'reporte',
-            'fechaInicio',
-            'fechaFin',
-            'tipoPeriodo',
-            'asesores',
-            'asesorId',
-            'modalidad',
-            'configuracion'
-        );
+        $complementario = $modelo['complementario'] ?? [
+            'talleres_rif' => 0,
+            'talleres_estatales' => 0,
+            'proyectos_realizados' => 0,
+            'actividades_adicionales' => '',
+            'existe' => false,
+            'aplica' => false,
+        ];
+
+        return [
+            'reporte' => $reporte,
+            'fechaInicio' => $fechaInicio,
+            'fechaFin' => $fechaFin,
+            'tipoPeriodo' => $tipoPeriodo,
+            'asesores' => $asesores,
+            'asesorId' => $asesorId,
+            'modalidad' => $modalidad,
+            'configuracion' => $configuracion,
+            'complementario' => $modelo['complementario'] ?? [
+                'talleres_rif' => 0,
+                'talleres_estatales' => 0,
+                'proyectos_realizados' => 0,
+                'actividades_adicionales' => '',
+                'existe' => false,
+                'aplica' => false,
+            ],
+        ];
     }
 
     private function obtenerFechasPeriodo(string $periodo): array

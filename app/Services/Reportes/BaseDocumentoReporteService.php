@@ -17,6 +17,7 @@ abstract class BaseDocumentoReporteService
             totales: $this->construirTotales($modelo),
             secciones: $this->construirSecciones($modelo),
             pie: $this->construirPie(),
+            complementario: $modelo['complementario'] ?? [],
         );
     }
 

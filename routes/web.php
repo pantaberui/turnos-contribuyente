@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\AsesoriaConsulta;
 use App\Http\Controllers\Reportes\DocumentoReporteAsesorFiscalController;
 use App\Http\Controllers\Reportes\DocumentoReporteGeneralAsesoresController;
+use App\Http\Controllers\Reportes\ReporteComplementarioController;
 
 use Spatie\Browsershot\Browsershot;
 
@@ -17,7 +18,7 @@ Route::get('/reportes/pdf-test', function () {
 })->middleware(['auth', 'role:Administrador']);
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/display-turnos', function () {
@@ -73,6 +74,10 @@ Route::middleware(['auth', 'role:Administrador|Orientador Fiscal'])->group(funct
     Route::get('/contribuyentes/{contribuyente}', function (\App\Models\Contribuyente $contribuyente) {
         return view('contribuyentes.show', compact('contribuyente'));
     })->name('contribuyentes.show');
+
+    Route::post('/reportes/complementario', [ReporteComplementarioController::class, 'guardar'])
+        ->middleware(['auth', 'role:Administrador'])
+        ->name('reportes.complementario.guardar');
 });
 
 /*
@@ -136,6 +141,10 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
 Route::get('/reportes/asesor-fiscal/documento', [DocumentoReporteAsesorFiscalController::class, 'index'])
     ->middleware(['auth', 'role:Administrador'])
     ->name('reportes.asesor-fiscal.documento');
+
+Route::post('/reportes/complementario', [ReporteComplementarioController::class, 'guardar'])
+    ->middleware(['auth', 'role:Administrador'])
+    ->name('reportes.complementario.guardar');
 
 /*
 |--------------------------------------------------------------------------

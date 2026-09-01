@@ -4,14 +4,20 @@ namespace App\Services\Reportes;
 
 class ModeloReporteService
 {
+   private ReporteComplementarioService $reporteComplementarioService;
+
+    public function __construct(ReporteComplementarioService $reporteComplementarioService)
+    {
+        $this->reporteComplementarioService = $reporteComplementarioService;
+    }
+
     public function construirModelo(
         string $fechaInicio,
         string $fechaFin,
         string $tipoPeriodo = 'Mensual',
         ?int $asesorId = null,
         ?string $modalidad = null
-    ): array
-    {
+    ): array {
         $arbol = app(EstadisticasService::class)
             ->construirArbolEstadistico(
                 fechaInicio: $fechaInicio,
@@ -26,6 +32,7 @@ class ModeloReporteService
                 'fecha_inicio' => $fechaInicio,
                 'fecha_fin' => $fechaFin,
             ],
+
             'consulta' => [
                 'asesor_id' => $asesorId,
                 'modalidad' => $modalidad ?: 'TODAS',
@@ -34,6 +41,43 @@ class ModeloReporteService
             'arbol' => $arbol,
 
             'resumenes' => $this->construirResumenes($arbol),
+
+            'complementario' => $this->construirComplementario(
+                asesorId: $asesorId,
+                fechaInicio: $fechaInicio,
+                fechaFin: $fechaFin
+            ),
+        ];
+    }
+
+    private function construirComplementario(
+        ?int $asesorId,
+        string $fechaInicio,
+        string $fechaFin
+    ): array {
+        /*
+         * La captura complementaria actualmente pertenece a un asesor.
+         * Cuando el reporte es general, asesor_id es null y no corresponde
+         * buscar un registro individual.
+         */
+        if ($asesorId === null) {
+            return [
+                'talleres_rif' => 0,
+                'talleres_estatales' => 0,
+                'proyectos_realizados' => 0,
+                'actividades_adicionales' => '',
+                'existe' => false,
+                'aplica' => false,
+            ];
+        }
+
+        return [
+            ...$this->reporteComplementarioService->valoresIniciales(
+                asesorId: $asesorId,
+                fechaInicio: $fechaInicio,
+                fechaFin: $fechaFin
+            ),
+            'aplica' => true,
         ];
     }
 
@@ -48,7 +92,6 @@ class ModeloReporteService
         foreach ($arbol as $tipo) {
             foreach ($tipo['clasificaciones'] as $clasificacion) {
                 foreach ($clasificacion['tramites'] as $tramite) {
-
                     $categoria = $tramite['catalogo']['categoria'];
                     $estadisticas = $tramite['estadisticas'];
 
@@ -88,14 +131,14 @@ class ModeloReporteService
         ];
     }
 
-    private function sumarResumen(array &$resumen, array $estadisticas): void
-    {
+    private function sumarResumen(
+        array &$resumen,
+        array $estadisticas
+    ): void {
         $resumen['PRESENCIAL'] += $estadisticas['PRESENCIAL'];
         $resumen['TELEFONICA'] += $estadisticas['TELEFONICA'];
         $resumen['CORREO'] += $estadisticas['CORREO'];
         $resumen['TOTAL'] += $estadisticas['TOTAL'];
         $resumen['MONTO_VIRTUAL'] += $estadisticas['MONTO_VIRTUAL'];
     }
-
-
 }

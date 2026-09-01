@@ -104,6 +104,26 @@
                             <button
                                 type="button"
                                 style="color:#e2e8f0; background:transparent; border:none; font-size:14px; font-weight:700; cursor:pointer;">
+                                📊 Reportes ⌄
+                            </button>
+                        </x-slot>
+
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('reportes.asesor-fiscal.documento')">
+                                Reporte por asesor fiscal
+                            </x-dropdown-link>
+
+                            <x-dropdown-link :href="route('reportes.general-asesores.documento')">
+                                Reporte general de asesores
+                            </x-dropdown-link>
+                        </x-slot>
+                    </x-dropdown>
+
+                    <x-dropdown align="left" width="48">
+                        <x-slot name="trigger">
+                            <button
+                                type="button"
+                                style="color:#e2e8f0; background:transparent; border:none; font-size:14px; font-weight:700; cursor:pointer;">
                                 ⚙️ Catálogos ⌄
                             </button>
                         </x-slot>
@@ -132,11 +152,10 @@
                     </x-dropdown>
 
                     <a href="{{ route('display.turnos') }}"
-                       style="color:#e2e8f0; font-size:14px; font-weight:700; text-decoration:none;">
+                    style="color:#e2e8f0; font-size:14px; font-weight:700; text-decoration:none;">
                         📺 Display
                     </a>
                 @endrole
-
             </div>
         </div>
     </div>
@@ -195,6 +214,27 @@
             @endrole
 
             @role('Administrador')
+
+                <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
+                    Reportes
+                </div>
+
+                <x-responsive-nav-link
+                    :href="route('reportes.asesor-fiscal.documento')"
+                    :active="request()->routeIs('reportes.asesor-fiscal.*')">
+                    📊 Reporte por asesor fiscal
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('reportes.general-asesores.documento')"
+                    :active="request()->routeIs('reportes.general-asesores.*')">
+                    📈 Reporte general de asesores
+                </x-responsive-nav-link>
+
+                <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
+                    Catálogos
+                </div>
+                
                 <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
                     Catálogos
                 </div>

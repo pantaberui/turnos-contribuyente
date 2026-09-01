@@ -44,16 +44,64 @@
         </div>
     @endif
 
-    <button type="submit"
-            style="background:#1f2937;color:white;padding:9px 16px;border-radius:6px;font-weight:bold;">
-        Consultar
-    </button>
+        {{-- Datos complementarios --}}
+        @if($asesorId && ($complementario['aplica'] ?? false))
+            <button
+                type="button"
+                onclick="document.getElementById('modal-complementario').classList.remove('hidden')"
+                style="
+                    background:#0369a1;
+                    color:white;
+                    padding:9px 16px;
+                    border-radius:6px;
+                    font-weight:bold;
+                    cursor:pointer;
+                    white-space:nowrap;
+                ">
+                📝 Datos complementarios
+            </button>
 
-    <a href="{{ route('reportes.asesor-fiscal.pdf', request()->query()) }}"
-        target="_blank"
-        style="background:#991b1b;color:white;padding:9px 16px;border-radius:6px;font-weight:bold;">
+            @if($complementario['existe'] ?? false)
+                <span
+                    class="text-sm text-green-700 font-medium"
+                    style="white-space:nowrap;">
+                    ✓ Capturado
+                </span>
+            @else
+                <span
+                    class="text-sm text-gray-500"
+                    style="white-space:nowrap;">
+                    Pendiente
+                </span>
+            @endif
+        @endif
+
+        {{-- Consultar --}}
+        <button type="submit"
+                style="
+                    background:#1f2937;
+                    color:white;
+                    padding:9px 16px;
+                    border-radius:6px;
+                    font-weight:bold;
+                    white-space:nowrap;
+                ">
+            Consultar
+        </button>
+
+        {{-- PDF --}}
+        <a href="{{ route('reportes.asesor-fiscal.pdf', request()->query()) }}"
+            target="_blank"
+            style="
+                background:#991b1b;
+                color:white;
+                padding:9px 16px;
+                border-radius:6px;
+                font-weight:bold;
+                white-space:nowrap;
+            ">
             Generar PDF
-    </a>
+        </a>
 </form>
 
 <script>
