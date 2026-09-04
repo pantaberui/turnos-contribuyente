@@ -45,12 +45,20 @@
                 @endforeach
 
                 <tr class="reporte-fila-total">
-                    <td class="border px-3 py-2">TOTAL {{ $clasificacion['catalogo']['nombre'] }}</td>
-                    <td class="reporte-numero">{{ $clasificacion['estadisticas']['PRESENCIAL'] }}</td>
-                    <td class="reporte-numero">{{ $clasificacion['estadisticas']['TELEFONICA'] }}</td>
-                    <td class="reporte-numero">{{ $clasificacion['estadisticas']['CORREO'] }}</td>
+                    <td class="border px-3 py-2">
+                        TOTAL {{ $clasificacion['catalogo']['nombre'] }}
+                    </td>
+                    <td class="reporte-numero">
+                        {{ $clasificacion['estadisticas']['PRESENCIAL'] }}
+                    </td>
+                    <td class="reporte-numero">
+                        {{ $clasificacion['estadisticas']['TELEFONICA'] }}
+                    </td>
+                    <td class="reporte-numero">
+                        {{ $clasificacion['estadisticas']['CORREO'] }}
+                    </td>
                     <td class="reporte-numero reporte-total-columna">
-                        {{ number_format($tramite['estadisticas']['TOTAL']) }}
+                        {{ number_format($clasificacion['estadisticas']['TOTAL']) }}
                     </td>
                     <td class="reporte-numero reporte-monto-columna">
                         ${{ number_format($clasificacion['estadisticas']['MONTO_VIRTUAL'], 2) }}
