@@ -31,10 +31,6 @@ Route::get('/dashboard', function () {
 
 // Route::get('/reportes/debug', \App\Livewire\Reportes\DebugReporte::class)
 //     ->name('reportes.debug');
-
-
-
-/*
 /*
 |--------------------------------------------------------------------------
 | Rutas para Administrador y Orientador Fiscal
@@ -59,6 +55,14 @@ Route::middleware(['auth', 'role:Administrador|Orientador Fiscal'])->group(funct
         return view('turnos.ticket', compact('turno'));
     })->name('turnos.ticket');
 
+});
+
+/*
+|--------------------------------------------------------------------------
+| Rutas para Administrador, Orientador Fiscal y Asesor Fiscal
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:Administrador|Orientador Fiscal|Asesor Fiscal'])->group(function () {
     Route::get('/contribuyentes', function () {
         return view('contribuyentes.index');
     })->name('contribuyentes.index');
@@ -74,8 +78,12 @@ Route::middleware(['auth', 'role:Administrador|Orientador Fiscal'])->group(funct
     Route::get('/contribuyentes/{contribuyente}', function (\App\Models\Contribuyente $contribuyente) {
         return view('contribuyentes.show', compact('contribuyente'));
     })->name('contribuyentes.show');
-
 });
+
+
+
+
+
 
 /*
 |--------------------------------------------------------------------------
