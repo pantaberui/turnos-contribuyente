@@ -10,6 +10,7 @@ class DocumentoReporte
     public array $pie = [];
     public array $complementario = [];
     public array $contribuyentes = [];
+    public array $solventaciones = [];
 
     public function __construct(
         array $encabezado = [],
@@ -18,6 +19,7 @@ class DocumentoReporte
         array $pie = [],
         array $complementario = [],
         array $contribuyentes = [],
+        array $solventaciones = [],
     ) {
         $this->encabezado = $encabezado;
         $this->totales = $totales;
@@ -25,5 +27,6 @@ class DocumentoReporte
         $this->pie = $pie;
         $this->complementario = $complementario;
         $this->contribuyentes = $contribuyentes;
+        $this->solventaciones = $solventaciones;
     }
 }

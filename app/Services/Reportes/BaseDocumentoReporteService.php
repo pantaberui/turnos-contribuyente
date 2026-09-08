@@ -16,9 +16,10 @@ abstract class BaseDocumentoReporteService
             encabezado: $this->construirEncabezado($modelo),
             totales: $this->construirTotales($modelo),
             secciones: $this->construirSecciones($modelo),
-            pie: $this->construirPie(),
+            pie: $this->construirPie($modelo),
             complementario: $modelo['complementario'] ?? [],
             contribuyentes: $modelo['contribuyentes'] ?? [],
+            solventaciones: $modelo['solventaciones'] ?? [],
         );
     }
 
@@ -61,11 +62,11 @@ abstract class BaseDocumentoReporteService
         return $secciones;
     }
 
-    protected function construirPie(): array
+    protected function construirPie(array $modelo = []): array
     {
         return [
             'firma_label' => 'FIRMA',
-            'nombre_firma' => '',
+            'nombre_firma' => $modelo['consulta']['asesor'] ?? '',
             'actividades_label' => 'ACTIVIDADES REALIZADAS EN EL MES',
         ];
     }

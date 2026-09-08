@@ -67,8 +67,22 @@ class ReporteComplementarioController extends Controller
             ],
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Determinar el asesor
+        |--------------------------------------------------------------------------
+        |
+        | El Administrador puede capturar información para cualquier asesor.
+        | El Asesor Fiscal solamente puede capturar sus propios datos.
+        |
+        */
+
+        $asesorId = auth()->user()->hasRole('Asesor Fiscal')
+            ? auth()->id()
+            : (int) $datos['asesor_id'];
+
         $this->reporteComplementarioService->guardar(
-            asesorId: (int) $datos['asesor_id'],
+            asesorId: $asesorId,
             fechaInicio: $datos['fecha_inicio'],
             fechaFin: $datos['fecha_fin'],
             datos: $datos,

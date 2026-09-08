@@ -75,9 +75,6 @@ Route::middleware(['auth', 'role:Administrador|Orientador Fiscal'])->group(funct
         return view('contribuyentes.show', compact('contribuyente'));
     })->name('contribuyentes.show');
 
-    Route::post('/reportes/complementario', [ReporteComplementarioController::class, 'guardar'])
-        ->middleware(['auth', 'role:Administrador'])
-        ->name('reportes.complementario.guardar');
 });
 
 /*
@@ -101,6 +98,19 @@ Route::get('/reportes/general-asesores/documento', [DocumentoReporteGeneralAseso
 Route::get('/reportes/general-asesores/pdf', [DocumentoReporteGeneralAsesoresController::class, 'pdf'])
     ->middleware(['auth', 'role:Administrador'])
     ->name('reportes.general-asesores.pdf');
+
+Route::post('/reportes/complementario', [ReporteComplementarioController::class, 'guardar'])
+    ->name('reportes.complementario.guardar');
+
+Route::get('/reportes/asesor-fiscal/documento', [DocumentoReporteAsesorFiscalController::class, 'index'])
+    ->middleware(['auth', 'role:Administrador|Asesor Fiscal'])
+    ->name('reportes.asesor-fiscal.documento');
+
+Route::get('/reportes/asesor-fiscal/pdf', [DocumentoReporteAsesorFiscalController::class, 'pdf'])
+    ->middleware(['auth', 'role:Administrador|Asesor Fiscal'])
+    ->name('reportes.asesor-fiscal.pdf');
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -128,9 +138,8 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
         return view('catalogos.usuarios.index');
     })->name('catalogos.usuarios.index');
 
-    Route::get('/reportes/asesor-fiscal/pdf', [DocumentoReporteAsesorFiscalController::class, 'pdf'])
-        ->middleware(['auth', 'role:Administrador'])
-        ->name('reportes.asesor-fiscal.pdf');
+
+    
 
     // Route::get('/reportes/prueba', \App\Livewire\Reportes\ReportePrueba::class)
     //    ->name('reportes.prueba');
@@ -138,13 +147,8 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
 });
 
 
-Route::get('/reportes/asesor-fiscal/documento', [DocumentoReporteAsesorFiscalController::class, 'index'])
-    ->middleware(['auth', 'role:Administrador'])
-    ->name('reportes.asesor-fiscal.documento');
 
-Route::post('/reportes/complementario', [ReporteComplementarioController::class, 'guardar'])
-    ->middleware(['auth', 'role:Administrador'])
-    ->name('reportes.complementario.guardar');
+
 
 /*
 |--------------------------------------------------------------------------

@@ -30,18 +30,37 @@
         </select>
     </div>
 
-    @if($configuracion['mostrarFiltroAsesor'] ?? true)
+    @if(auth()->user()->hasRole('Administrador') && ($configuracion['mostrarFiltroAsesor'] ?? true))
+
         <div class="flex-1 min-w-[220px]">
             <label class="block text-sm font-medium">Asesor</label>
+
             <select name="asesor_id" class="w-full rounded border-gray-300">
                 <option value="">TODOS</option>
+
                 @foreach($asesores as $asesor)
-                    <option value="{{ $asesor->id }}" @selected((string) $asesorId === (string) $asesor->id)>
+                    <option
+                        value="{{ $asesor->id }}"
+                        @selected((string) $asesorId === (string) $asesor->id)
+                    >
                         {{ mb_strtoupper($asesor->name, 'UTF-8') }}
                     </option>
                 @endforeach
             </select>
         </div>
+
+    @elseif(auth()->user()->hasRole('Asesor Fiscal'))
+
+        <div class="flex-1 min-w-[220px]">
+            <label class="block text-sm font-medium">Asesor</label>
+
+            <div
+                class="w-full rounded border border-gray-300 bg-gray-100 px-3 py-2 text-gray-700 font-medium"
+            >
+                {{ mb_strtoupper(auth()->user()->name, 'UTF-8') }}
+            </div>
+        </div>
+
     @endif
 
         {{-- Datos complementarios --}}

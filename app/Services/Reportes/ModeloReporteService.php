@@ -58,8 +58,27 @@ class ModeloReporteService
                 fechaInicio: $fechaInicio,
                 fechaFin: $fechaFin
             ),
+
+            'solventaciones' => $this->construirSolventaciones($arbol),
         ];
     }
+
+    private function construirSolventaciones(array $arbol): array
+    {
+        $estatales = $arbol[2]['clasificaciones'][10]['estadisticas']['TOTAL'] ?? 0;
+
+        $federales = $arbol[3]['clasificaciones'][13]['estadisticas']['TOTAL'] ?? 0;
+
+        $exhortos = $arbol[2]['clasificaciones'][11]['estadisticas']['TOTAL'] ?? 0;
+
+        return [
+            'estatales' => (int) $estatales,
+            'federales' => (int) $federales,
+            'exhortos' => (int) $exhortos,
+            'total' => (int) ($estatales + $federales + $exhortos),
+        ];
+    }
+
 
     private function construirComplementario(
         ?int $asesorId,

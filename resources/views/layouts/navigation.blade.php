@@ -98,7 +98,7 @@
                     </x-dropdown>
                 @endrole
 
-                @role('Administrador')
+                @role('Asesor Fiscal|Administrador')
                     <x-dropdown align="left" width="48">
                         <x-slot name="trigger">
                             <button
@@ -113,11 +113,14 @@
                                 Reporte por asesor fiscal
                             </x-dropdown-link>
 
-                            <x-dropdown-link :href="route('reportes.general-asesores.documento')">
-                                Reporte general de asesores
-                            </x-dropdown-link>
+                            @role('Administrador')
+                                <x-dropdown-link :href="route('reportes.general-asesores.documento')">
+                                    Reporte general de asesores
+                                </x-dropdown-link>
+                            @endrole
                         </x-slot>
                     </x-dropdown>
+                
 
                     <x-dropdown align="left" width="48">
                         <x-slot name="trigger">
@@ -213,7 +216,7 @@
                 </x-responsive-nav-link>
             @endrole
 
-            @role('Administrador')
+            @role('Asesor Fiscal|Administrador')
 
                 <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
                     Reportes
@@ -225,44 +228,48 @@
                     📊 Reporte por asesor fiscal
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link
-                    :href="route('reportes.general-asesores.documento')"
-                    :active="request()->routeIs('reportes.general-asesores.*')">
-                    📈 Reporte general de asesores
-                </x-responsive-nav-link>
+                @role('Administrador')
+                    <x-responsive-nav-link
+                        :href="route('reportes.general-asesores.documento')"
+                        :active="request()->routeIs('reportes.general-asesores.*')">
+                        📈 Reporte general de asesores
+                    </x-responsive-nav-link>
+                @endrole
 
-                <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
-                    Catálogos
-                </div>
-                
-                <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
-                    Catálogos
-                </div>
-
-                <x-responsive-nav-link :href="route('catalogos.usuarios.index')">
-                    Usuarios
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('catalogos.modulos-asesoria.index')">
-                    Módulos de asesoría
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('catalogos.tipo-tramites.index')">
-                    Tipos de trámite
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('catalogos.clasificacion-tramites.index')">
-                    Clasificaciones
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('catalogos.tramites.index')">
-                    Trámites
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('display.turnos')">
-                    📺 Display
-                </x-responsive-nav-link>
             @endrole
+
+            <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
+                Catálogos
+            </div>
+            
+            <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
+                Catálogos
+            </div>
+
+            <x-responsive-nav-link :href="route('catalogos.usuarios.index')">
+                Usuarios
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('catalogos.modulos-asesoria.index')">
+                Módulos de asesoría
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('catalogos.tipo-tramites.index')">
+                Tipos de trámite
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('catalogos.clasificacion-tramites.index')">
+                Clasificaciones
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('catalogos.tramites.index')">
+                Trámites
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('display.turnos')">
+                📺 Display
+            </x-responsive-nav-link>
+        
         </div>
 
         <div class="pt-4 pb-1 border-t border-slate-700">

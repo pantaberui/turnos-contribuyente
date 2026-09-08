@@ -11,6 +11,8 @@
     ])
 @endforeach
 
+@include('reportes.partials.solventaciones')
+
 @include('reportes.partials.complementarios')
 
 @include('reportes.partials.pie')

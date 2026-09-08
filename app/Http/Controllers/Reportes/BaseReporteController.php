@@ -53,7 +53,23 @@ abstract class BaseReporteController extends Controller
     {
         $tipoPeriodo = request('periodo', 'Mensual');
         $modalidad = request('modalidad');
-        $asesorId = $asesorIdForzado ?? request('asesor_id');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Determinar asesor
+        |--------------------------------------------------------------------------
+        |
+        | El Administrador puede consultar cualquier asesor o TODOS.
+        | El Asesor Fiscal siempre queda limitado a su propio usuario,
+        | aunque intente enviar otro asesor_id por URL.
+        |
+        */
+
+        if (auth()->user()->hasRole('Asesor Fiscal')) {
+            $asesorId = auth()->id();
+        } else {
+            $asesorId = $asesorIdForzado ?? request('asesor_id');
+        }
 
         $fechaInicio = request('inicio');
         $fechaFin = request('fin');
@@ -65,14 +81,38 @@ abstract class BaseReporteController extends Controller
             [$fechaInicio, $fechaFin] = $this->obtenerFechasPeriodo($tipoPeriodo);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Lista de asesores
+        |--------------------------------------------------------------------------
+        |
+        | El Administrador necesita esta lista para poder seleccionar.
+        | Al Asesor Fiscal no se le mostrará el selector.
+        |
+        */
+
         $asesores = User::role([
             'Asesor Fiscal',
             'Orientador Fiscal',
-        ])->orderBy('name')->get();
+        ])
+            ->orderBy('name')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Asesor seleccionado
+        |--------------------------------------------------------------------------
+        */
 
         $asesorSeleccionado = $asesorId
             ? User::find($asesorId)
             : null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Construir modelo
+        |--------------------------------------------------------------------------
+        */
 
         $modelo = app(ModeloReporteService::class)->construirModelo(
             fechaInicio: $fechaInicio,
@@ -81,6 +121,12 @@ abstract class BaseReporteController extends Controller
             asesorId: $asesorId ? (int) $asesorId : null,
             modalidad: $modalidad ?: null
         );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Información de consulta
+        |--------------------------------------------------------------------------
+        */
 
         $modelo['consulta']['asesor'] = $asesorSeleccionado
             ? mb_strtoupper($asesorSeleccionado->name, 'UTF-8')
@@ -92,6 +138,12 @@ abstract class BaseReporteController extends Controller
             'CORREO' => 'CORREO ELECTRÓNICO',
             default => 'TODAS',
         };
+
+        /*
+        |--------------------------------------------------------------------------
+        | Construir reporte
+        |--------------------------------------------------------------------------
+        */
 
         $reporte = app($this->servicioReporte)->construir($modelo);
         $configuracion = $this->configuracion;
@@ -114,17 +166,9 @@ abstract class BaseReporteController extends Controller
             'asesorId' => $asesorId,
             'modalidad' => $modalidad,
             'configuracion' => $configuracion,
-            'complementario' => $modelo['complementario'] ?? [
-                'talleres_rif' => 0,
-                'talleres_estatales' => 0,
-                'proyectos_realizados' => 0,
-                'actividades_adicionales' => '',
-                'existe' => false,
-                'aplica' => false,
-            ],
+            'complementario' => $complementario,
         ];
     }
-
     private function obtenerFechasPeriodo(string $periodo): array
     {
         $hoy = Carbon::today();
