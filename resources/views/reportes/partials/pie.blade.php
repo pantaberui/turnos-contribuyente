@@ -1,10 +1,10 @@
-<div class="bg-white border rounded p-4 mt-4">
+<div class="reporte-seccion">
 
-    <h3 class="font-bold text-sm mb-3">
+    <h2 class="documento-titulo-seccion">
         {{ $reporte->pie['actividades_label'] }}
-    </h3>
+    </h2>
 
-    <div class="border rounded min-h-[90px] p-3 text-sm">
+    <div class="border border-gray-300 p-3 text-sm min-h-[90px]">
 
         @if(!empty($reporte->complementario['actividades_adicionales']))
             {!! nl2br(e($reporte->complementario['actividades_adicionales'])) !!}

@@ -2,8 +2,8 @@
 
     <div class="reporte-seccion">
 
-        <h2>
-            Datos complementarios
+        <h2 class="documento-titulo-seccion">
+            DATOS COMPLEMENTARIOS
         </h2>
 
         <table class="reporte-tabla">
