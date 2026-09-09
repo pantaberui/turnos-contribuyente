@@ -49,6 +49,28 @@ abstract class BaseReporteController extends Controller
             ->header('Content-Disposition', 'inline; filename="'.$nombreArchivo.'"');
     }
 
+    public function pdfResumen()
+    {
+        $data = $this->construirDatosReporte();
+
+        $html = view('reportes.resumen-asesor-fiscal', $data + [
+            'modoPdf' => true,
+        ])->render();
+
+        $pdf = app(ReportePdfService::class)->generarDesdeHtml(
+            html: $html
+        );
+
+        $nombreArchivo = $this->nombreArchivo
+            .'_resumen_'.$data['fechaInicio']
+            .'_al_'.$data['fechaFin']
+            .'.pdf';
+
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="'.$nombreArchivo.'"');
+    }
+
     protected function construirDatosReporte(?int $asesorIdForzado = null): array
     {
         $tipoPeriodo = request('periodo', 'Mensual');

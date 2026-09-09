@@ -20,6 +20,7 @@ abstract class BaseDocumentoReporteService
             complementario: $modelo['complementario'] ?? [],
             contribuyentes: $modelo['contribuyentes'] ?? [],
             solventaciones: $modelo['solventaciones'] ?? [],
+            resumenes: $modelo['resumenes'] ?? [],
         );
     }
 

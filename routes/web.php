@@ -118,6 +118,10 @@ Route::get('/reportes/asesor-fiscal/pdf', [DocumentoReporteAsesorFiscalControlle
     ->middleware(['auth', 'role:Administrador|Asesor Fiscal'])
     ->name('reportes.asesor-fiscal.pdf');
 
+Route::get('/reportes/asesor-fiscal/pdf-resumen', [DocumentoReporteAsesorFiscalController::class, 'pdfResumen'])
+    ->middleware(['auth', 'role:Administrador|Asesor Fiscal'])
+    ->name('reportes.asesor-fiscal.pdf-resumen');
+
 
 
 /*
