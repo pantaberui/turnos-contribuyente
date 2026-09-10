@@ -108,7 +108,7 @@
             Consultar
         </button>
 
-        {{-- PDF --}}
+        {{-- PDF detallado --}}
         <a href="{{ route('reportes.asesor-fiscal.pdf', request()->query()) }}"
             target="_blank"
             style="
@@ -119,7 +119,21 @@
                 font-weight:bold;
                 white-space:nowrap;
             ">
-            Generar PDF
+            📄 Generar PDF
+        </a>
+
+        {{-- PDF resumen --}}
+        <a href="{{ route('reportes.asesor-fiscal.pdf-resumen', request()->query()) }}"
+            target="_blank"
+            style="
+                background:#0369a1;
+                color:white;
+                padding:9px 16px;
+                border-radius:6px;
+                font-weight:bold;
+                white-space:nowrap;
+            ">
+            📋 Generar resumen
         </a>
 </form>
 

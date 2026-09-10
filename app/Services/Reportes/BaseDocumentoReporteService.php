@@ -21,6 +21,7 @@ abstract class BaseDocumentoReporteService
             contribuyentes: $modelo['contribuyentes'] ?? [],
             solventaciones: $modelo['solventaciones'] ?? [],
             resumenes: $modelo['resumenes'] ?? [],
+            tramites_estatales_resumen: $modelo['tramites_estatales_resumen'] ?? [],
         );
     }
 

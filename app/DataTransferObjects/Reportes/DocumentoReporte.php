@@ -12,6 +12,7 @@ class DocumentoReporte
     public array $contribuyentes = [];
     public array $solventaciones = [];
     public array $resumenes = [];
+    public array $tramites_estatales_resumen = [];
 
     public function __construct(
         array $encabezado = [],
@@ -22,6 +23,7 @@ class DocumentoReporte
         array $contribuyentes = [],
         array $solventaciones = [],
         array $resumenes = [],
+        array $tramites_estatales_resumen = [],
     ) {
         $this->encabezado = $encabezado;
         $this->totales = $totales;
@@ -31,5 +33,6 @@ class DocumentoReporte
         $this->contribuyentes = $contribuyentes;
         $this->solventaciones = $solventaciones;
         $this->resumenes = $resumenes;
+        $this->tramites_estatales_resumen = $tramites_estatales_resumen;
     }
 }

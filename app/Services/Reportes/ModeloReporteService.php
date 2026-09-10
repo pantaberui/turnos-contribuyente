@@ -43,8 +43,8 @@ class ModeloReporteService
             ],
 
             'arbol' => $arbol,
-
             'resumenes' => $this->construirResumenes($arbol),
+            'tramites_estatales_resumen' => $this->construirTramitesEstatalesResumen($arbol),
 
             'contribuyentes' => $this->contribuyentesReporteService->obtenerTotales(
                 fechaInicio: $fechaInicio,
@@ -148,6 +148,191 @@ class ModeloReporteService
         }
 
         return $resumenes;
+    }
+
+    private function construirTramitesEstatalesResumen(array $arbol): array
+    {
+        $grupos = [
+            'nominas' => $this->estructuraResumenEstatal(),
+            'hospedaje' => $this->estructuraResumenEstatal(),
+            'cedulares' => $this->estructuraResumenEstatal(),
+            'bebidas_alcoholicas' => $this->estructuraResumenEstatal(),
+            'juegos_apuestas_rifas' => $this->estructuraResumenEstatal(),
+            'otros' => $this->estructuraResumenEstatal(),
+        ];
+
+        /*
+        * Tipo 2 = Impuestos Estatales.
+        *
+        * Solo se consideran las clasificaciones 1 a 6.
+        * La 7 = Refrendo Vehicular no aplica.
+        * La 8 = Solventación se procesa en su sección correspondiente.
+        */
+        $tipoEstatal = $arbol[2] ?? null;
+
+        if (!$tipoEstatal) {
+            return [
+                'grupos' => $grupos,
+                'totales' => $this->estructuraResumenEstatal(),
+            ];
+        }
+
+        foreach ($tipoEstatal['clasificaciones'] as $clasificacion) {
+
+            $numeroClasificacion = (int) ($clasificacion['catalogo']['numero'] ?? 0);
+
+            if ($numeroClasificacion < 1 || $numeroClasificacion > 6) {
+                continue;
+            }
+
+            foreach ($clasificacion['tramites'] as $tramite) {
+
+                $nombre = mb_strtoupper(
+                    trim($tramite['catalogo']['nombre'] ?? ''),
+                    'UTF-8'
+                );
+
+                $categoria = $tramite['catalogo']['categoria'] ?? null;
+
+                if (!in_array($categoria, [
+                    'ASESORIA',
+                    'DECLARACION_TRAMITE',
+                ], true)) {
+                    continue;
+                }
+
+                $grupo = $this->clasificarTramiteEstatal($nombre);
+
+                $destino = match ($categoria) {
+                    'ASESORIA' => 'asesorias',
+                    'DECLARACION_TRAMITE' => 'declaraciones_tramites',
+                    default => null,
+                };
+
+                if ($destino === null) {
+                    continue;
+                }
+
+                $estadisticas = $tramite['estadisticas'] ?? [];
+
+                $grupos[$grupo][$destino]['PRESENCIAL']
+                    += (int) ($estadisticas['PRESENCIAL'] ?? 0);
+
+                $grupos[$grupo][$destino]['TELEFONICA']
+                    += (int) ($estadisticas['TELEFONICA'] ?? 0);
+
+                $grupos[$grupo][$destino]['CORREO']
+                    += (int) ($estadisticas['CORREO'] ?? 0);
+
+                $grupos[$grupo][$destino]['TOTAL']
+                    += (int) ($estadisticas['TOTAL'] ?? 0);
+
+                $grupos[$grupo][$destino]['MONTO_VIRTUAL']
+                    += (float) ($estadisticas['MONTO_VIRTUAL'] ?? 0);
+            }
+        }
+
+        $totales = [
+            'asesorias' => [
+                'PRESENCIAL' => 0,
+                'TELEFONICA' => 0,
+                'CORREO' => 0,
+                'TOTAL' => 0,
+                'MONTO_VIRTUAL' => 0,
+            ],
+
+            'declaraciones_tramites' => [
+                'PRESENCIAL' => 0,
+                'TELEFONICA' => 0,
+                'CORREO' => 0,
+                'TOTAL' => 0,
+                'MONTO_VIRTUAL' => 0,
+            ],
+        ];
+
+        foreach ($grupos as $grupo) {
+
+            foreach (['asesorias', 'declaraciones_tramites'] as $categoria) {
+
+                $totales[$categoria]['PRESENCIAL']
+                    += $grupo[$categoria]['PRESENCIAL'];
+
+                $totales[$categoria]['TELEFONICA']
+                    += $grupo[$categoria]['TELEFONICA'];
+
+                $totales[$categoria]['CORREO']
+                    += $grupo[$categoria]['CORREO'];
+
+                $totales[$categoria]['TOTAL']
+                    += $grupo[$categoria]['TOTAL'];
+
+                $totales[$categoria]['MONTO_VIRTUAL']
+                    += $grupo[$categoria]['MONTO_VIRTUAL'];
+            }
+        }
+
+        return [
+            'grupos' => $grupos,
+            'totales' => $totales,
+        ];
+    }
+
+    private function estructuraResumenEstatal(): array
+    {
+        return [
+            'asesorias' => [
+                'PRESENCIAL' => 0,
+                'TELEFONICA' => 0,
+                'CORREO' => 0,
+                'TOTAL' => 0,
+                'MONTO_VIRTUAL' => 0,
+            ],
+
+            'declaraciones_tramites' => [
+                'PRESENCIAL' => 0,
+                'TELEFONICA' => 0,
+                'CORREO' => 0,
+                'TOTAL' => 0,
+                'MONTO_VIRTUAL' => 0,
+            ],
+        ];
+    }
+
+    private function clasificarTramiteEstatal(string $nombre): string
+    {
+        if (
+            str_contains($nombre, 'NÓMINA') ||
+            str_contains($nombre, 'NOMINA')
+        ) {
+            return 'nominas';
+        }
+
+        if (str_contains($nombre, 'HOSPEDAJE')) {
+            return 'hospedaje';
+        }
+
+        if (str_contains($nombre, 'CEDULAR')) {
+            return 'cedulares';
+        }
+
+        if (
+            str_contains($nombre, 'BEBIDA CON CONTENIDO ALCOHÓLICO') ||
+            str_contains($nombre, 'BEBIDA CON CONTENIDO ALCOHOLICO')
+        ) {
+            return 'bebidas_alcoholicas';
+        }
+
+        if (
+            str_contains($nombre, 'JUEGOS Y APUESTAS') ||
+            str_contains($nombre, 'RIFAS') ||
+            str_contains($nombre, 'LOTERIAS') ||
+            str_contains($nombre, 'LOTERÍAS') ||
+            str_contains($nombre, 'SORTEOS')
+        ) {
+            return 'juegos_apuestas_rifas';
+        }
+
+        return 'otros';
     }
 
     private function estructuraResumen(): array
