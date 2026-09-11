@@ -112,16 +112,23 @@
 
         .columnas {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 5px 0;
-            margin-left: -5px;
-            margin-right: -5px;
+            margin: 0;
+            border-collapse: collapse;
+            table-layout: fixed;
         }
 
         .columna-izquierda,
         .columna-derecha {
             width: 50%;
             vertical-align: top;
+        }
+
+        .columna-izquierda {
+            padding-right: 5px;
+        }
+
+        .columna-derecha {
+            padding-left: 5px;
         }
 
         /* =====================================================
