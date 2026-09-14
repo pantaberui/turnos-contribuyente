@@ -6,6 +6,9 @@ use App\Livewire\AsesoriaConsulta;
 use App\Http\Controllers\Reportes\DocumentoReporteAsesorFiscalController;
 use App\Http\Controllers\Reportes\DocumentoReporteGeneralAsesoresController;
 use App\Http\Controllers\Reportes\ReporteComplementarioController;
+use App\Http\Controllers\Reportes\DocumentoReporteOrientadorFiscalController;
+use App\Http\Controllers\Reportes\ReporteComplementarioOrientadorController;
+use App\Http\Controllers\Reportes\DocumentoReporteGeneralOrientadoresController;
 
 use Spatie\Browsershot\Browsershot;
 
@@ -56,6 +59,34 @@ Route::middleware(['auth', 'role:Administrador|Orientador Fiscal'])->group(funct
     })->name('turnos.ticket');
 
 });
+
+
+
+Route::get('/reportes/orientador-fiscal/documento',
+    [DocumentoReporteOrientadorFiscalController::class, 'index'])
+    ->middleware(['auth', 'role:Administrador|Orientador Fiscal'])
+    ->name('reportes.orientador-fiscal.documento');
+
+Route::get('/reportes/orientador-fiscal/pdf',
+    [DocumentoReporteOrientadorFiscalController::class, 'pdf'])
+    ->middleware(['auth', 'role:Administrador|Orientador Fiscal'])
+    ->name('reportes.orientador-fiscal.pdf');
+
+Route::post('/reportes/orientador-fiscal/complementario',
+    [ReporteComplementarioOrientadorController::class, 'guardar'])
+    ->middleware(['auth', 'role:Administrador|Orientador Fiscal'])
+    ->name('reportes.orientador-fiscal.complementario.guardar');
+
+
+Route::get('/reportes/general-orientadores/documento',
+    [DocumentoReporteGeneralOrientadoresController::class, 'index'])
+    ->middleware(['auth', 'role:Administrador'])
+    ->name('reportes.general-orientadores.documento');
+
+Route::get('/reportes/general-orientadores/pdf',
+    [DocumentoReporteGeneralOrientadoresController::class, 'pdf'])
+    ->middleware(['auth', 'role:Administrador'])
+    ->name('reportes.general-orientadores.pdf');
 
 /*
 |--------------------------------------------------------------------------

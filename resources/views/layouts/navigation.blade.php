@@ -193,7 +193,7 @@
 
 
                 {{-- REPORTES --}}
-                @role('Asesor Fiscal|Administrador')
+                @role('Asesor Fiscal|Administrador|Orientador Fiscal')
 
                     <x-dropdown align="left" width="48">
 
@@ -216,11 +216,28 @@
                         <x-slot name="content">
 
                             {{-- Disponible para Administrador y Asesor Fiscal --}}
-                            <x-dropdown-link
-                                :href="route('reportes.asesor-fiscal.documento')"
-                            >
-                                Reporte por asesor fiscal
-                            </x-dropdown-link>
+                            @role('Asesor Fiscal|Administrador')
+
+                                <x-dropdown-link
+                                    :href="route('reportes.asesor-fiscal.documento')"
+                                >
+                                    Reporte por asesor fiscal
+                                </x-dropdown-link>
+
+                            @endrole
+
+
+                            {{-- Disponible para Administrador y Orientador Fiscal --}}
+                            @role('Orientador Fiscal|Administrador')
+
+                                <x-dropdown-link
+                                    :href="route('reportes.orientador-fiscal.documento', Auth::user()->hasRole('Orientador Fiscal') ? ['orientador_id' => Auth::id()] : [])"
+                                >
+                                    Reporte por orientador fiscal
+                                </x-dropdown-link>
+
+                            @endrole
+
 
                             {{-- Exclusivo Administrador --}}
                             @role('Administrador')
@@ -233,12 +250,19 @@
 
                             @endrole
 
+                            @role('Administrador')
+                                <x-dropdown-link
+                                    :href="route('reportes.general-orientadores.documento')"
+                                >
+                                    Reporte general de orientadores
+                                </x-dropdown-link>
+                            @endrole
+
                         </x-slot>
 
                     </x-dropdown>
 
                 @endrole
-
 
                 {{-- CATÁLOGOS --}}
                 @role('Administrador')
@@ -424,19 +448,40 @@
 
 
             {{-- REPORTES --}}
-            @role('Asesor Fiscal|Administrador')
+            @role('Asesor Fiscal|Administrador|Orientador Fiscal')
 
                 <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
                     Reportes
                 </div>
 
-                <x-responsive-nav-link
-                    :href="route('reportes.asesor-fiscal.documento')"
-                    :active="request()->routeIs('reportes.asesor-fiscal.*')"
-                >
-                    📊 Reporte por asesor fiscal
-                </x-responsive-nav-link>
 
+                {{-- Disponible para Administrador y Asesor Fiscal --}}
+                @role('Asesor Fiscal|Administrador')
+
+                    <x-responsive-nav-link
+                        :href="route('reportes.asesor-fiscal.documento')"
+                        :active="request()->routeIs('reportes.asesor-fiscal.*')"
+                    >
+                        📊 Reporte por asesor fiscal
+                    </x-responsive-nav-link>
+
+                @endrole
+
+
+                {{-- Disponible para Administrador y Orientador Fiscal --}}
+                @role('Orientador Fiscal|Administrador')
+
+                    <x-responsive-nav-link
+                        :href="route('reportes.orientador-fiscal.documento', Auth::user()->hasRole('Orientador Fiscal') ? ['orientador_id' => Auth::id()] : [])"
+                        :active="request()->routeIs('reportes.orientador-fiscal.*')"
+                    >
+                        📋 Reporte por orientador fiscal
+                    </x-responsive-nav-link>
+
+                @endrole
+
+
+                {{-- Exclusivo Administrador --}}
                 @role('Administrador')
 
                     <x-responsive-nav-link
@@ -446,6 +491,15 @@
                         📈 Reporte general de asesores
                     </x-responsive-nav-link>
 
+                @endrole
+
+                @role('Administrador')
+                    <x-responsive-nav-link
+                        :href="route('reportes.general-orientadores.documento')"
+                        :active="request()->routeIs('reportes.general-orientadores.documento')"
+                    >
+                        Reporte general de orientadores
+                    </x-responsive-nav-link>
                 @endrole
 
             @endrole
