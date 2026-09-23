@@ -73,7 +73,7 @@
                 Información Institucional
             </div>
 
-            @if(file_exists(public_path('videos/institucional.mp4')))
+            @if($videoActual)
                 <video
                     autoplay
                     muted
@@ -81,14 +81,14 @@
                     playsinline
                     preload="auto"
                     style="
-                        width:100%;                        
+                        width:100%;
                         border-radius:16px;
                         display:block;
                         object-fit:cover;
                     "
                 >
                     <source
-                        src="{{ asset('videos/institucional.mp4') }}"
+                        src="{{ asset('storage/' . $videoActual->archivo) }}"
                         type="video/mp4"
                     >
                 </video>

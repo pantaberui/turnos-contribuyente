@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Turno;
+use App\Models\DisplayVideo;
 
 class DisplayTurnos extends Component
 {
@@ -30,7 +31,7 @@ class DisplayTurnos extends Component
                 ->limit(3)
                 ->get(),
 
-
+            'videoActual' => DisplayVideo::where('activo', true)->first(),
         ]);
     }
 }

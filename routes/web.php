@@ -9,6 +9,7 @@ use App\Http\Controllers\Reportes\ReporteComplementarioController;
 use App\Http\Controllers\Reportes\DocumentoReporteOrientadorFiscalController;
 use App\Http\Controllers\Reportes\ReporteComplementarioOrientadorController;
 use App\Http\Controllers\Reportes\DocumentoReporteGeneralOrientadoresController;
+use App\Livewire\Admin\DisplayVideoManager;
 
 use Spatie\Browsershot\Browsershot;
 
@@ -210,3 +211,10 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/video-display', DisplayVideoManager::class)
+        ->name('admin.video-display');
+});

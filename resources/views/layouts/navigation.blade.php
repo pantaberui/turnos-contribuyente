@@ -1,26 +1,94 @@
-<nav x-data="{ open: false }"
-    style="background:#0f172a; border-bottom:1px solid #334155; box-shadow:0 4px 10px rgba(0,0,0,.25);">
+{{-- =========================================================
+    ESTILOS DEL MENÚ
+========================================================= --}}
+<style>
+    .menu-escritorio {
+        display: block;
+    }
+
+    .menu-movil {
+        display: none;
+    }
+
+    @media (max-width: 767px) {
+
+        .menu-escritorio {
+            display: none !important;
+        }
+
+        .menu-movil {
+            display: flex !important;
+        }
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+</style>
+
+
+<nav
+    x-data="{ open: false }"
+    style="
+        background:#0f172a;
+        border-bottom:1px solid #334155;
+        box-shadow:0 4px 10px rgba(0,0,0,.25);
+    "
+>
 
     {{-- =========================================================
+        =========================================================
         ESCRITORIO
-    ========================================================== --}}
-    <div style="position:relative; min-height:112px; padding:10px 24px;">
+        =========================================================
+        ========================================================== --}}
+    <div
+        class="menu-escritorio"
+        style="
+            position:relative;
+            min-height:112px;
+            padding:10px 24px;
+        "
+    >
 
-        {{-- LOGO IZQUIERDA --}}
-        <div style="position:absolute; left:24px; top:10px;">
+        {{-- =====================================================
+            LOGO IZQUIERDA
+        ====================================================== --}}
+        <div
+            style="
+                position:absolute;
+                left:24px;
+                top:10px;
+            "
+        >
             <a href="{{ route('dashboard') }}">
                 <img
                     src="{{ asset('images/institucional/logo-nayarit.png') }}"
                     alt="Gobierno del Estado de Nayarit"
-                    style="height:92px; width:auto; object-fit:contain;">
+                    style="
+                        height:92px;
+                        width:auto;
+                        object-fit:contain;
+                    "
+                >
             </a>
         </div>
 
-        {{-- USUARIO DERECHA --}}
-        <div style="position:absolute; right:24px; top:24px;">
+
+        {{-- =====================================================
+            USUARIO DERECHA
+        ====================================================== --}}
+        <div
+            style="
+                position:absolute;
+                right:24px;
+                top:24px;
+            "
+        >
+
             <x-dropdown align="right" width="48">
 
                 <x-slot name="trigger">
+
                     <button
                         type="button"
                         style="
@@ -30,50 +98,85 @@
                             border-radius:8px;
                             font-size:14px;
                             font-weight:700;
-                        ">
+                            border:none;
+                            cursor:pointer;
+                        "
+                    >
                         {{ mb_strtoupper(Auth::user()->nombre_completo, 'UTF-8') }}
-                        <span style="margin-left:6px;">⌄</span>
+
+                        <span style="margin-left:6px;">
+                            ⌄
+                        </span>
                     </button>
+
                 </x-slot>
+
 
                 <x-slot name="content">
 
-                    <x-dropdown-link :href="route('profile.edit')">
+                    <x-dropdown-link
+                        :href="route('profile.edit')"
+                    >
                         Perfil
                     </x-dropdown-link>
 
-                    <form method="POST" action="{{ route('logout') }}">
+
+                    <form
+                        method="POST"
+                        action="{{ route('logout') }}"
+                    >
                         @csrf
 
                         <x-dropdown-link
                             :href="route('logout')"
-                            onclick="event.preventDefault(); this.closest('form').submit();">
+                            onclick="event.preventDefault(); this.closest('form').submit();"
+                        >
                             Cerrar sesión
                         </x-dropdown-link>
+
                     </form>
 
                 </x-slot>
 
             </x-dropdown>
+
         </div>
 
-        {{-- CENTRO: TÍTULOS + MENÚ --}}
-        <div style="text-align:center; max-width:900px; margin:0 auto;">
 
-            {{-- TÍTULOS INSTITUCIONALES --}}
+        {{-- =====================================================
+            CENTRO
+            TÍTULOS INSTITUCIONALES + MENÚ
+        ====================================================== --}}
+        <div
+            style="
+                text-align:center;
+                max-width:900px;
+                margin:0 auto;
+            "
+        >
+
+            {{-- =================================================
+                TÍTULOS INSTITUCIONALES
+            ================================================== --}}
             <a
                 href="{{ route('dashboard') }}"
-                style="text-decoration:none; display:inline-block;"
+                style="
+                    text-decoration:none;
+                    display:inline-block;
+                "
             >
+
                 <div
                     style="
                         color:#ffffff;
                         font-weight:800;
                         font-size:18px;
                         line-height:1.2;
-                    ">
+                    "
+                >
                     Gobierno del Estado de Nayarit
                 </div>
+
 
                 <div
                     style="
@@ -81,23 +184,28 @@
                         font-size:14px;
                         font-weight:600;
                         margin-top:4px;
-                    ">
+                    "
+                >
                     Secretaría de Finanzas
                 </div>
+
 
                 <div
                     style="
                         color:#e2e8f0;
                         font-size:13px;
                         margin-top:2px;
-                    ">
+                    "
+                >
                     Departamento de Asistencia al Contribuyente
                 </div>
+
             </a>
 
-            {{-- =====================================================
+
+            {{-- =================================================
                 MENÚ PRINCIPAL
-            ====================================================== --}}
+            ================================================== --}}
             <div
                 style="
                     display:flex;
@@ -109,7 +217,9 @@
                 "
             >
 
-                {{-- RECEPCIÓN / TURNOS / CONTRIBUYENTES --}}
+                {{-- =================================================
+                    RECEPCIÓN / TURNOS
+                ================================================== --}}
                 @role('Orientador Fiscal|Administrador')
 
                     <a
@@ -124,6 +234,7 @@
                         🏠 Recepción
                     </a>
 
+
                     <a
                         href="{{ route('turnos.index') }}"
                         style="
@@ -135,10 +246,15 @@
                     >
                         🎟️ Turnos
                     </a>
+
                 @endrole
 
-                {{-- CONTRIBUYENTES --}}
+
+                {{-- =================================================
+                    CONTRIBUYENTES
+                ================================================== --}}
                 @role('Orientador Fiscal|Asesor Fiscal|Administrador')
+
                     <a
                         href="{{ route('contribuyentes.index') }}"
                         style="
@@ -154,12 +270,18 @@
                 @endrole
 
 
-                {{-- ASESORÍA --}}
+                {{-- =================================================
+                    ASESORÍA
+                ================================================== --}}
                 @role('Asesor Fiscal|Administrador')
 
-                    <x-dropdown align="left" width="48">
+                    <x-dropdown
+                        align="left"
+                        width="48"
+                    >
 
                         <x-slot name="trigger">
+
                             <button
                                 type="button"
                                 style="
@@ -173,15 +295,22 @@
                             >
                                 🧑‍💼 Asesoría ⌄
                             </button>
+
                         </x-slot>
+
 
                         <x-slot name="content">
 
-                            <x-dropdown-link :href="route('asesoria.index')">
+                            <x-dropdown-link
+                                :href="route('asesoria.index')"
+                            >
                                 Atención de turnos
                             </x-dropdown-link>
 
-                            <x-dropdown-link :href="route('asesorias.consulta')">
+
+                            <x-dropdown-link
+                                :href="route('asesorias.consulta')"
+                            >
                                 Consulta / Edición
                             </x-dropdown-link>
 
@@ -192,12 +321,18 @@
                 @endrole
 
 
-                {{-- REPORTES --}}
+                {{-- =================================================
+                    REPORTES
+                ================================================== --}}
                 @role('Asesor Fiscal|Administrador|Orientador Fiscal')
 
-                    <x-dropdown align="left" width="48">
+                    <x-dropdown
+                        align="left"
+                        width="48"
+                    >
 
                         <x-slot name="trigger">
+
                             <button
                                 type="button"
                                 style="
@@ -211,11 +346,13 @@
                             >
                                 📊 Reportes ⌄
                             </button>
+
                         </x-slot>
+
 
                         <x-slot name="content">
 
-                            {{-- Disponible para Administrador y Asesor Fiscal --}}
+                            {{-- Asesor Fiscal + Administrador --}}
                             @role('Asesor Fiscal|Administrador')
 
                                 <x-dropdown-link
@@ -227,11 +364,16 @@
                             @endrole
 
 
-                            {{-- Disponible para Administrador y Orientador Fiscal --}}
+                            {{-- Orientador Fiscal + Administrador --}}
                             @role('Orientador Fiscal|Administrador')
 
                                 <x-dropdown-link
-                                    :href="route('reportes.orientador-fiscal.documento', Auth::user()->hasRole('Orientador Fiscal') ? ['orientador_id' => Auth::id()] : [])"
+                                    :href="route(
+                                        'reportes.orientador-fiscal.documento',
+                                        Auth::user()->hasRole('Orientador Fiscal')
+                                            ? ['orientador_id' => Auth::id()]
+                                            : []
+                                    )"
                                 >
                                     Reporte por orientador fiscal
                                 </x-dropdown-link>
@@ -239,7 +381,7 @@
                             @endrole
 
 
-                            {{-- Exclusivo Administrador --}}
+                            {{-- Administrador --}}
                             @role('Administrador')
 
                                 <x-dropdown-link
@@ -248,14 +390,13 @@
                                     Reporte general de asesores
                                 </x-dropdown-link>
 
-                            @endrole
 
-                            @role('Administrador')
                                 <x-dropdown-link
                                     :href="route('reportes.general-orientadores.documento')"
                                 >
                                     Reporte general de orientadores
                                 </x-dropdown-link>
+
                             @endrole
 
                         </x-slot>
@@ -264,12 +405,19 @@
 
                 @endrole
 
-                {{-- CATÁLOGOS --}}
+
+                {{-- =================================================
+                    CATÁLOGOS
+                ================================================== --}}
                 @role('Administrador')
 
-                    <x-dropdown align="left" width="48">
+                    <x-dropdown
+                        align="left"
+                        width="48"
+                    >
 
                         <x-slot name="trigger">
+
                             <button
                                 type="button"
                                 style="
@@ -283,28 +431,52 @@
                             >
                                 ⚙️ Catálogos ⌄
                             </button>
+
                         </x-slot>
+
 
                         <x-slot name="content">
 
-                            <x-dropdown-link :href="route('catalogos.usuarios.index')">
+                            <x-dropdown-link
+                                :href="route('catalogos.usuarios.index')"
+                            >
                                 Usuarios
                             </x-dropdown-link>
 
-                            <x-dropdown-link :href="route('catalogos.modulos-asesoria.index')">
+
+                            <x-dropdown-link
+                                :href="route('catalogos.modulos-asesoria.index')"
+                            >
                                 Módulos de asesoría
                             </x-dropdown-link>
 
-                            <x-dropdown-link :href="route('catalogos.tipo-tramites.index')">
+
+                            <x-dropdown-link
+                                :href="route('catalogos.tipo-tramites.index')"
+                            >
                                 Tipos de trámite
                             </x-dropdown-link>
 
-                            <x-dropdown-link :href="route('catalogos.clasificacion-tramites.index')">
+
+                            <x-dropdown-link
+                                :href="route('catalogos.clasificacion-tramites.index')"
+                            >
                                 Clasificaciones
                             </x-dropdown-link>
 
-                            <x-dropdown-link :href="route('catalogos.tramites.index')">
+
+                            <x-dropdown-link
+                                :href="route('catalogos.tramites.index')"
+                            >
                                 Trámites
+                            </x-dropdown-link>
+
+
+                            {{-- VIDEO DEL DISPLAY --}}
+                            <x-dropdown-link
+                                :href="route('admin.video-display')"
+                            >
+                                🎬 Video del Display
                             </x-dropdown-link>
 
                         </x-slot>
@@ -314,10 +486,14 @@
                 @endrole
 
 
-                {{-- DISPLAY
-                     Público: no depende de ningún rol --}}
+                {{-- =================================================
+                    DISPLAY
+                    PÚBLICO
+                ================================================== --}}
                 <a
                     href="{{ route('display.turnos') }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     style="
                         color:#e2e8f0;
                         font-size:14px;
@@ -329,50 +505,96 @@
                 </a>
 
             </div>
+
         </div>
+
     </div>
 
 
     {{-- =========================================================
+        =========================================================
         CABECERA MÓVIL
-    ========================================================== --}}
-    <div style="display:none;">
+        =========================================================
+        ========================================================== --}}
+    <div
+        class="menu-movil"
+        style="
+            min-height:76px;
+            padding:8px 16px;
+            align-items:center;
+            justify-content:space-between;
+        "
+    >
 
+        {{-- LOGO + TÍTULO --}}
         <a
             href="{{ route('dashboard') }}"
-            class="flex items-center space-x-3"
+            style="
+                display:flex;
+                align-items:center;
+                gap:10px;
+                text-decoration:none;
+            "
         >
+
             <img
                 src="{{ asset('images/institucional/logo-nayarit.png') }}"
                 alt="Gobierno del Estado de Nayarit"
-                style="height:58px; width:auto; object-fit:contain;"
+                style="
+                    height:58px;
+                    width:auto;
+                    object-fit:contain;
+                "
             >
 
-            <div class="leading-tight">
 
-                <div class="text-white font-bold text-sm">
+            <div
+                style="
+                    line-height:1.2;
+                "
+            >
+
+                <div
+                    style="
+                        color:#ffffff;
+                        font-weight:800;
+                        font-size:13px;
+                    "
+                >
                     Gobierno del Estado de Nayarit
                 </div>
 
-                <div class="text-slate-300 text-xs">
+
+                <div
+                    style="
+                        color:#cbd5e1;
+                        font-size:11px;
+                        margin-top:3px;
+                    "
+                >
                     Secretaría de Finanzas
                 </div>
 
             </div>
+
         </a>
 
+
+        {{-- BOTÓN HAMBURGUESA --}}
         <button
-            @click="open = ! open"
-            class="
-                inline-flex
-                items-center
-                justify-center
-                p-2
-                rounded-md
-                text-slate-300
-                hover:text-white
-                hover:bg-slate-800
-                focus:outline-none
+            type="button"
+            @click="open = !open"
+            aria-label="Abrir menú"
+            style="
+                background:#ffffff;
+                color:#0f172a;
+                border:none;
+                border-radius:8px;
+                width:42px;
+                height:42px;
+                font-size:22px;
+                font-weight:700;
+                cursor:pointer;
             "
         >
             ☰
@@ -382,23 +604,28 @@
 
 
     {{-- =========================================================
+        =========================================================
         MENÚ MÓVIL
-    ========================================================== --}}
+        =========================================================
+        ========================================================== --}}
     <div
-        :class="{'block': open, 'hidden': ! open}"
-        class="
-            hidden
-            sm:hidden
-            bg-slate-900
-            border-t
-            border-slate-700
+        x-show="open"
+        x-cloak
+        style="
+            background:#0f172a;
+            border-top:1px solid #334155;
         "
     >
 
-        <div class="pt-2 pb-3 space-y-1">
+        <div
+            style="
+                padding:8px 0 12px;
+            "
+        >
 
-
-            {{-- RECEPCIÓN / TURNOS / CONTRIBUYENTES --}}
+            {{-- =================================================
+                RECEPCIÓN / TURNOS
+            ================================================== --}}
             @role('Orientador Fiscal|Administrador')
 
                 <x-responsive-nav-link
@@ -408,27 +635,50 @@
                     🏠 Recepción
                 </x-responsive-nav-link>
 
+
                 <x-responsive-nav-link
                     :href="route('turnos.index')"
                     :active="request()->routeIs('turnos.*')"
                 >
                     🎟️ Turnos
                 </x-responsive-nav-link>
+
             @endrole
 
-            {{-- CONTRIBUYENTES --}}
+
+            {{-- =================================================
+                CONTRIBUYENTES
+            ================================================== --}}
             @role('Orientador Fiscal|Asesor Fiscal|Administrador')
+
                 <x-responsive-nav-link
                     :href="route('contribuyentes.index')"
                     :active="request()->routeIs('contribuyentes.*')"
                 >
                     👥 Contribuyentes
                 </x-responsive-nav-link>
+
             @endrole
 
 
-            {{-- ASESORÍA --}}
+            {{-- =================================================
+                ASESORÍA
+            ================================================== --}}
             @role('Asesor Fiscal|Administrador')
+
+                <div
+                    style="
+                        padding:10px 16px 4px;
+                        color:#94a3b8;
+                        font-size:11px;
+                        font-weight:800;
+                        text-transform:uppercase;
+                        letter-spacing:.08em;
+                    "
+                >
+                    Asesoría
+                </div>
+
 
                 <x-responsive-nav-link
                     :href="route('asesoria.index')"
@@ -437,25 +687,36 @@
                     🧑‍💼 Atención de turnos
                 </x-responsive-nav-link>
 
+
                 <x-responsive-nav-link
                     :href="route('asesorias.consulta')"
                     :active="request()->routeIs('asesorias.consulta')"
                 >
-                    Consulta / Edición
+                    📝 Consulta / Edición
                 </x-responsive-nav-link>
 
             @endrole
 
 
-            {{-- REPORTES --}}
+            {{-- =================================================
+                REPORTES
+            ================================================== --}}
             @role('Asesor Fiscal|Administrador|Orientador Fiscal')
 
-                <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
+                <div
+                    style="
+                        padding:14px 16px 4px;
+                        color:#94a3b8;
+                        font-size:11px;
+                        font-weight:800;
+                        text-transform:uppercase;
+                        letter-spacing:.08em;
+                    "
+                >
                     Reportes
                 </div>
 
 
-                {{-- Disponible para Administrador y Asesor Fiscal --}}
                 @role('Asesor Fiscal|Administrador')
 
                     <x-responsive-nav-link
@@ -468,11 +729,15 @@
                 @endrole
 
 
-                {{-- Disponible para Administrador y Orientador Fiscal --}}
                 @role('Orientador Fiscal|Administrador')
 
                     <x-responsive-nav-link
-                        :href="route('reportes.orientador-fiscal.documento', Auth::user()->hasRole('Orientador Fiscal') ? ['orientador_id' => Auth::id()] : [])"
+                        :href="route(
+                            'reportes.orientador-fiscal.documento',
+                            Auth::user()->hasRole('Orientador Fiscal')
+                                ? ['orientador_id' => Auth::id()]
+                                : []
+                        )"
                         :active="request()->routeIs('reportes.orientador-fiscal.*')"
                     >
                         📋 Reporte por orientador fiscal
@@ -481,7 +746,6 @@
                 @endrole
 
 
-                {{-- Exclusivo Administrador --}}
                 @role('Administrador')
 
                     <x-responsive-nav-link
@@ -491,73 +755,107 @@
                         📈 Reporte general de asesores
                     </x-responsive-nav-link>
 
-                @endrole
 
-                @role('Administrador')
                     <x-responsive-nav-link
                         :href="route('reportes.general-orientadores.documento')"
-                        :active="request()->routeIs('reportes.general-orientadores.documento')"
+                        :active="request()->routeIs('reportes.general-orientadores.*')"
                     >
-                        Reporte general de orientadores
+                        📈 Reporte general de orientadores
                     </x-responsive-nav-link>
+
                 @endrole
 
             @endrole
 
 
-            {{-- CATÁLOGOS --}}
+            {{-- =================================================
+                CATÁLOGOS
+            ================================================== --}}
             @role('Administrador')
 
-                <div class="px-4 py-2 text-xs uppercase tracking-wide text-slate-400">
+                <div
+                    style="
+                        padding:14px 16px 4px;
+                        color:#94a3b8;
+                        font-size:11px;
+                        font-weight:800;
+                        text-transform:uppercase;
+                        letter-spacing:.08em;
+                    "
+                >
                     Catálogos
                 </div>
+
 
                 <x-responsive-nav-link
                     :href="route('catalogos.usuarios.index')"
                     :active="request()->routeIs('catalogos.usuarios.*')"
                 >
-                    Usuarios
+                    👤 Usuarios
                 </x-responsive-nav-link>
+
 
                 <x-responsive-nav-link
                     :href="route('catalogos.modulos-asesoria.index')"
                     :active="request()->routeIs('catalogos.modulos-asesoria.*')"
                 >
-                    Módulos de asesoría
+                    🧩 Módulos de asesoría
                 </x-responsive-nav-link>
+
 
                 <x-responsive-nav-link
                     :href="route('catalogos.tipo-tramites.index')"
                     :active="request()->routeIs('catalogos.tipo-tramites.*')"
                 >
-                    Tipos de trámite
+                    📄 Tipos de trámite
                 </x-responsive-nav-link>
+
 
                 <x-responsive-nav-link
                     :href="route('catalogos.clasificacion-tramites.index')"
                     :active="request()->routeIs('catalogos.clasificacion-tramites.*')"
                 >
-                    Clasificaciones
+                    🗂️ Clasificaciones
                 </x-responsive-nav-link>
+
 
                 <x-responsive-nav-link
                     :href="route('catalogos.tramites.index')"
                     :active="request()->routeIs('catalogos.tramites.*')"
                 >
-                    Trámites
+                    📋 Trámites
+                </x-responsive-nav-link>
+
+
+                <x-responsive-nav-link
+                    :href="route('admin.video-display')"
+                    :active="request()->routeIs('admin.video-display')"
+                >
+                    🎬 Video del Display
                 </x-responsive-nav-link>
 
             @endrole
 
 
-            {{-- DISPLAY
-                 Disponible para todos --}}
-            <x-responsive-nav-link
-                :href="route('display.turnos')"
-                :active="request()->routeIs('display.turnos')"
+            {{-- =================================================
+                DISPLAY
+            ================================================== --}}
+            <div
+                style="
+                    margin-top:8px;
+                    border-top:1px solid #334155;
+                    padding-top:8px;
+                "
             >
-                📺 Display
-            </x-responsive-nav-link>
+
+                <x-responsive-nav-link
+                    :href="route('display.turnos')"
+                    :active="request()->routeIs('display.turnos')"
+                >
+                    📺 Display
+                </x-responsive-nav-link>
+
+            </div>
 
         </div>
 
@@ -565,34 +863,67 @@
         {{-- =====================================================
             USUARIO MÓVIL
         ====================================================== --}}
-        <div class="pt-4 pb-1 border-t border-slate-700">
+        <div
+            style="
+                padding:14px 0 8px;
+                border-top:1px solid #334155;
+            "
+        >
 
-            <div class="px-4">
+            <div
+                style="
+                    padding:0 16px;
+                "
+            >
 
-                <div class="font-medium text-base text-white">
+                <div
+                    style="
+                        color:#ffffff;
+                        font-weight:700;
+                        font-size:15px;
+                    "
+                >
                     {{ Auth::user()->nombre_completo ?? Auth::user()->name }}
                 </div>
 
-                <div class="font-medium text-sm text-slate-400">
+
+                <div
+                    style="
+                        color:#94a3b8;
+                        font-size:13px;
+                        margin-top:3px;
+                    "
+                >
                     {{ Auth::user()->email }}
                 </div>
 
             </div>
 
-            <div class="mt-3 space-y-1">
 
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    Perfil
+            <div
+                style="
+                    margin-top:10px;
+                "
+            >
+
+                <x-responsive-nav-link
+                    :href="route('profile.edit')"
+                >
+                    👤 Perfil
                 </x-responsive-nav-link>
 
-                <form method="POST" action="{{ route('logout') }}">
+
+                <form
+                    method="POST"
+                    action="{{ route('logout') }}"
+                >
                     @csrf
 
                     <x-responsive-nav-link
                         :href="route('logout')"
                         onclick="event.preventDefault(); this.closest('form').submit();"
                     >
-                        Cerrar sesión
+                        🚪 Cerrar sesión
                     </x-responsive-nav-link>
 
                 </form>
