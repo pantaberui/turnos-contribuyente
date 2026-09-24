@@ -75,6 +75,7 @@
 
             @if($videoActual)
                 <video
+                    id="video-institucional"
                     autoplay
                     muted
                     loop
@@ -330,23 +331,57 @@
 
 
 
-    <button
-        onclick="activarSonidoDisplay()"
+    {{-- Controles de sonido del Display --}}
+    <div
+        wire:ignore
         style="
             position:fixed;
             bottom:16px;
             right:16px;
             z-index:9999;
-            background:#16a34a;
-            color:white;
-            padding:12px 18px;
-            border-radius:12px;
-            font-weight:900;
-            box-shadow:0 8px 20px rgba(0,0,0,.35);
+            display:flex;
+            flex-direction:column;
+            gap:10px;
         "
     >
-        Activar sonido
-    </button>
+
+        {{-- Sonido del video --}}
+        <button
+            id="boton-sonido-video"
+            onclick="activarSonidoVideo()"
+            style="
+                background:#2563eb;
+                color:white;
+                padding:12px 18px;
+                border-radius:12px;
+                font-weight:900;
+                border:none;
+                cursor:pointer;
+                box-shadow:0 8px 20px rgba(0,0,0,.35);
+            "
+        >
+            🎬 🔇 Video: Silenciado
+        </button>
+
+        {{-- Sonido de llamados --}}
+        <button
+            id="boton-sonido-turnos"
+            onclick="activarSonidoTurnos()"
+            style="
+                background:#16a34a;
+                color:white;
+                padding:12px 18px;
+                border-radius:12px;
+                font-weight:900;
+                border:none;
+                cursor:pointer;
+                box-shadow:0 8px 20px rgba(0,0,0,.35);
+            "
+        >
+            🔔 🔇 Turnos: Silenciados
+        </button>
+
+    </div>
 
   </div>
 
@@ -362,33 +397,30 @@
     </style>
 
     <script>
-        if (!window.relojDisplayTurnosInicializado) {
-            window.relojDisplayTurnosInicializado = true;
-
-            function actualizarRelojDisplayTurnos() {
-                const reloj = document.getElementById('reloj-digital');
-
-                if (!reloj) {
-                    return;
-                }
-
-                reloj.textContent = new Date().toLocaleTimeString('es-MX', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-            }
-
-            actualizarRelojDisplayTurnos();
-            setInterval(actualizarRelojDisplayTurnos, 1000);        
-        }
+        /*
+        |--------------------------------------------------------------------------
+        | Display de Turnos
+        |--------------------------------------------------------------------------
+        | Un solo reloj
+        | Un solo detector de cambios de turno
+        | Los sonidos permanecen independientes
+        |--------------------------------------------------------------------------
+        */
 
         if (!window.displayTurnosInicializado) {
+
             window.displayTurnosInicializado = true;
 
             window.ultimoTurnoLlamado = null;
 
+            /*
+            |--------------------------------------------------------------------------
+            | RELOJ
+            |--------------------------------------------------------------------------
+            */
+
             function actualizarRelojDisplayTurnos() {
+
                 const reloj = document.getElementById('reloj-digital');
 
                 if (!reloj) {
@@ -402,53 +434,187 @@
                 });
             }
 
-            function activarSonidoDisplay() {
-                const audio = document.getElementById('sonido-llamado');
 
-                if (audio) {
-                    audio.play().then(() => {
-                        audio.pause();
-                        audio.currentTime = 0;
-                        window.sonidoDisplayActivado = true;
-                        alert('Sonido activado correctamente.');
+            /*
+            |--------------------------------------------------------------------------
+            | SONIDO DEL VIDEO
+            |--------------------------------------------------------------------------
+            */
+
+            function activarSonidoVideo() {
+
+                const video = document.getElementById('video-institucional');
+                const boton = document.getElementById('boton-sonido-video');
+
+                if (!video) {
+                    return;
+                }
+
+                if (video.muted) {
+
+                    video.muted = false;
+                    video.volume = 1;
+
+                    video.play().then(() => {
+
+                        window.sonidoVideoActivado = true;
+
+                        if (boton) {
+                            boton.textContent = '🎬 🔊 Video: Con sonido';
+                        }
+
                     }).catch(() => {
-                        alert('No se pudo activar el sonido.');
+
+                        video.muted = true;
+                        window.sonidoVideoActivado = false;
+
+                        if (boton) {
+                            boton.textContent = '🎬 🔇 Video: Silenciado';
+                        }
+
                     });
+
+                } else {
+
+                    video.muted = true;
+                    window.sonidoVideoActivado = false;
+
+                    if (boton) {
+                        boton.textContent = '🎬 🔇 Video: Silenciado';
+                    }
                 }
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | SONIDO DE TURNOS
+            |--------------------------------------------------------------------------
+            */
+
+            function activarSonidoTurnos() {
+
+                const audio = document.getElementById('sonido-llamado');
+                const boton = document.getElementById('boton-sonido-turnos');
+
+                if (!audio) {
+                    return;
+                }
+
+                if (!window.sonidoDisplayActivado) {
+
+                    audio.play().then(() => {
+
+                        audio.pause();
+                        audio.currentTime = 0;
+
+                        window.sonidoDisplayActivado = true;
+
+                        if (boton) {
+                            boton.textContent = '🔔 🔊 Turnos: Con sonido';
+                        }
+
+                    }).catch(() => {
+
+                        window.sonidoDisplayActivado = false;
+
+                        if (boton) {
+                            boton.textContent = '🔔 🔇 Turnos: Silenciados';
+                        }
+
+                    });
+
+                } else {
+
+                    window.sonidoDisplayActivado = false;
+
+                    if (boton) {
+                        boton.textContent = '🔔 🔇 Turnos: Silenciados';
+                    }
+                }
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DETECTAR NUEVO TURNO
+            |--------------------------------------------------------------------------
+            */
+
             function reproducirSonidoSiCambioTurno() {
-                const turnoElemento = document.getElementById('turno-llamado-folio');
+
+                const turnoElemento =
+                    document.getElementById('turno-llamado-folio');
 
                 if (!turnoElemento) {
                     return;
                 }
 
-                const turnoActual = turnoElemento.textContent.trim();
+                const turnoActual =
+                    turnoElemento.textContent.trim();
 
-                if (!turnoActual || turnoActual === window.ultimoTurnoLlamado) {
+                if (
+                    !turnoActual ||
+                    turnoActual === window.ultimoTurnoLlamado
+                ) {
                     return;
                 }
 
+                /*
+                |--------------------------------------------------------------------------
+                | No reproducir al cargar por primera vez.
+                |--------------------------------------------------------------------------
+                */
+
                 if (window.ultimoTurnoLlamado !== null) {
-                    const audio = document.getElementById('sonido-llamado');
 
                     if (window.sonidoDisplayActivado) {
-                        audio.currentTime = 0;
-                        audio.play().catch(() => {});
 
-                        const moduloElemento = document.getElementById('turno-llamado-modulo');
-                        const moduloActual = moduloElemento ? moduloElemento.textContent.trim() : '';
+                        const audio =
+                            document.getElementById('sonido-llamado');
 
-                        const mensaje = new SpeechSynthesisUtterance(
-                            `Turno ${turnoActual}, favor de pasar al ${moduloActual}`
-                        );
+                        if (audio) {
+
+                            audio.currentTime = 0;
+
+                            audio.play().catch(() => {});
+                        }
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Obtener módulo / ventanilla
+                        |--------------------------------------------------------------------------
+                        */
+
+                        const moduloElemento =
+                            document.getElementById(
+                                'turno-llamado-modulo'
+                            );
+
+                        const moduloActual =
+                            moduloElemento
+                                ? moduloElemento.textContent.trim()
+                                : '';
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | Anuncio hablado
+                        |--------------------------------------------------------------------------
+                        */
+
+                        const mensaje =
+                            new SpeechSynthesisUtterance(
+                                `Turno ${turnoActual}, favor de pasar al ${moduloActual}`
+                            );
 
                         mensaje.lang = 'es-MX';
                         mensaje.rate = 0.9;
                         mensaje.pitch = 1;
 
                         window.speechSynthesis.cancel();
+
                         window.speechSynthesis.speak(mensaje);
                     }
                 }
@@ -456,21 +622,64 @@
                 window.ultimoTurnoLlamado = turnoActual;
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | INICIALIZACIÓN
+            |--------------------------------------------------------------------------
+            */
+
             actualizarRelojDisplayTurnos();
+
             reproducirSonidoSiCambioTurno();
 
-            setInterval(actualizarRelojDisplayTurnos, 1000);
-            setInterval(reproducirSonidoSiCambioTurno, 1000);
+
+            /*
+            |--------------------------------------------------------------------------
+            | RELOJ
+            |--------------------------------------------------------------------------
+            */
+
+            setInterval(
+                actualizarRelojDisplayTurnos,
+                1000
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DETECCIÓN DE NUEVOS TURNOS
+            |--------------------------------------------------------------------------
+            */
+
+            setInterval(
+                reproducirSonidoSiCambioTurno,
+                1000
+            );
         }
 
-        // Respaldo: refrescar display cada 10 minutos
-        setInterval(() => {
-            window.location.reload();
-        }, 10 * 60 * 1000);
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESPALDO
+        |--------------------------------------------------------------------------
+        | Por ahora conservamos la recarga cada 10 minutos.
+        | Después podemos evaluar si realmente es necesaria.
+        |--------------------------------------------------------------------------
+        */
+
+        if (!window.displayRecargaInicializada) {
+
+            window.displayRecargaInicializada = true;
+
+            setInterval(() => {
+
+                window.location.reload();
+
+            }, 10 * 60 * 1000);
+        }
 
     </script>
-
-
 
 
    

@@ -23,6 +23,7 @@ class TramitesSeeder extends Seeder
 
         while (($row = fgetcsv($file)) !== false) {
             [
+                $id,
                 $tipoTramiteId,
                 $clasificacionNumero,
                 $nombre,
@@ -31,17 +32,21 @@ class TramitesSeeder extends Seeder
                 $activo,
             ] = $row;
 
-            $clasificacion = ClasificacionTramite::where('tipo_tramite_id', $tipoTramiteId)
+            $clasificacion = ClasificacionTramite::where(
+                'tipo_tramite_id',
+                $tipoTramiteId
+            )
                 ->where('numero', $clasificacionNumero)
                 ->firstOrFail();
 
             Tramite::updateOrCreate(
                 [
+                    'id' => $id,
+                ],
+                [
                     'tipo_tramite_id' => $tipoTramiteId,
                     'clasificacion_tramite_id' => $clasificacion->id,
                     'nombre' => mb_strtoupper(trim($nombre), 'UTF-8'),
-                ],
-                [
                     'categoria' => mb_strtoupper(trim($categoria), 'UTF-8'),
                     'requiere_declaracion' => (bool) $requiereDeclaracion,
                     'activo' => (bool) $activo,

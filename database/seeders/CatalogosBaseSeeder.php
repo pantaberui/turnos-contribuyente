@@ -19,26 +19,22 @@ class CatalogosBaseSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        Modalidad::insert([
-            [
-                'id' => 1,
-                'nombre' => 'PRESENCIAL',
-                'prefijo' => 'P',
-                'activo' => true,
-            ],
-            [
-                'id' => 2,
-                'nombre' => 'VIA TELEFONICA',
-                'prefijo' => 'T',
-                'activo' => true,
-            ],
-            [
-                'id' => 3,
-                'nombre' => 'VIA CORREO ELECTRONICO',
-                'prefijo' => 'C',
-                'activo' => true,
-            ],
-        ]);
+        $modalidades = [
+            [1, 'PRESENCIAL', 'P'],
+            [2, 'VIA TELEFONICA', 'T'],
+            [3, 'VIA CORREO ELECTRONICO', 'C'],
+        ];
+
+        foreach ($modalidades as [$id, $nombre, $prefijo]) {
+            Modalidad::updateOrCreate(
+                ['id' => $id],
+                [
+                    'nombre' => $nombre,
+                    'prefijo' => $prefijo,
+                    'activo' => true,
+                ]
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -46,15 +42,25 @@ class CatalogosBaseSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        EstatusTurno::insert([
-            ['id' => 1, 'nombre' => 'EN ESPERA', 'activo' => true],
-            ['id' => 2, 'nombre' => 'EN ATENCION', 'activo' => true],
-            ['id' => 3, 'nombre' => 'ATENDIDO', 'activo' => true],
-            ['id' => 4, 'nombre' => 'CANCELADO', 'activo' => true],
-            ['id' => 5, 'nombre' => 'INCONCLUSO', 'activo' => true],
-            ['id' => 6, 'nombre' => 'NO SE PRESENTÓ', 'activo' => true],
-            ['id' => 7, 'nombre' => 'LLAMADO', 'activo' => true],
-        ]);
+        $estatusTurnos = [
+            [1, 'EN ESPERA'],
+            [2, 'EN ATENCION'],
+            [3, 'ATENDIDO'],
+            [4, 'CANCELADO'],
+            [5, 'INCONCLUSO'],
+            [6, 'NO SE PRESENTÓ'],
+            [7, 'LLAMADO'],
+        ];
+
+        foreach ($estatusTurnos as [$id, $nombre]) {
+            EstatusTurno::updateOrCreate(
+                ['id' => $id],
+                [
+                    'nombre' => $nombre,
+                    'activo' => true,
+                ]
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -62,12 +68,22 @@ class CatalogosBaseSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        EstatusModulo::insert([
-            ['id' => 1, 'nombre' => 'DISPONIBLE', 'activo' => true],
-            ['id' => 2, 'nombre' => 'ATENDIENDO', 'activo' => true],
-            ['id' => 3, 'nombre' => 'AUSENTE', 'activo' => true],
-            ['id' => 4, 'nombre' => 'CERRADO', 'activo' => true],
-        ]);
+        $estatusModulos = [
+            [1, 'DISPONIBLE'],
+            [2, 'ATENDIENDO'],
+            [3, 'AUSENTE'],
+            [4, 'CERRADO'],
+        ];
+
+        foreach ($estatusModulos as [$id, $nombre]) {
+            EstatusModulo::updateOrCreate(
+                ['id' => $id],
+                [
+                    'nombre' => $nombre,
+                    'activo' => true,
+                ]
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -126,5 +142,13 @@ class CatalogosBaseSeeder extends Seeder
                 ]
             );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Trámites
+        |--------------------------------------------------------------------------
+        */
+
+        $this->call(TramitesSeeder::class);
     }
 }
