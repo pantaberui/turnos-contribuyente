@@ -14,6 +14,7 @@ use App\Models\TurnoContribuyente;
 class RecepcionIndex extends Component
 {
     public string $buscar = '';
+    public string $buscarEjecutado = '';
 
     public ?int $contribuyenteSeleccionadoId = null;
     public ?Contribuyente $contribuyenteSeleccionado = null;
@@ -25,6 +26,7 @@ class RecepcionIndex extends Component
     public bool $requiere_turno = false;
 
     public string $buscarContribuyenteAdicional = '';
+    public string $buscarContribuyenteAdicionalEjecutado = '';
     public array $lista_contribuyentes = [];
     public ?int $turnoGeneradoId = null;
     public int $mensajeContribuyenteAdicionalKey = 0;
@@ -35,29 +37,11 @@ class RecepcionIndex extends Component
 
     public function getContribuyentesProperty()
     {
-        return Contribuyente::query()
-            ->where('activo', true)
-            ->when($this->buscar, function ($query) {
-                $buscar = mb_strtoupper(trim($this->buscar), 'UTF-8');
-
-                $query->where(function ($q) use ($buscar) {
-                    $q->where('rfc', 'like', "%{$buscar}%")
-                        ->orWhere('curp', 'like', "%{$buscar}%")
-                        ->orWhere('razon_social', 'like', "%{$buscar}%");
-                });
-            })
-            ->orderBy('razon_social')
-            ->limit(10)
-            ->get();
-    }
-
-    public function getContribuyentesAdicionalesProperty()
-    {
-        if (strlen(trim($this->buscarContribuyenteAdicional)) < 2) {
+        if (strlen(trim($this->buscarEjecutado)) < 2) {
             return collect();
         }
 
-        $buscar = mb_strtoupper(trim($this->buscarContribuyenteAdicional), 'UTF-8');
+        $buscar = mb_strtoupper(trim($this->buscarEjecutado), 'UTF-8');
 
         return Contribuyente::query()
             ->where('activo', true)
@@ -66,8 +50,43 @@ class RecepcionIndex extends Component
                     ->orWhere('curp', 'like', "%{$buscar}%")
                     ->orWhere('razon_social', 'like', "%{$buscar}%");
             })
+            ->orderBy('razon_social')
             ->limit(10)
             ->get();
+    }
+
+    public function buscarContribuyentes(): void
+    {
+        $this->buscarEjecutado = trim($this->buscar);
+    }
+
+    public function getContribuyentesAdicionalesProperty()
+    {
+        if (strlen(trim($this->buscarContribuyenteAdicionalEjecutado)) < 2) {
+            return collect();
+        }
+
+        $buscar = mb_strtoupper(
+            trim($this->buscarContribuyenteAdicionalEjecutado),
+            'UTF-8'
+        );
+
+        return Contribuyente::query()
+            ->where('activo', true)
+            ->where(function ($q) use ($buscar) {
+                $q->where('rfc', 'like', "%{$buscar}%")
+                    ->orWhere('curp', 'like', "%{$buscar}%")
+                    ->orWhere('razon_social', 'like', "%{$buscar}%");
+            })
+            ->orderBy('razon_social')
+            ->limit(10)
+            ->get();
+    }
+
+    public function buscarContribuyentesAdicionales(): void
+    {
+        $this->buscarContribuyenteAdicionalEjecutado =
+            trim($this->buscarContribuyenteAdicional);
     }
 
     public ?string $mensajeContribuyenteAdicional = null;
@@ -103,6 +122,7 @@ class RecepcionIndex extends Component
         ];
 
         $this->buscarContribuyenteAdicional = '';
+        $this->buscarContribuyenteAdicionalEjecutado = '';
         $this->mensajeContribuyenteAdicional = "SE AGREGÓ {$contribuyente->razon_social} A LA LISTA.";
         $this->mensajeContribuyenteAdicionalKey++;
     }
@@ -144,6 +164,50 @@ class RecepcionIndex extends Component
         );
     }
 
+    public function registrarNuevoContribuyentePrincipal(): void
+    {
+        $asistencia = $this->asistenciaActiva;
+
+        if (! $asistencia) {
+            return;
+        }
+
+        session()->put('recepcion_registro_contexto', [
+            'origen' => 'principal',
+            'asistencia_id' => $asistencia->id,
+            'tipo_tramite_id' => $this->tipo_tramite_id,
+            'requiere_turno' => $this->requiere_turno,
+            'observaciones' => $this->observaciones,
+            'lista_contribuyentes' => $this->lista_contribuyentes,
+        ]);
+
+        $this->redirectRoute('contribuyentes.create', [
+            'return' => 'recepcion',
+        ]);
+    }
+
+    public function registrarNuevoContribuyenteAdicional(): void
+    {
+        $asistencia = $this->asistenciaActiva;
+
+        if (! $asistencia) {
+            return;
+        }
+
+        session()->put('recepcion_registro_contexto', [
+            'origen' => 'adicional',
+            'asistencia_id' => $asistencia->id,
+            'tipo_tramite_id' => $this->tipo_tramite_id,
+            'requiere_turno' => $this->requiere_turno,
+            'observaciones' => $this->observaciones,
+            'lista_contribuyentes' => $this->lista_contribuyentes,
+        ]);
+
+        $this->redirectRoute('contribuyentes.create', [
+            'return' => 'recepcion',
+        ]);
+    }
+
     public function seleccionarContribuyenteParaAsistencia(int $contribuyenteId): void
     {
         $asistencia = $this->asistenciaActiva;
@@ -158,7 +222,9 @@ class RecepcionIndex extends Component
             'contribuyente_id' => $contribuyente->id,
         ]);
 
+        unset($this->asistenciaActiva);
         $this->buscar = '';
+        $this->buscarEjecutado = '';
     }
 
     public function finalizarAsistencia(): void
@@ -269,7 +335,10 @@ class RecepcionIndex extends Component
             'lista_contribuyentes',
             'buscar',
             'buscarContribuyenteAdicional',
+            'buscarContribuyenteAdicionalEjecutado',
         ]);
+
+        unset($this->asistenciaActiva);
     }
 
     public function getTurnoGeneradoProperty()
@@ -302,6 +371,49 @@ class RecepcionIndex extends Component
 
         if ($asistencia) {
             $this->asistenciaActivaId = $asistencia->id;
+        }
+
+        $contexto = session()->pull('recepcion_registro_contexto');
+
+        if ($contexto) {
+            $this->tipo_tramite_id = $contexto['tipo_tramite_id'] ?? '';
+            $this->requiere_turno = $contexto['requiere_turno'] ?? false;
+            $this->observaciones = $contexto['observaciones'] ?? '';
+            $this->lista_contribuyentes = $contexto['lista_contribuyentes'] ?? [];
+        }
+
+        $nuevoContribuyenteId = session()->pull('recepcion_nuevo_contribuyente_id');
+
+        if ($nuevoContribuyenteId && $this->asistenciaActivaId) {
+            $asistencia = Asistencia::find($this->asistenciaActivaId);
+
+            if ($asistencia) {
+
+                if (
+                    $contexto &&
+                    ($contexto['origen'] ?? null) === 'principal' &&
+                    ! $asistencia->contribuyente_id
+                ) {
+                    $asistencia->update([
+                        'contribuyente_id' => $nuevoContribuyenteId,
+                    ]);
+                }
+
+                if (
+                    $contexto &&
+                    ($contexto['origen'] ?? null) === 'adicional'
+                ) {
+                    $contribuyente = Contribuyente::find($nuevoContribuyenteId);
+
+                    if ($contribuyente) {
+                        $this->lista_contribuyentes[] = [
+                            'id' => $contribuyente->id,
+                            'rfc' => $contribuyente->rfc,
+                            'nombre' => $contribuyente->razon_social,
+                        ];
+                    }
+                }
+            }
         }
     }
 

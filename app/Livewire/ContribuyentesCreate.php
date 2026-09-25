@@ -251,7 +251,7 @@ class ContribuyentesCreate extends Component
             $this->requiere_representante_legal = true;
         }
 
-        Contribuyente::create([
+        $contribuyente = Contribuyente::create([
             'tipo_persona' => $this->tipo_persona,
             'rfc' => mb_strtoupper($this->rfc, 'UTF-8'),
             'curp' => $this->curp ? mb_strtoupper($this->curp, 'UTF-8') : null,
@@ -277,6 +277,18 @@ class ContribuyentesCreate extends Component
             'activo' => true,
             'created_by' => Auth::id(),
         ]);
+
+       $contexto = session()->get('recepcion_registro_contexto');
+
+        if (
+            $contexto &&
+            in_array($contexto['origen'] ?? null, ['principal', 'adicional'], true)
+        ) {
+            session()->put(
+                'recepcion_nuevo_contribuyente_id',
+                $contribuyente->id
+            );
+        }
 
         session()->flash('success', 'CONTRIBUYENTE REGISTRADO CORRECTAMENTE.');
 

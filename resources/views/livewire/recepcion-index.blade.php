@@ -33,9 +33,20 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <p class="text-sm text-green-700">Contribuyente</p>
-                            <p class="font-semibold">                                
+
+                            <p class="font-semibold">
                                 {{ $this->asistenciaActiva->contribuyente?->razon_social ?? 'SIN CONTRIBUYENTE ASIGNADO' }}
                             </p>
+
+                            @if(! $this->asistenciaActiva->contribuyente_id)
+                                <button
+                                    type="button"
+                                    wire:click="registrarNuevoContribuyentePrincipal"
+                                    class="mt-2 inline-flex items-center px-3 py-2 bg-gray-800 text-white rounded-md text-xs font-semibold uppercase"
+                                >
+                                    ➕ Registrar nuevo contribuyente
+                                </button>
+                            @endif
                         </div>
 
                         <div>
@@ -64,11 +75,39 @@
                             </p>
                         </div>
 
-                        <div wire:poll.1s>
+                        <div
+                            x-data="{
+                                inicio: new Date('{{ $this->asistenciaActiva->fecha->format('Y-m-d') }}T{{ $this->asistenciaActiva->hora_inicio }}'),
+                                tiempo: '00:00:00',
+                                actualizar() {
+                                    const ahora = new Date();
+                                    let segundos = Math.floor((ahora - this.inicio) / 1000);
+
+                                    if (segundos < 0) {
+                                        segundos = 0;
+                                    }
+
+                                    const horas = Math.floor(segundos / 3600);
+                                    const minutos = Math.floor((segundos % 3600) / 60);
+                                    const segundosRestantes = segundos % 60;
+
+                                    this.tiempo =
+                                        String(horas).padStart(2, '0') + ':' +
+                                        String(minutos).padStart(2, '0') + ':' +
+                                        String(segundosRestantes).padStart(2, '0');
+                                }
+                            }"
+                            x-init="
+                                actualizar();
+                                setInterval(() => actualizar(), 1000);
+                            "
+                        >
                             <p class="text-sm text-green-700">Tiempo transcurrido</p>
-                            <p class="font-semibold text-lg">
-                                {{ \Carbon\Carbon::parse($this->asistenciaActiva->hora_inicio)->diff(now())->format('%H:%I:%S') }}
-                            </p>
+
+                            <p
+                                class="font-semibold text-lg"
+                                x-text="tiempo"
+                            ></p>
                         </div>
 
                         <div>
@@ -99,12 +138,23 @@
                                 Buscar contribuyente
                             </label>
 
-                            <input
-                                type="text"
-                                wire:model.live.debounce.400ms="buscar"
-                                placeholder="RFC, CURP O RAZÓN SOCIAL"
-                                class="w-full rounded-md border-gray-300 uppercase"
-                            >
+                            <div class="flex gap-2">
+                                <input
+                                    type="text"
+                                    wire:model="buscar"
+                                    wire:keydown.enter="buscarContribuyentes"
+                                    placeholder="RFC, CURP O RAZÓN SOCIAL"
+                                    class="flex-1 rounded-md border-gray-300 uppercase"
+                                >
+
+                                <button
+                                    type="button"
+                                    wire:click="buscarContribuyentes"
+                                    style="background:#1f2937;color:white;padding:10px 18px;border-radius:6px;font-weight:bold;"
+                                >
+                                    🔍 BUSCAR
+                                </button>
+                            </div>
                         </div>   
                     </div>
                     @endif
@@ -129,13 +179,6 @@
                             @empty
                                 <div class="p-4 text-sm text-gray-500">
                                     No se encontraron contribuyentes.
-
-                                    <div class="mt-3">
-                                        <a href="{{ route('contribuyentes.create', ['return' => 'recepcion']) }}"
-                                        class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-xs font-semibold uppercase">
-                                            Registrar nuevo contribuyente
-                                        </a>
-                                    </div>
                                 </div>
                             @endforelse
                         </div>
@@ -225,19 +268,35 @@
                                 Buscar contribuyente adicional
                             </label>
 
-                            <input
-                                type="text"
-                                wire:model.live.debounce.400ms="buscarContribuyenteAdicional"
-                                placeholder="RFC, CURP O RAZÓN SOCIAL"
-                                class="w-full rounded-md border-gray-300 uppercase"
-                            >
+                            <div class="flex gap-2">
+                                <input
+                                    type="text"
+                                    wire:model="buscarContribuyenteAdicional"
+                                    wire:keydown.enter="buscarContribuyentesAdicionales"
+                                    placeholder="RFC, CURP O RAZÓN SOCIAL"
+                                    class="flex-1 rounded-md border-gray-300 uppercase"
+                                >
+
+                                <button
+                                    type="button"
+                                    wire:click="buscarContribuyentesAdicionales"
+                                    style="background:#1f2937;color:white;padding:10px 18px;border-radius:6px;font-weight:bold;"
+                                >
+                                    🔍 BUSCAR
+                                </button>
+                            </div>
                         </div>
 
                         <div class="flex justify-end">
-                            <a href="{{ route('contribuyentes.create', ['return' => 'recepcion']) }}"
-                            class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-md text-xs font-semibold uppercase">
-                                Registrar nuevo contribuyente
-                            </a>
+                            <div class="flex justify-end">
+                                <button
+                                    type="button"
+                                    wire:click="registrarNuevoContribuyenteAdicional"
+                                    class="inline-flex items-center px-3 py-2 bg-gray-800 text-white rounded-md text-xs font-semibold uppercase"
+                                >
+                                    ➕ Nuevo
+                                </button>
+                            </div>
                         </div>
 
                         @if(strlen(trim($buscarContribuyenteAdicional)) >= 2)

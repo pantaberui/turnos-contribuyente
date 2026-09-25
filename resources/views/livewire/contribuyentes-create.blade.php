@@ -37,7 +37,7 @@
                             <label class="block text-sm font-medium mb-2">
                                 RFC <span class="text-red-600">*</span>
                             </label>
-                            <input type="text" wire:model.blur="rfc" class="w-full rounded-md border-gray-300 uppercase">
+                            <input type="text" wire:model.blur="rfc" maxlength="13" class="w-full rounded-md border-gray-300 uppercase">
                             @error('rfc')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -48,7 +48,7 @@
                                 <label class="block text-sm font-medium mb-2">
                                     CURP <span class="text-red-600">*</span>
                                 </label>
-                                <input type="text" wire:model.blur="curp" class="w-full rounded-md border-gray-300 uppercase">
+                                <input type="text" wire:model.blur="curp"  maxlength="18" class="w-full rounded-md border-gray-300 uppercase">
                                 @error('curp')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
