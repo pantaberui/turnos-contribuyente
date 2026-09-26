@@ -50,6 +50,17 @@ class AsesoriaIndex extends Component
     public ?int $asesoriaCorreoId = null;
     public ?Asesoria $asesoriaCorreoActual = null;
     public bool $busquedaRealizada = false;
+
+    // Búsqueda independiente para asesorías por correo
+    public string $buscarRfcCorreo = '';
+    public string $buscarCurpCorreo = '';
+    public string $buscarNombreCorreo = '';
+
+    public array $resultadosBusquedaCorreo = [];
+    public bool $busquedaCorreoRealizada = false;
+
+    public ?int $contribuyenteCorreoId = null;
+    public ?array $contribuyenteCorreoSeleccionado = null;
     
     public function toggleTramite(
         int $contribuyenteId,
@@ -581,6 +592,70 @@ class AsesoriaIndex extends Component
         $this->busquedaRealizada = false;
     }
 
+    public function buscarContribuyenteCorreo(): void
+    {
+        $this->contribuyenteCorreoSeleccionado = null;
+        $this->contribuyenteCorreoId = null;
+        $this->resultadosBusquedaCorreo = [];
+        $this->busquedaCorreoRealizada = true;
+
+        $query = \App\Models\Contribuyente::query();
+
+        if (trim($this->buscarRfcCorreo) !== '') {
+            $query->where(
+                'rfc',
+                'like',
+                '%' . mb_strtoupper(trim($this->buscarRfcCorreo), 'UTF-8') . '%'
+            );
+        }
+
+        if (trim($this->buscarCurpCorreo) !== '') {
+            $query->where(
+                'curp',
+                'like',
+                '%' . mb_strtoupper(trim($this->buscarCurpCorreo), 'UTF-8') . '%'
+            );
+        }
+
+        if (trim($this->buscarNombreCorreo) !== '') {
+            $query->where(
+                'razon_social',
+                'like',
+                '%' . mb_strtoupper(trim($this->buscarNombreCorreo), 'UTF-8') . '%'
+            );
+        }
+
+        $this->resultadosBusquedaCorreo = $query
+            ->limit(10)
+            ->get()
+            ->toArray();
+    }
+
+    public function seleccionarContribuyenteCorreo(int $id): void
+    {
+        $contribuyente = \App\Models\Contribuyente::find($id);
+
+        if (! $contribuyente) {
+            session()->flash('info', 'NO SE ENCONTRÓ EL CONTRIBUYENTE.');
+            return;
+        }
+
+        $this->contribuyenteCorreoId = $contribuyente->id;
+
+        $this->contribuyenteCorreoSeleccionado = [
+            'id' => $contribuyente->id,
+            'rfc' => $contribuyente->rfc,
+            'curp' => $contribuyente->curp,
+            'razon_social' => $contribuyente->razon_social,
+        ];
+
+        $this->buscarRfcCorreo = '';
+        $this->buscarCurpCorreo = '';
+        $this->buscarNombreCorreo = '';
+        $this->resultadosBusquedaCorreo = [];
+        $this->busquedaCorreoRealizada = false;
+    }
+
     public function iniciarLlamadaTelefonica(): void
     {
         $this->validate([
@@ -933,7 +1008,7 @@ class AsesoriaIndex extends Component
 
     public function iniciarCorreoElectronico(): void
     {
-        if (! $this->contribuyenteLlamadaId) {
+        if (! $this->contribuyenteCorreoId) {
             $this->mensajeInfo = 'DEBES SELECCIONAR UN CONTRIBUYENTE.';
             return;
         }
@@ -956,7 +1031,7 @@ class AsesoriaIndex extends Component
 
         $asesoria = Asesoria::create([
             'turno_id' => null,
-            'contribuyente_id' => $this->contribuyenteLlamadaId,
+            'contribuyente_id' => $this->contribuyenteCorreoId,
             'asesor_id' => Auth::id(),
             'modalidad' => 'CORREO',
             'estatus' => 'INICIADA',
@@ -974,7 +1049,7 @@ class AsesoriaIndex extends Component
 
         AsesoriaContribuyente::create([
             'asesoria_id' => $asesoria->id,
-            'contribuyente_id' => $this->contribuyenteLlamadaId,
+            'contribuyente_id' => $this->contribuyenteCorreoId,
             'es_principal' => true,
             'orden' => 1,
         ]);
@@ -988,13 +1063,14 @@ class AsesoriaIndex extends Component
         $this->correoEnCurso = true;
         $this->mostrandoCorreo = false;
 
-        $this->buscarRfc = '';
-        $this->buscarCurp = '';
-        $this->buscarNombre = '';
-        $this->resultadosBusqueda = [];
+        $this->buscarRfcCorreo = '';
+        $this->buscarCurpCorreo = '';
+        $this->buscarNombreCorreo = '';
+        $this->resultadosBusquedaCorreo = [];
 
-        $this->contribuyenteLlamadaSeleccionado = null;
-        $this->contribuyenteLlamadaId = null;
+        $this->contribuyenteCorreoSeleccionado = null;
+        $this->contribuyenteCorreoId = null;
+        $this->busquedaCorreoRealizada = false;
 
         session()->flash('success', 'ASESORÍA POR CORREO INICIADA.');
     }
