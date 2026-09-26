@@ -307,8 +307,26 @@
 
                 @if($busquedaRealizada && empty($resultadosBusqueda))
 
-                    <div class="mt-3 p-3 rounded bg-yellow-100 text-yellow-800 text-sm">
-                        No existen contribuyentes con los criterios capturados.
+                    <div class="mt-3 p-4 rounded-lg border border-yellow-300 bg-yellow-50">
+
+                        @if($busquedaRealizada && empty($resultadosBusqueda))
+
+                            <div class="mt-3 p-3 rounded bg-yellow-100 text-yellow-800 text-sm">
+                                No existen contribuyentes con los criterios capturados.
+                            </div>
+
+                        @endif
+
+                        <div class="mt-3">
+                            <button
+                                type="button"
+                                wire:click="registrarNuevoContribuyente"
+                                style="background:#2563eb;color:white;padding:9px 16px;border-radius:6px;font-weight:bold;"
+                            >
+                                ➕ REGISTRAR NUEVO CONTRIBUYENTE
+                            </button>
+                        </div>
+
                     </div>
 
                 @endif
@@ -371,6 +389,31 @@
                             </tbody>
 
                         </table>
+
+                    </div>
+
+                @endif
+
+
+
+                @if($busquedaRealizada && !$contribuyenteLlamadaSeleccionado)
+
+                    <div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+
+                        <p class="text-sm text-blue-900">
+                            ¿Ninguno de estos contribuyentes es el que buscas?
+                            Puedes registrar uno nuevo.
+                        </p>
+
+                        <div class="mt-3">
+                            <button
+                                type="button"
+                                wire:click="registrarNuevoContribuyente"
+                                style="background:#2563eb;color:white;padding:9px 16px;border-radius:6px;font-weight:bold;"
+                            >
+                                ➕ REGISTRAR NUEVO CONTRIBUYENTE
+                            </button>
+                        </div>
 
                     </div>
 

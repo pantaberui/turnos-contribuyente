@@ -290,12 +290,30 @@ class ContribuyentesCreate extends Component
             );
         }
 
+        $contextoAsesoria = session()->get('asesoria_registro_contexto');
+
+        if (
+            $contextoAsesoria &&
+            ($contextoAsesoria['origen'] ?? null) === 'telefonica'
+        ) {
+            session()->put(
+                'asesoria_nuevo_contribuyente_id',
+                $contribuyente->id
+            );
+        }
+
         session()->flash('success', 'CONTRIBUYENTE REGISTRADO CORRECTAMENTE.');
 
         if ($this->return === 'recepcion') {
             $this->redirectRoute('recepcion.index');
             return;
         }
+
+        if ($this->return === 'asesoria') {
+            $this->redirectRoute('asesoria.index');
+            return;
+        }
+
         $this->redirectRoute('contribuyentes.index');
     }
 

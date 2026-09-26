@@ -391,9 +391,52 @@ class AsesoriaIndex extends Component
     public function mount(): void
     {
         $this->moduloAsignado = ModuloAsesoria::with('asesor')
-        ->where('activo', true)
-        ->where('asesor_id', Auth::id())
-        ->first();
+            ->where('activo', true)
+            ->where('asesor_id', Auth::id())
+            ->first();
+
+        // Recuperar el contexto del registro desde una asesoría telefónica.
+        $contexto = session()->pull('asesoria_registro_contexto');
+
+        if ($contexto && ($contexto['origen'] ?? null) === 'telefonica') {
+            $this->inicioLlamadaTelefonica = $contexto['inicio'] ?? null;
+            $this->paisOrigenLlamada = $contexto['pais'] ?? '';
+            $this->ciudadOrigenLlamada = $contexto['ciudad'] ?? '';
+            $this->telefonoOrigenLlamada = $contexto['telefono'] ?? '';
+
+            $this->asesoriaTelefonicaId = $contexto['asesoria_id'] ?? null;
+
+            $this->llamadaEnCurso = false;
+            $this->mostrandoLlamada = true;
+
+            // Recuperar el contribuyente recién registrado.
+            $nuevoContribuyenteId = session()->pull(
+                'asesoria_nuevo_contribuyente_id'
+            );
+
+            if ($nuevoContribuyenteId) {
+                $contribuyente = \App\Models\Contribuyente::find(
+                    $nuevoContribuyenteId
+                );
+
+                if ($contribuyente) {
+                    $this->contribuyenteLlamadaId = $contribuyente->id;
+
+                    $this->contribuyenteLlamadaSeleccionado = [
+                        'id' => $contribuyente->id,
+                        'rfc' => $contribuyente->rfc,
+                        'curp' => $contribuyente->curp,
+                        'razon_social' => $contribuyente->razon_social,
+                    ];
+
+                    $this->buscarRfc = '';
+                    $this->buscarCurp = '';
+                    $this->buscarNombre = '';
+                    $this->resultadosBusqueda = [];
+                    $this->busquedaRealizada = false;
+                }
+            }
+        }
     }
 
     public function nuevaLlamada(): void
@@ -430,6 +473,23 @@ class AsesoriaIndex extends Component
         $this->mostrandoLlamada = true;
 
         $this->mensajeInfo = null;
+    }
+
+    public function registrarNuevoContribuyente(): void
+    {
+        session()->put('asesoria_registro_contexto', [
+            'origen' => 'telefonica',
+            'inicio' => $this->inicioLlamadaTelefonica,
+            'pais' => $this->paisOrigenLlamada,
+            'ciudad' => $this->ciudadOrigenLlamada,
+            'telefono' => $this->telefonoOrigenLlamada,
+            'contribuyente_id' => $this->contribuyenteLlamadaId,
+            'asesoria_id' => $this->asesoriaTelefonicaId,
+        ]);
+
+        $this->redirectRoute('contribuyentes.create', [
+            'return' => 'asesoria',
+        ]);
     }
 
     public function cancelarLlamada(): void
@@ -533,6 +593,21 @@ class AsesoriaIndex extends Component
             'telefonoOrigenLlamada.required' => 'EL TELÉFONO DE ORIGEN ES OBLIGATORIO.',
             'telefonoOrigenLlamada.digits' => 'EL TELÉFONO DE ORIGEN DEBE CONTENER 10 DÍGITOS.',
         ]);
+
+        // Evitar iniciar dos veces la misma llamada.
+        if ($this->asesoriaTelefonicaId) {
+            $asesoriaExistente = Asesoria::find(
+                $this->asesoriaTelefonicaId
+            );
+
+            if ($asesoriaExistente && $asesoriaExistente->estatus === 'INICIADA') {
+                $this->asesoriaTelefonicaActual = $asesoriaExistente;
+                $this->llamadaEnCurso = true;
+                $this->mostrandoLlamada = false;
+
+                return;
+            }
+        }
 
         $inicio = $this->inicioLlamadaTelefonica
             ? \Carbon\Carbon::parse($this->inicioLlamadaTelefonica)
