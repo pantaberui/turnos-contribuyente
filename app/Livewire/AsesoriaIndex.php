@@ -39,6 +39,8 @@ class AsesoriaIndex extends Component
     public string $buscarNombreAdicional = '';
     public array $resultadosBusquedaAdicional = [];
 
+    public ?string $inicioCorreo = null;
+
     public bool $mostrandoCorreo = false;
     public bool $correoEnCurso = false;
 
@@ -406,9 +408,10 @@ class AsesoriaIndex extends Component
             ->where('asesor_id', Auth::id())
             ->first();
 
-        // Recuperar el contexto del registro desde una asesoría telefónica.
+        // Recuperar el contexto del registro de contribuyentes.
         $contexto = session()->pull('asesoria_registro_contexto');
 
+        // REGRESO DESDE ASESORÍA TELEFÓNICA
         if ($contexto && ($contexto['origen'] ?? null) === 'telefonica') {
             $this->inicioLlamadaTelefonica = $contexto['inicio'] ?? null;
             $this->paisOrigenLlamada = $contexto['pais'] ?? '';
@@ -420,7 +423,6 @@ class AsesoriaIndex extends Component
             $this->llamadaEnCurso = false;
             $this->mostrandoLlamada = true;
 
-            // Recuperar el contribuyente recién registrado.
             $nuevoContribuyenteId = session()->pull(
                 'asesoria_nuevo_contribuyente_id'
             );
@@ -445,6 +447,46 @@ class AsesoriaIndex extends Component
                     $this->buscarNombre = '';
                     $this->resultadosBusqueda = [];
                     $this->busquedaRealizada = false;
+                }
+            }
+        }
+
+        // REGRESO DESDE ASESORÍA POR CORREO
+        if ($contexto && ($contexto['origen'] ?? null) === 'correo') {
+            $this->inicioCorreo = $contexto['inicio'] ?? null;
+            $this->fechaHoraRecepcionCorreo =
+                $contexto['fecha_hora_recepcion_correo'] ?? '';
+            $this->correoOrigen = $contexto['correo_origen'] ?? '';
+            $this->asuntoCorreo = $contexto['asunto_correo'] ?? '';
+            $this->observacionesCorreo = $contexto['observaciones_correo'] ?? '';
+
+            $this->mostrandoCorreo = true;
+            $this->correoEnCurso = false;
+
+            $nuevoContribuyenteId = session()->pull(
+                'asesoria_nuevo_contribuyente_id'
+            );
+
+            if ($nuevoContribuyenteId) {
+                $contribuyente = \App\Models\Contribuyente::find(
+                    $nuevoContribuyenteId
+                );
+
+                if ($contribuyente) {
+                    $this->contribuyenteCorreoId = $contribuyente->id;
+
+                    $this->contribuyenteCorreoSeleccionado = [
+                        'id' => $contribuyente->id,
+                        'rfc' => $contribuyente->rfc,
+                        'curp' => $contribuyente->curp,
+                        'razon_social' => $contribuyente->razon_social,
+                    ];
+
+                    $this->buscarRfcCorreo = '';
+                    $this->buscarCurpCorreo = '';
+                    $this->buscarNombreCorreo = '';
+                    $this->resultadosBusquedaCorreo = [];
+                    $this->busquedaCorreoRealizada = false;
                 }
             }
         }
@@ -496,6 +538,22 @@ class AsesoriaIndex extends Component
             'telefono' => $this->telefonoOrigenLlamada,
             'contribuyente_id' => $this->contribuyenteLlamadaId,
             'asesoria_id' => $this->asesoriaTelefonicaId,
+        ]);
+
+        $this->redirectRoute('contribuyentes.create', [
+            'return' => 'asesoria',
+        ]);
+    }
+
+    public function crearContribuyenteCorreo(): void
+    {
+        session()->put('asesoria_registro_contexto', [
+            'origen' => 'correo',
+            'inicio' => $this->inicioCorreo,
+            'fecha_hora_recepcion_correo' => $this->fechaHoraRecepcionCorreo,
+            'correo_origen' => $this->correoOrigen,
+            'asunto_correo' => $this->asuntoCorreo,
+            'observaciones_correo' => $this->observacionesCorreo,
         ]);
 
         $this->redirectRoute('contribuyentes.create', [
@@ -973,6 +1031,7 @@ class AsesoriaIndex extends Component
         }
 
         $this->mostrandoCorreo = true;
+        $this->inicioCorreo = now()->toDateTimeString();
         $this->mostrandoLlamada = false;
 
         $this->mensajeInfo = null;
@@ -1027,7 +1086,9 @@ class AsesoriaIndex extends Component
             'observacionesCorreo.required' => 'LAS OBSERVACIONES SON OBLIGATORIAS.',
         ]);
 
-        $inicio = now();
+        $inicio = $this->inicioCorreo
+            ? \Carbon\Carbon::parse($this->inicioCorreo)
+            : now();
 
         $asesoria = Asesoria::create([
             'turno_id' => null,
@@ -1061,6 +1122,7 @@ class AsesoriaIndex extends Component
         ])->find($asesoria->id);
 
         $this->correoEnCurso = true;
+        $this->inicioCorreo = null;
         $this->mostrandoCorreo = false;
 
         $this->buscarRfcCorreo = '';

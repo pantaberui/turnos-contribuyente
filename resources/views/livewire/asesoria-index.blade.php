@@ -1043,6 +1043,7 @@
                                 type="text"
                                 oninput="this.value = this.value.toUpperCase()"
                                 wire:model.defer="buscarRfcCorreo"
+                                wire:keydown.enter="buscarContribuyenteCorreo"
                                 class="w-full rounded-md border-slate-300">
                         </div>
 
@@ -1056,6 +1057,7 @@
                                 type="text"
                                 oninput="this.value = this.value.toUpperCase()"
                                 wire:model.defer="buscarCurpCorreo"
+                                wire:keydown.enter="buscarContribuyenteCorreo"
                                 class="w-full rounded-md border-slate-300">
                         </div>
 
@@ -1069,6 +1071,7 @@
                                 type="text"
                                 oninput="this.value = this.value.toUpperCase()"
                                 wire:model.defer="buscarNombreCorreo"
+                                wire:keydown.enter="buscarContribuyenteCorreo"
                                 class="w-full rounded-md border-slate-300">
                         </div>
 
@@ -1088,51 +1091,61 @@
 
                 {{-- RESULTADOS DE BÚSQUEDA DEL CORREO --}}
 
-                @if($busquedaCorreoRealizada && empty($resultadosBusquedaCorreo))
-                    <div class="mt-3 p-4 rounded-lg border border-yellow-300 bg-yellow-50">
-                        <div class="p-3 rounded bg-yellow-100 text-yellow-800 text-sm">
-                            No existen contribuyentes con los criterios capturados.
-                        </div>
+                @if($busquedaCorreoRealizada)
+
+                    <div class="mt-3 text-sm text-slate-600 text-center">
+                        ¿No encuentras al contribuyente que buscas?
+                        Puedes registrar uno nuevo.
                     </div>
-                @endif
 
-                @if(count($resultadosBusquedaCorreo))
-                    <div class="overflow-x-auto mt-4">
-                        <table class="min-w-full border rounded-lg overflow-hidden">
-                            <thead class="bg-slate-100">
-                                <tr>
-                                    <th class="px-4 py-2 text-left">RFC</th>
-                                    <th class="px-4 py-2 text-left">Razón Social</th>
-                                    <th class="px-4 py-2 text-center">Acción</th>
-                                </tr>
-                            </thead>
 
-                            <tbody>
-                                @foreach($resultadosBusquedaCorreo as $resultado)
-                                    <tr class="border-t">
-                                        <td class="px-4 py-2">
-                                            {{ $resultado['rfc'] }}
-                                        </td>
-
-                                        <td class="px-4 py-2">
-                                            {{ $resultado['razon_social'] }}
-                                        </td>
-
-                                        <td class="px-4 py-2 text-center">
-                                            <button
-                                                type="button"
-                                                wire:click="seleccionarContribuyenteCorreo({{ $resultado['id'] }})"
-                                                style="background:#16a34a;color:white;padding:6px 12px;border-radius:6px;">
-                                                Seleccionar
-                                            </button>
-                                        </td>
+                    @if(count($resultadosBusquedaCorreo))
+                        <div class="overflow-x-auto mt-4">
+                            <table class="min-w-full border rounded-lg overflow-hidden">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">RFC</th>
+                                        <th class="px-4 py-2 text-left">Razón Social</th>
+                                        <th class="px-4 py-2 text-center">Acción</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
+                                </thead>
 
+                                <tbody>
+                                    @foreach($resultadosBusquedaCorreo as $resultado)
+                                        <tr class="border-t">
+                                            <td class="px-4 py-2">
+                                                {{ $resultado['rfc'] }}
+                                            </td>
+
+                                            <td class="px-4 py-2">
+                                                {{ $resultado['razon_social'] }}
+                                            </td>
+
+                                            <td class="px-4 py-2 text-center">
+                                                <button
+                                                    type="button"
+                                                    wire:click="seleccionarContribuyenteCorreo({{ $resultado['id'] }})"
+                                                    style="background:#16a34a;color:white;padding:6px 12px;border-radius:6px;">
+                                                    Seleccionar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+
+                    <div class="mt-4 text-center">
+                        <button
+                            type="button"
+                            wire:click="crearContribuyenteCorreo"
+                            style="background:#2563eb;color:white;padding:8px 16px;border-radius:6px;font-weight:600;">
+                            + Registrar nuevo contribuyente
+                        </button>
+                    </div>
+
+                @endif
 
                 {{-- CONTRIBUYENTE SELECCIONADO --}}
                 @if($contribuyenteCorreoSeleccionado)

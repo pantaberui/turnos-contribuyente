@@ -294,7 +294,7 @@ class ContribuyentesCreate extends Component
 
         if (
             $contextoAsesoria &&
-            ($contextoAsesoria['origen'] ?? null) === 'telefonica'
+            in_array($contextoAsesoria['origen'] ?? null, ['telefonica', 'correo'], true)
         ) {
             session()->put(
                 'asesoria_nuevo_contribuyente_id',
