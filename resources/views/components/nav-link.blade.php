@@ -1,11 +1,15 @@
 @props(['active'])
 
 @php
-$classes = ($active ?? false)
-            ? 'inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 text-sm font-medium leading-5 text-gray-900 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out'
-            : 'inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out';
+$style = ($active ?? false)
+    ? 'display:inline-flex;align-items:center;padding:8px 14px;border-bottom:2px solid #f59e0b;color:white;background:#1e293b;border-radius:6px 6px 0 0;font-size:14px;font-weight:700;'
+    : 'display:inline-flex;align-items:center;padding:8px 14px;border-bottom:2px solid transparent;color:#e2e8f0;background:transparent;border-radius:6px 6px 0 0;font-size:14px;font-weight:600;';
 @endphp
 
-<a {{ $attributes->merge(['class' => $classes]) }}>
+<a
+    {{ $attributes->merge(['style' => $style]) }}
+    onmouseover="this.style.background='#1e293b'; this.style.color='white'; this.style.borderBottomColor='#60a5fa';"
+    onmouseout="this.style.background='{{ ($active ?? false) ? '#1e293b' : 'transparent' }}'; this.style.color='{{ ($active ?? false) ? 'white' : '#e2e8f0' }}'; this.style.borderBottomColor='{{ ($active ?? false) ? '#f59e0b' : 'transparent' }}';"
+>
     {{ $slot }}
 </a>

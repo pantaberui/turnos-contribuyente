@@ -32,6 +32,7 @@ class ContribuyentesCreate extends Component
 
     public string $tipo_identificacion = '';
     public string $clave_identificacion = '';
+    public ?string $return = null;
     
 
 
@@ -50,11 +51,17 @@ class ContribuyentesCreate extends Component
         $this->actualizarRazonSocial();
     }
 
+    public function mount(): void
+    {
+        $this->return = request()->query('return');
+    }
+
     protected function messages(): array
     {
         return [
             'rfc.required' => 'EL RFC ES OBLIGATORIO.',
             'rfc.unique' => 'ESTE RFC YA ESTÁ REGISTRADO.',
+            
             'correo_electronico.email' => 'EL CORREO ELECTRÓNICO NO TIENE UN FORMATO VÁLIDO.',
             'telefono_movil.digits' => 'EL TELÉFONO MÓVIL DEBE TENER 10 DÍGITOS.',
             'telefono_representante_legal.digits' => 'EL TELÉFONO DEL REPRESENTANTE DEBE TENER 10 DÍGITOS.',
@@ -64,6 +71,9 @@ class ContribuyentesCreate extends Component
             'telefono_representante_legal.digits' => 'EL TELÉFONO DEL REPRESENTANTE LEGAL DEBE TENER 10 DÍGITOS.',
             'tipo_identificacion.required' => 'EL TIPO DE IDENTIFICACIÓN ES OBLIGATORIO PARA PERSONA FÍSICA.',
             'clave_identificacion.required' => 'LA CLAVE DE IDENTIFICACIÓN ES OBLIGATORIA PARA PERSONA FÍSICA.',
+            'nombre.regex' => 'El nombre solo debe contener letras, espacios y punto.',
+            'apellido_paterno.regex' => 'El apellido paterno solo debe contener letras y espacios.',
+            'apellido_materno.regex' => 'El apellido materno solo debe contener letras y espacios.',
         ];
     }
 
@@ -95,16 +105,83 @@ class ContribuyentesCreate extends Component
 
     public function guardar(): void
     {
+        
+        $this->rfc = mb_strtoupper(trim($this->rfc), 'UTF-8');
+        $this->curp = $this->curp ? mb_strtoupper(trim($this->curp), 'UTF-8') : '';
+        $this->curp_representante_legal = $this->curp_representante_legal
+            ? mb_strtoupper(trim($this->curp_representante_legal), 'UTF-8')
+            : '';
+
         if ($this->tipo_persona === 'FISICA') {
             $this->actualizarRazonSocial();
         }
-        $this->validate([
+
+
+
+        $this->validate(
+        [
             'tipo_persona' => ['required', 'in:FISICA,MORAL'],
-            'rfc' => ['required', 'string', 'max:20', 'unique:contribuyentes,rfc'],
-            'curp' => ['nullable', 'string', 'max:25'],
-            'nombre' => ['nullable', 'string', 'max:255'],
-            'apellido_paterno' => ['nullable', 'string', 'max:255'],
-            'apellido_materno' => ['nullable', 'string', 'max:255'],
+
+            'rfc' => [
+                'required',
+                'string',
+                'unique:contribuyentes,rfc',
+                function ($attribute, $value, $fail) {
+                    $rfc = mb_strtoupper(trim($value), 'UTF-8');
+
+                    if ($this->tipo_persona === 'FISICA') {
+                        if (! preg_match('/^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$/', $rfc)) {
+                            $fail('EL RFC DE PERSONA FÍSICA DEBE TENER UN FORMATO VÁLIDO.');
+                        }
+                    }
+
+                    if ($this->tipo_persona === 'MORAL') {
+                        if (! preg_match('/^[A-ZÑ&]{3}\d{6}[A-Z0-9]{3}$/', $rfc)) {
+                            $fail('EL RFC DE PERSONA MORAL DEBE TENER UN FORMATO VÁLIDO.');
+                        }
+                    }
+                },
+            ],
+
+            'curp' => [
+                Rule::requiredIf($this->tipo_persona === 'FISICA'),
+                'nullable',
+                'string',
+                'unique:contribuyentes,curp',
+                function ($attribute, $value, $fail) {
+                    if (blank($value)) {
+                        return;
+                    }
+
+                    $curp = mb_strtoupper(trim($value), 'UTF-8');
+
+                    if (! preg_match('/^[A-Z][AEIOU][A-Z]{2}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/', $curp)) {
+                        $fail('LA CURP DEBE TENER 18 CARACTERES CON FORMATO VÁLIDO.');
+                    }
+                },
+            ],
+
+            'nombre' => [
+                'nullable',
+                'string',
+                'max:255',
+                'regex:/^[\pL\s.]+$/u',
+            ],
+
+            'apellido_paterno' => [
+                'nullable',
+                'string',
+                'max:255',
+                'regex:/^[\pL\s]+$/u',
+            ],
+
+            'apellido_materno' => [
+                'nullable',
+                'string',
+                'max:255',
+                'regex:/^[\pL\s]+$/u',
+            ],
+
             'razon_social' => ['required', 'string', 'max:255'],
             'requiere_representante_legal' => ['boolean'],
             'nombre_representante_legal' => ['nullable', 'string', 'max:255'],
@@ -113,20 +190,29 @@ class ContribuyentesCreate extends Component
                 'required_if:requiere_representante_legal,true',
                 'nullable',
                 'string',
-                'max:25',
+                function ($attribute, $value, $fail) {
+                    if (blank($value)) {
+                        return;
+                    }
+
+                    $curp = mb_strtoupper(trim($value), 'UTF-8');
+
+                    if (! preg_match('/^[A-Z][AEIOU][A-Z]{2}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/', $curp)) {
+                        $fail('LA CURP DEL REPRESENTANTE LEGAL DEBE TENER FORMATO VÁLIDO.');
+                    }
+                },
             ],
 
             'telefono_representante_legal' => [
                 'required_if:requiere_representante_legal,1',
                 'digits:10',
             ],
-                      
+
             'correo_electronico' => ['nullable', 'email', 'max:255'],
             'telefono_movil' => ['nullable', 'digits:10'],
-
             'cuenta_estatal' => ['nullable', 'string', 'max:50'],
 
-           'tipo_identificacion' => [
+            'tipo_identificacion' => [
                 Rule::requiredIf($this->tipo_persona === 'FISICA'),
                 'nullable',
                 'in:INE,PASAPORTE',
@@ -138,19 +224,40 @@ class ContribuyentesCreate extends Component
                 'string',
                 'max:255',
             ],
-        ]);
+        ],
+        [
+            'rfc.required' => 'EL RFC ES OBLIGATORIO.',
+            'rfc.unique' => 'YA EXISTE UN CONTRIBUYENTE REGISTRADO CON ESE RFC.',
+
+            'curp.required' => 'LA CURP ES OBLIGATORIA.',
+            'curp.unique' => 'YA EXISTE UN CONTRIBUYENTE REGISTRADO CON ESA CURP.',
+
+            'nombre.regex' => 'EL NOMBRE SOLO DEBE CONTENER LETRAS, ESPACIOS Y PUNTO.',
+            'apellido_paterno.regex' => 'EL APELLIDO PATERNO SOLO DEBE CONTENER LETRAS Y ESPACIOS.',
+            'apellido_materno.regex' => 'EL APELLIDO MATERNO SOLO DEBE CONTENER LETRAS Y ESPACIOS.',
+
+            'telefono_representante_legal.required_if' => 'EL TELÉFONO DEL REPRESENTANTE LEGAL ES OBLIGATORIO.',
+            'telefono_representante_legal.digits' => 'EL TELÉFONO DEL REPRESENTANTE LEGAL DEBE CONTENER 10 DÍGITOS.',
+
+            'correo_electronico.email' => 'EL CORREO ELECTRÓNICO NO ES VÁLIDO.',
+            'telefono_movil.digits' => 'EL TELÉFONO MÓVIL DEBE CONTENER 10 DÍGITOS.',
+
+            'tipo_identificacion.required' => 'EL TIPO DE IDENTIFICACIÓN ES OBLIGATORIO.',
+            'clave_identificacion.required' => 'LA CLAVE DE IDENTIFICACIÓN ES OBLIGATORIA.',
+        ]
+    );
 
         if ($this->tipo_persona === 'MORAL') {
             $this->requiere_representante_legal = true;
         }
 
-        Contribuyente::create([
+        $contribuyente = Contribuyente::create([
             'tipo_persona' => $this->tipo_persona,
             'rfc' => mb_strtoupper($this->rfc, 'UTF-8'),
-            'curp' => mb_strtoupper($this->curp, 'UTF-8'),
-            'nombre' => mb_strtoupper($this->nombre, 'UTF-8'),
-            'apellido_paterno' => mb_strtoupper($this->apellido_paterno, 'UTF-8'),
-            'apellido_materno' => mb_strtoupper($this->apellido_materno, 'UTF-8'),
+            'curp' => $this->curp ? mb_strtoupper($this->curp, 'UTF-8') : null,
+            'nombre' => $this->nombre ? mb_strtoupper($this->nombre, 'UTF-8') : null,
+            'apellido_paterno' => $this->apellido_paterno ? mb_strtoupper($this->apellido_paterno, 'UTF-8') : null,
+            'apellido_materno' => $this->apellido_materno ? mb_strtoupper($this->apellido_materno, 'UTF-8') : null,
             'razon_social' => mb_strtoupper($this->razon_social, 'UTF-8'),
             'requiere_representante_legal' => $this->requiere_representante_legal,
             'nombre_representante_legal' => mb_strtoupper($this->nombre_representante_legal, 'UTF-8'),
@@ -171,10 +278,60 @@ class ContribuyentesCreate extends Component
             'created_by' => Auth::id(),
         ]);
 
+       $contexto = session()->get('recepcion_registro_contexto');
+
+        if (
+            $contexto &&
+            in_array($contexto['origen'] ?? null, ['principal', 'adicional'], true)
+        ) {
+            session()->put(
+                'recepcion_nuevo_contribuyente_id',
+                $contribuyente->id
+            );
+        }
+
+        $contextoAsesoria = session()->get('asesoria_registro_contexto');
+
+        if (
+            $contextoAsesoria &&
+            in_array($contextoAsesoria['origen'] ?? null, ['telefonica', 'correo'], true)
+        ) {
+            session()->put(
+                'asesoria_nuevo_contribuyente_id',
+                $contribuyente->id
+            );
+        }
+
         session()->flash('success', 'CONTRIBUYENTE REGISTRADO CORRECTAMENTE.');
+
+        if ($this->return === 'recepcion') {
+            $this->redirectRoute('recepcion.index');
+            return;
+        }
+
+        if ($this->return === 'asesoria') {
+            $this->redirectRoute('asesoria.index');
+            return;
+        }
 
         $this->redirectRoute('contribuyentes.index');
     }
+
+    public function updatedRfc(): void
+    {
+        $this->rfc = mb_strtoupper(trim($this->rfc), 'UTF-8');
+    }
+
+    public function updatedCurp(): void
+    {
+        $this->curp = mb_strtoupper(trim($this->curp), 'UTF-8');
+    }
+
+    public function updatedCurpRepresentanteLegal(): void
+    {
+        $this->curp_representante_legal = mb_strtoupper(trim($this->curp_representante_legal), 'UTF-8');
+    }
+
 
     public function render()
     {

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contribuyente extends Model
 {
@@ -38,8 +39,23 @@ class Contribuyente extends Model
         'updated_by',
     ];
 
+    public function turnos()
+    {
+        return $this->hasMany(TurnoContribuyente::class);
+    }
+
+    public function detallesTramites()
+    {
+        return $this->hasMany(DetalleTramite::class);
+    }
+
     protected $casts = [
         'activo' => 'boolean',
         'requiere_representante_legal' => 'boolean',
     ];
+
+    public function asesorias(): HasMany
+    {
+        return $this->hasMany(Asesoria::class);
+    }
 }
